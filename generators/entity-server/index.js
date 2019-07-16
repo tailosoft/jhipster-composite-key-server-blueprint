@@ -1,12 +1,13 @@
 /* eslint-disable consistent-return */
 const chalk = require('chalk');
 const EntityServerGenerator = require('generator-jhipster/generators/entity-server');
+const writeFiles = require('./files').writeFiles;
 
 module.exports = class extends EntityServerGenerator {
     constructor(args, opts) {
         super(args, Object.assign({ fromBlueprint: true }, opts)); // fromBlueprint variable is important
 
-        const jhContext = (this.jhipsterContext = this.options.jhipsterContext);
+        const jhContext = (this.jhipsterContext = opts.jhipsterContext);
 
         if (!jhContext) {
             this.error(
@@ -16,7 +17,7 @@ module.exports = class extends EntityServerGenerator {
 
         this.configOptions = jhContext.configOptions || {};
         if (jhContext.databaseType === 'cassandra') {
-            this.pkType = 'UUID';
+            this.error("cassandra doesn't support composite keys");
         }
     }
 
@@ -57,7 +58,18 @@ module.exports = class extends EntityServerGenerator {
          *      return Object.assign(phaseFromJHipster, myCustomPhaseSteps);
          * ```
          */
-        // Here we are not overriding this phase and hence its being handled by JHipster
-        return super._writing();
+        const phaseFromJHipster = super._writing();
+        const customPhaseSteps = {
+            writeServerFiles() {
+                // override the writeServerFiles method from the _writing phase of JHipster
+                writeFiles().writeServerFiles.call(this);
+            },
+
+            writeEnumFiles() {
+                // override the writeEnumFiles method from the _writing phase of JHipster
+                writeFiles().writeEnumFiles.call(this);
+            }
+        };
+        return Object.assign(phaseFromJHipster, customPhaseSteps);
     }
 };

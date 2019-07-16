@@ -21,8 +21,8 @@ const randexp = require('randexp');
 const chalk = require('chalk');
 const faker = require('faker');
 const fs = require('fs');
-const utils = require('../utils');
-const constants = require('../generator-constants');
+const utils = require('generator-jhipster/generators/utils');
+const constants = require('generator-jhipster/generators/generator-constants');
 
 /* Constants use throughout */
 const INTERPOLATE_REGEX = constants.INTERPOLATE_REGEX;
@@ -260,7 +260,7 @@ function writeFiles() {
             if (this.skipServer) return;
 
             // write server side files
-            this.writeFilesToDisk(serverFiles, this, false, this.fetchFromInstalledJHipster('entity-server/templates'));
+            this.writeFilesToDisk(serverFiles, this, false, '.');
 
             if (this.databaseType === 'sql') {
                 if (this.fieldsContainOwnerManyToMany || this.fieldsContainOwnerOneToOne || this.fieldsContainManyToOne) {
@@ -287,9 +287,7 @@ function writeFiles() {
                     const enumInfo = utils.buildEnumInfo(field, this.angularAppName, this.packageName, this.clientRootFolder);
                     if (!this.skipServer) {
                         this.template(
-                            `${this.fetchFromInstalledJHipster(
-                                'entity-server/templates'
-                            )}/${SERVER_MAIN_SRC_DIR}package/domain/enumeration/Enum.java.ejs`,
+                            `./${SERVER_MAIN_SRC_DIR}package/domain/enumeration/Enum.java.ejs`,
                             `${SERVER_MAIN_SRC_DIR}${this.packageFolder}/domain/enumeration/${fieldType}.java`,
                             this,
                             {},
