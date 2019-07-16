@@ -1,4 +1,4 @@
-# generator-jhipster-generator-jhipster-composite-key-server
+# generator-jhipster-composite-key-server
 [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
 > JHipster blueprint, this jhipster blueprint allows to generate server code with composte key using custom annotations
 
@@ -19,13 +19,13 @@ As this is a [JHipster](https://www.jhipster.tech/) blueprint, we expect you hav
 To install this blueprint:
 
 ```bash
-npm install -g generator-jhipster-generator-jhipster-composite-key-server
+npm install -g generator-jhipster-composite-key-server
 ```
 
 To update this blueprint:
 
 ```bash
-npm update -g generator-jhipster-generator-jhipster-composite-key-server
+npm update -g generator-jhipster-composite-key-server
 ```
 
 ## With Yarn
@@ -33,13 +33,13 @@ npm update -g generator-jhipster-generator-jhipster-composite-key-server
 To install this blueprint:
 
 ```bash
-yarn global add generator-jhipster-generator-jhipster-composite-key-server
+yarn global add generator-jhipster-composite-key-server
 ```
 
 To update this blueprint:
 
 ```bash
-yarn global upgrade generator-jhipster-generator-jhipster-composite-key-server
+yarn global upgrade generator-jhipster-composite-key-server
 ```
 
 # Usage
@@ -47,7 +47,7 @@ yarn global upgrade generator-jhipster-generator-jhipster-composite-key-server
 To use this blueprint, run the below command
 
 ```bash
-jhipster --blueprint generator-jhipster-composite-key-server
+jhipster --blueprint composite-key-server
 ```
 
 
@@ -60,7 +60,7 @@ During development of blueprint, please note the below steps. They are very impo
 Note: If you do not want to link the blueprint(step 3) to each project being created, use NPM instead of Yarn as yeoman doesn't seem to fetch globally linked Yarn modules. On the other hand, this means you have to use NPM in all the below steps as well.
 
 ```bash
-cd generator-jhipster-composite-key-server
+cd composite-key-server
 npm link
 ```
 
@@ -72,7 +72,7 @@ You could also use Yarn for this if you prefer
 cd generator-jhipster
 npm link
 
-cd generator-jhipster-composite-key-server
+cd composite-key-server
 npm link generator-jhipster
 ```
 
@@ -81,10 +81,10 @@ npm link generator-jhipster
 ```bash
 mkdir my-app && cd my-app
 
-npm link generator-jhipster-generator-jhipster-composite-key-server
+npm link generator-jhipster-composite-key-server
 npm link generator-jhipster (Optional: Needed only if you are using a non-released JHipster version)
 
-jhipster -d --blueprint generator-jhipster-composite-key-server
+jhipster -d --blueprint composite-key-server
 
 ```
 
@@ -93,9 +93,9 @@ jhipster -d --blueprint generator-jhipster-composite-key-server
 Apache-2.0 © [Youssef El Houti](https://elhouti.com)
 
 
-[npm-image]: https://img.shields.io/npm/v/generator-jhipster-generator-jhipster-composite-key-server.svg
-[npm-url]: https://npmjs.org/package/generator-jhipster-generator-jhipster-composite-key-server
-[travis-image]: https://travis-ci.org/yelhouti/generator-jhipster-generator-jhipster-composite-key-server.svg?branch=master
-[travis-url]: https://travis-ci.org/yelhouti/generator-jhipster-generator-jhipster-composite-key-server
-[daviddm-image]: https://david-dm.org/yelhouti/generator-jhipster-generator-jhipster-composite-key-server.svg?theme=shields.io
-[daviddm-url]: https://david-dm.org/yelhouti/generator-jhipster-generator-jhipster-composite-key-server
+[npm-image]: https://img.shields.io/npm/v/generator-jhipster-composite-key-server.svg
+[npm-url]: https://npmjs.org/package/generator-jhipster-composite-key-server
+[travis-image]: https://travis-ci.org/yelhouti/generator-jhipster-composite-key-server.svg?branch=master
+[travis-url]: https://travis-ci.org/yelhouti/generator-jhipster-composite-key-server
+[daviddm-image]: https://david-dm.org/yelhouti/generator-jhipster-composite-key-server.svg?theme=shields.io
+[daviddm-url]: https://david-dm.org/yelhouti/generator-jhipster-composite-key-server

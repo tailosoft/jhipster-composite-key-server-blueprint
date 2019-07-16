@@ -1,5 +1,5 @@
 {
-  "name": "generator-jhipster-generator-jhipster-composite-key-server",
+  "name": "generator-jhipster-composite-key-server",
   "version": "0.0.0",
   "description": "this jhipster blueprint allows to generate server code with composte key using custom annotations",
   "keywords": [
@@ -7,7 +7,7 @@
     "jhipster-blueprint",
     "jhipster-5"
   ],
-  "homepage": "https://github.com/yelhouti/generator-jhipster-generator-jhipster-composite-key-server",
+  "homepage": "https://github.com/yelhouti/generator-jhipster-composite-key-server",
   "author": {
     "name": "Youssef El Houti",
     "email": "elhouti@elhouti.com",
@@ -19,7 +19,7 @@
   "main": "generators/app/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yelhouti/generator-jhipster-generator-jhipster-composite-key-server.git"
+    "url": "git+https://github.com/yelhouti/generator-jhipster-composite-key-server.git"
   },
   "dependencies": {
     "chalk": "2.4.1",
@@ -72,6 +72,6 @@
   },
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/yelhouti/generator-jhipster-generator-jhipster-composite-key-server/issues"
+    "url": "https://github.com/yelhouti/generator-jhipster-composite-key-server/issues"
   }
 }

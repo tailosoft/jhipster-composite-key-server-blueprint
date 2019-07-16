@@ -10,9 +10,7 @@ module.exports = class extends EntityServerGenerator {
 
         if (!jhContext) {
             this.error(
-                `This is a JHipster blueprint and should be used only like ${chalk.yellow(
-                    'jhipster --blueprint generator-jhipster-composite-key-server'
-                )}`
+                `This is a JHipster blueprint and should be used only like ${chalk.yellow('jhipster --blueprint composite-key-server')}`
             );
         }
 
