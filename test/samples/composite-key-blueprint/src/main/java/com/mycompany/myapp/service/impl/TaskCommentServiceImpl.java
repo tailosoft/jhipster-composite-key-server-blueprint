@@ -1,0 +1,89 @@
+package com.mycompany.myapp.service.impl;
+
+import com.mycompany.myapp.service.TaskCommentService;
+import com.mycompany.myapp.domain.TaskComment;
+import com.mycompany.myapp.repository.TaskCommentRepository;
+import com.mycompany.myapp.service.dto.TaskCommentDTO;
+import com.mycompany.myapp.service.mapper.TaskCommentMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+/**
+ * Service Implementation for managing {@link TaskComment}.
+ */
+@Service
+@Transactional
+public class TaskCommentServiceImpl implements TaskCommentService {
+
+    private final Logger log = LoggerFactory.getLogger(TaskCommentServiceImpl.class);
+
+    private final TaskCommentRepository taskCommentRepository;
+
+    private final TaskCommentMapper taskCommentMapper;
+
+    public TaskCommentServiceImpl(TaskCommentRepository taskCommentRepository, TaskCommentMapper taskCommentMapper) {
+        this.taskCommentRepository = taskCommentRepository;
+        this.taskCommentMapper = taskCommentMapper;
+    }
+
+    /**
+     * Save a taskComment.
+     *
+     * @param taskCommentDTO the entity to save.
+     * @return the persisted entity.
+     */
+    @Override
+    public TaskCommentDTO save(TaskCommentDTO taskCommentDTO) {
+        log.debug("Request to save TaskComment : {}", taskCommentDTO);
+        TaskComment taskComment = taskCommentMapper.toEntity(taskCommentDTO);
+        taskComment = taskCommentRepository.save(taskComment);
+        return taskCommentMapper.toDto(taskComment);
+    }
+
+    /**
+     * Get all the taskComments.
+     *
+     * @return the list of entities.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<TaskCommentDTO> findAll() {
+        log.debug("Request to get all TaskComments");
+        return taskCommentRepository.findAll().stream()
+            .map(taskCommentMapper::toDto)
+            .collect(Collectors.toCollection(LinkedList::new));
+    }
+
+    /**
+     * Get one taskComment by id.
+     *
+     * @param id the id of the entity.
+     * @return the entity.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<TaskCommentDTO> findOne(Long id) {
+        log.debug("Request to get TaskComment : {}", id);
+        return taskCommentRepository.findById(id)
+            .map(taskCommentMapper::toDto);
+    }
+
+    /**
+     * Delete the taskComment by id.
+     *
+     * @param id the id of the entity.
+     */
+    @Override
+    public void delete(Long id) {
+        log.debug("Request to delete TaskComment : {}", id);
+        taskCommentRepository.deleteById(id);
+    }
+}

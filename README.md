@@ -99,3 +99,6 @@ Apache-2.0 © [Youssef El Houti](https://elhouti.com)
 [travis-url]: https://travis-ci.org/yelhouti/generator-jhipster-composite-key-server
 [daviddm-image]: https://david-dm.org/yelhouti/generator-jhipster-composite-key-server.svg?theme=shields.io
 [daviddm-url]: https://david-dm.org/yelhouti/generator-jhipster-composite-key-server
+
+#TODO
+change LocalConfiguration and SecurityConfiguration to allow semiColumn for matrixVariables

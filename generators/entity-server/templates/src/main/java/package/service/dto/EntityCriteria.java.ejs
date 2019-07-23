@@ -34,11 +34,31 @@ import io.github.jhipster.service.filter.ZonedDateTimeFilter;
 
 <%_
   const referenceFilterType = '' + pkType + 'Filter';
-  var filterVariables = [{name:'id', type: pkType, filterType:referenceFilterType,fieldInJavaBeanMethod:'Id' } ];
+  var filterVariables = [];
   var extraFilters = {};
+
+  pkData.forEach((pk) => {
+    const type = pk.type;
+    if (isFilterableType(type)) {
+      var filterType;
+      if (pk.fieldIsEnum == true) {
+        filterType = pk + 'Filter';
+        extraFilters[type] = {type: filterType, superType: 'Filter<' + type + '>', fieldType: type};
+      } else if (['Duration', 'UUID', 'LocalDate', 'ZonedDateTime', 'Instant', 'String', 'Long', 'Integer', 'Float', 'Double', 'BigDecimal', 'Boolean'].includes(type)) {
+        filterType = type + 'Filter';
+      } else {
+        filterType = 'Filter<' + type + '>';
+      }
+      filterVariables.push( { filterType : filterType,
+            name: pk.name,
+            type: type,
+            fieldInJavaBeanMethod: _.upperFirst(pk.name) });
+    }
+  });
+
   fields.forEach((field) => {
     const fieldType = field.fieldType;
-    if (isFilterableType(fieldType)) {
+    if (!field.partOfId && isFilterableType(fieldType)) {
       var filterType;
       if (field.fieldIsEnum == true) {
         filterType = fieldType + 'Filter';
@@ -55,16 +75,25 @@ import io.github.jhipster.service.filter.ZonedDateTimeFilter;
     }
   });
   relationships.forEach((relationship) => {
-    const relationshipType = relationship.relationshipType;
-    // user has a String PK when using OAuth, so change relationships accordingly
-    let oauthAwareReferenceFilterType = referenceFilterType;
-    if (relationship.otherEntityName === 'user' && authenticationType === 'oauth2') {
-        oauthAwareReferenceFilterType = 'StringFilter';
-    }
-    filterVariables.push({ filterType : oauthAwareReferenceFilterType,
-        name: relationship.relationshipFieldName + 'Id',
-        type: relationshipType,
-        fieldInJavaBeanMethod: relationship.relationshipNameCapitalized + 'Id' });
+      if(!relationship.partOfId) {
+          const relationshipType = relationship.relationshipType;
+          // user has a String PK when using OAuth, so change relationships accordingly
+          let oauthAwareReferenceFilterType = referenceFilterType;
+          if (relationship.otherEntityName === 'user' && authenticationType === 'oauth2') {
+              oauthAwareReferenceFilterType = 'StringFilter';
+              filterVariables.push({ filterType : oauthAwareReferenceFilterType,
+                  name: relationship.relationshipFieldName + 'Id',
+                  type: relationshipType,
+                  fieldInJavaBeanMethod: relationship.relationshipNameCapitalized + 'Id' });
+          } else {
+              relationship.pkData.filter(pk => !pk.selfReference).forEach(pk => {
+                  filterVariables.push({ filterType : pk.type + 'Filter',
+                      name: relationship.relationshipFieldName + _.upperFirst(pk.name),
+                      type: relationshipType,
+                      fieldInJavaBeanMethod: relationship.relationshipNameCapitalized + _.upperFirst(pk.name) });
+              });
+          }
+      }
   });
 _%>
 /**
@@ -139,14 +168,7 @@ public class <%= entityClass %>Criteria implements Serializable, Criteria {
             return false;
         }
         final <%= entityClass %>Criteria that = (<%= entityClass %>Criteria) o;
-        return
-<%_ filterVariables.forEach((filterVariable, index) => { _%>
-    <%_ if (filterVariables.length === index + 1) { _%>
-            Objects.equals(<%= filterVariable.name %>, that.<%= filterVariable.name %>);
-    <%_ } else { _%>
-            Objects.equals(<%= filterVariable.name %>, that.<%= filterVariable.name %>) &&
-    <%_ } _%>
-<%_ }); _%>
+        return <%- filterVariables.map(filterVariable => 'Objects.equals(' + filterVariable.name +', that.' + filterVariable.name +')').join(' &&\n            ') _%>;
     }
 
     @Override
@@ -154,9 +176,9 @@ public class <%= entityClass %>Criteria implements Serializable, Criteria {
         return Objects.hash(
 <%_ filterVariables.forEach((filterVariable, index) => { _%>
     <%_ if (filterVariables.length === (index + 1)) { _%>
-        <%= filterVariable.name %>
+            <%= filterVariable.name %>
     <%_ } else { _%>
-        <%= filterVariable.name %>,
+            <%= filterVariable.name %>,
     <%_ } _%>
 <%_ }); _%>
         );
@@ -166,7 +188,7 @@ public class <%= entityClass %>Criteria implements Serializable, Criteria {
     public String toString() {
         return "<%= entityClass %>Criteria{" +
 <%_ filterVariables.forEach((field) => { _%>
-                (<%= field.name %> != null ? "<%= field.name %>=" + <%= field.name %> + ", " : "") +
+            (<%= field.name %> != null ? "<%= field.name %>=" + <%= field.name %> + ", " : "") +
 <%_ }); _%>
             "}";
     }

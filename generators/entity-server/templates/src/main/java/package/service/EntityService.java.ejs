@@ -40,6 +40,9 @@ import java.util.Optional;
 <%_ if (databaseType === 'cassandra') { _%>
 import java.util.UUID;
 <%_ } _%>
+<%_ if (pkData.length > 1) { _%>
+import <%=packageName%>.domain.<%=pkType%>;
+<%_ } _%>
 
 /**
  * Service Interface for managing {@link <% if (dto === 'mapstruct') { %><%= packageName %>.domain.<% } %><%= asEntity(entityClass) %>}.
@@ -77,7 +80,7 @@ public interface <%= entityClass %>Service {
      * @return the list of entities.
      */
     Page<<%= instanceType %>> findAllWithEagerRelationships(Pageable pageable);
-    <% } -%>
+    <%_ } _%>
 
     <%_ if (reactiveRepositories) { _%>
     /**

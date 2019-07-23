@@ -60,6 +60,9 @@ import <%=packageName%>.service.dto.<%= entityClass %>Criteria;
 import <%=packageName%>.service.<%= entityClass %>QueryService;
 <%_ } _%>
 
+<%_ if(pkData.length > 1) { _%>
+import com.fasterxml.jackson.databind.ObjectMapper;
+<%_ } _%>
 import io.github.jhipster.web.util.HeaderUtil;
 <%_ if (pagination !== 'no') { _%>
 import io.github.jhipster.web.util.PaginationUtil;
@@ -99,7 +102,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 <%_ if (pagination === 'no' && dto === 'mapstruct' && !viaService && fieldsContainNoOwnerOneToOne === true) { _%>
 import java.util.LinkedList;<% } %>
-import java.util.List;<% if (isUsingMapsId === true) { %>
+import java.util.List;<% if(pkData.length > 1) { %>
+import java.util.Map;<% } %><% if (isUsingMapsId === true) { %>
 import java.util.Objects;<% } %>
 import java.util.Optional;<% if (databaseType === 'cassandra') { %>
 import java.util.UUID;<% } %><% if (!viaService && (searchEngine === 'elasticsearch' || fieldsContainNoOwnerOneToOne === true)) { %>
@@ -107,6 +111,9 @@ import java.util.stream.Collectors;<% } %><% if (searchEngine === 'elasticsearch
 import java.util.stream.StreamSupport;<% } %><% if (searchEngine === 'elasticsearch') { %>
 
 import static org.elasticsearch.index.query.QueryBuilders.*;<% } %>
+<%_ if (pkData.length > 1) { _%>
+import <%=packageName%>.domain.<%=pkType%>;
+<%_ } _%>
 
 /**
  * REST controller for managing {@link <%= packageName %>.domain.<%= asEntity(entityClass) %>}.
@@ -129,6 +136,7 @@ public class <%= entityClass %>Resource {
     <%_
     const instanceType = (dto === 'mapstruct') ? asDto(entityClass) : asEntity(entityClass);
     const instanceName = (dto === 'mapstruct') ? asDto(entityInstance) : asEntity(entityInstance);
+    const matrixVariableString = pkData.map(pk => `"${pk.name}=" + result.${pk.getter}()`).join(' + ";" + ');
     _%><%- include('../../common/inject_template', {viaService: viaService, constructorName: entityClass + 'Resource', queryService: jpaMetamodelFiltering, isUsingMapsId: isUsingMapsId, mapsIdAssoc: mapsIdAssoc, isController: true}); -%>
 
     /**
@@ -141,8 +149,16 @@ public class <%= entityClass %>Resource {
     @PostMapping("/<%= entityApiUrl %>")
     public ResponseEntity<<%= instanceType %>> create<%= entityClass %>(<% if (validation) { %>@Valid <% } %>@RequestBody <%= instanceType %> <%= instanceName %>) throws URISyntaxException {
         log.debug("REST request to save <%= entityClass %> : {}", <%= instanceName %>);
+<%_ if(pkName === 'id' && pkData.length === 1) { _%>
         if (<%= instanceName %>.getId() != null) {
             throw new BadRequestAlertException("A new <%= entityInstance %> cannot already have an ID", ENTITY_NAME, "idexists");
+<%_ } else if(pkData.length === 1) { _%>
+        if (<%= entityInstance %>Service.findOne(<%= instanceName %>.<%= pkData[0].getter %>()).isPresent()) {
+            throw new BadRequestAlertException("This <%= entityInstance %> already exists", ENTITY_NAME, "idexists");
+<%_ } else { _%>
+        if (<%= entityInstance %>Service.findOne(new <%= entityClass %>Id(<%= pkData.map(pk => instanceName + '.' + pk.getter + '()').join(', ') %>)).isPresent()) {
+            throw new BadRequestAlertException("This <%= entityInstance %> already exists", ENTITY_NAME, "idexists");
+<%_ } _%>
         }
         <%_ if (saveUserSnapshot) { %>
         if (<%= instanceName %>.getUser() != null) {
@@ -154,9 +170,15 @@ public class <%= entityClass %>Resource {
         <%= instanceName %>.setId(UUID.randomUUID());
         <%_ } _%>
 <%- include('../../common/save_template', {asEntity, asDto, viaService: viaService, returnDirectly: false, isUsingMapsId: isUsingMapsId, mapsIdAssoc: mapsIdAssoc, isController: true}); -%>
-        return ResponseEntity.created(new URI("/api/<%= entityApiUrl %>/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, <%= enableTranslation %>, ENTITY_NAME, result.getId().toString()))
+<%_  if(pkData.length === 1) { _%>
+        return ResponseEntity.created(new URI("/api/<%= entityApiUrl %>/" + result.<%= pkData[0].getter %>()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, <%= enableTranslation %>, ENTITY_NAME, result.<%= pkData[0].getter %>()<%_ if(pkType!=='String'){ _%>.toString()<%_ } _%>))
             .body(result);
+<%_ } else { _%>
+        return ResponseEntity.created(new URI("/api/<%= entityApiUrl %>/" + <%- matrixVariableString %>))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, <%= enableTranslation %>, ENTITY_NAME, <%- matrixVariableString %>))
+            .body(result);
+<%_ } _%>
     }
 
     /**
@@ -171,7 +193,13 @@ public class <%= entityClass %>Resource {
     @PutMapping("/<%= entityApiUrl %>")
     public ResponseEntity<<%= instanceType %>> update<%= entityClass %>(<% if (validation) { %>@Valid <% } %>@RequestBody <%= instanceType %> <%= instanceName %>) throws URISyntaxException {
         log.debug("REST request to update <%= entityClass %> : {}", <%= instanceName %>);
+<%_ if(pkName === 'id' && pkData.length === 1) { _%>
         if (<%= instanceName %>.getId() == null) {
+<%_ } else if(pkData.length === 1) { _%>
+        if (!<%= entityInstance %>Service.findOne(<%= instanceName %>.<%= pkData[0].getter %>()).isPresent()) {
+<%_ } else { _%>
+        if (!<%= entityInstance %>Service.findOne(new <%= entityClass %>Id(<%= pkData.map(pk => instanceName + '.' + pk.getter + '()').join(', ') %>)).isPresent()) {
+<%_ } _%>
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         <%_ if (saveUserSnapshot) { %>
@@ -182,7 +210,11 @@ public class <%= entityClass %>Resource {
         <%_ } _%>
 <%- include('../../common/save_template', {asEntity, asDto, viaService: viaService, returnDirectly: false, isUsingMapsId: false, mapsIdAssoc: mapsIdAssoc}); -%>
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, <%= enableTranslation %>, ENTITY_NAME, <%= instanceName %>.getId().toString()))
+<%_  if(pkData.length === 1) { _%>
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, <%= enableTranslation %>, ENTITY_NAME, result.<%= pkData[0].getter %>()<%_ if(pkType!=='String'){ _%>.toString()<%_ } _%>))
+<%_ } else { _%>
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, <%= enableTranslation %>, ENTITY_NAME, <%- matrixVariableString %>))
+<%_ } _%>
             .body(result);
     }
 
@@ -227,13 +259,23 @@ public class <%= entityClass %>Resource {
     /**
      * {@code GET  /<%= entityApiUrl %>/:id} : get the "id" <%= entityInstance %>.
      *
+<%_ if(pkData.length === 1) { _%>
      * @param id the id of the <%= instanceName %> to retrieve.
+<%_ } else { _%>
+     * @param idMap a Map representation of the id of the <%= instanceName %> to retrieve.
+<%_ } _%>
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the <%= instanceName %>, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/<%= entityApiUrl %>/{id}")<%_ if (databaseType === 'sql' && isUsingMapsId === true && !viaService) { _%>
 
     @Transactional(readOnly = true) <%_ } %>
+<%_ if(pkData.length === 1) { _%>
     public ResponseEntity<<%= instanceType %>> get<%= entityClass %>(@PathVariable <%= pkType %> id) {
+<%_ } else { _%>
+    public ResponseEntity<<%= instanceType %>> get<%= entityClass %>(@MatrixVariable(pathVar = "id") Map<String, String> idMap) {
+        final ObjectMapper mapper = new ObjectMapper();
+        final <%= pkType %> id = mapper.convertValue(idMap, <%= pkType %>.class);
+<%_ } _%>
         log.debug("REST request to get <%= entityClass %> : {}", id);<%- include('../../common/get_template', {asEntity, asDto, viaService, returnDirectly:false}); -%>
         return ResponseUtil.wrapOrNotFound(<%= instanceName %>);
     }
@@ -241,11 +283,21 @@ public class <%= entityClass %>Resource {
     /**
      * {@code DELETE  /<%= entityApiUrl %>/:id} : delete the "id" <%= entityInstance %>.
      *
+<%_ if(pkData.length === 1) { _%>
      * @param id the id of the <%= instanceName %> to delete.
+<%_ } else { _%>
+     * @param idMap a Map representation of the id of the <%= instanceName %> to delete.
+<%_ } _%>
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/<%= entityApiUrl %>/{id}")
+<%_ if(pkData.length === 1) { _%>
     public ResponseEntity<Void> delete<%= entityClass %>(@PathVariable <%= pkType %> id) {
+<%_ } else { _%>
+    public ResponseEntity<Void> delete<%= entityClass %>(@MatrixVariable(pathVar = "id") Map<String, String> idMap) {
+        final ObjectMapper mapper = new ObjectMapper();
+        final <%= pkType %> id = mapper.convertValue(idMap, <%= pkType %>.class);
+<%_ } _%>
         log.debug("REST request to delete <%= entityClass %> : {}", id);
 <%- include('../../common/delete_template', {viaService: viaService}); -%>
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, <%= enableTranslation %>, ENTITY_NAME, id<% if (pkType !== 'String') { %>.toString()<% } %>)).build();

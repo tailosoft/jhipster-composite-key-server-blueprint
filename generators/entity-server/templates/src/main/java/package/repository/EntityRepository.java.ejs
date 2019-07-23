@@ -55,6 +55,9 @@ import java.util.List;
 import java.util.Optional;
     <%_ } _%>
 <%_ } _%>
+<%_ if (pkData.length > 1) { _%>
+import <%=packageName%>.domain.<%=pkType%>;
+<%_ } _%>
 <%_ if (databaseType === 'cassandra') { _%>
 
 import java.util.UUID;

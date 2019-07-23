@@ -115,16 +115,22 @@ public class <%= serviceClassName %> extends QueryService<<%= asEntity(entityCla
      * Function to convert ConsumerCriteria to a {@link Specification}
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the matching {@link Specification} of the entity.
-     */    
+     */
     private Specification<<%= asEntity(entityClass) %>> createSpecification(<%= criteria %> criteria) {
         Specification<<%= asEntity(entityClass) %>> specification = Specification.where(null);
         if (criteria != null) {
-            if (criteria.getId() != null) {
-                specification = specification.and(buildSpecification(criteria.getId(), <%= asEntity(entityClass) %>_.id));
+            <%_
+            if(pkData.length > 1) {
+                pkData.forEach((pk) => { _%>
+            if (criteria.get<%= _.upperFirst(pk.name) %>() != null) {
+                specification = specification.and(buildSpecification(criteria.get<%= _.upperFirst(pk.name) %>(),
+                    root -> root.join(<%= asEntity(entityClass) %>_.id, JoinType.LEFT).get(<%= asEntity(entityClass) %>Id_.<%= pk.name %>)));
             }
             <%_
+                });
+            }
             fields.forEach((field) => {
-                if (isFilterableType(field.fieldType)) { _%>
+                if ((pkData.length === 1 || !field.partOfId) && isFilterableType(field.fieldType)) { _%>
             if (criteria.get<%= field.fieldInJavaBeanMethod %>() != null) {
                 specification = specification.and(<%= getSpecificationBuilder(field.fieldType) %>(criteria.get<%= field.fieldInJavaBeanMethod %>(), <%= asEntity(entityClass) %>_.<%= field.fieldName %>));
             }
@@ -132,12 +138,23 @@ public class <%= serviceClassName %> extends QueryService<<%= asEntity(entityCla
             });
 
             relationships.forEach((relationship) => {
-                const metamodelFieldName = (relationship.relationshipType === 'many-to-many' || relationship.relationshipType === 'one-to-many') ? relationship.relationshipFieldNamePlural : relationship.relationshipFieldName; _%>
-            if (criteria.get<%= relationship.relationshipNameCapitalized %>Id() != null) {
-                specification = specification.and(buildSpecification(criteria.get<%= relationship.relationshipNameCapitalized %>Id(),
-                    root -> root.join(<%= asEntity(entityClass) %>_.<%= metamodelFieldName %>, JoinType.LEFT).get(<%= asEntity(relationship.otherEntityNameCapitalized) %>_.id)));
+                if(pkData.length === 1 || !relationship.partOfId) {
+                    const metamodelFieldName = (relationship.relationshipType === 'many-to-many' || relationship.relationshipType === 'one-to-many') ? relationship.relationshipFieldNamePlural : relationship.relationshipFieldName;
+                    if(relationship.pkData.length === 1) { _%>
+            if (criteria.get<%= relationship.relationshipNameCapitalized + _.upperFirst(pkName)%>() != null) {
+                specification = specification.and(buildSpecification(criteria.get<%= relationship.relationshipNameCapitalized + _.upperFirst(pkName) %>(),
+                    root -> root.join(<%= asEntity(entityClass) %>_.<%= metamodelFieldName %>, JoinType.LEFT).get(<%= asEntity(relationship.otherEntityNameCapitalized) %>_.<%= pkName%>)));
             }
-            <%_ }); // forEach
+                    <%_ } else {
+                        relationship.pkData.forEach(pk => {  _%>
+            if (criteria.get<%= relationship.relationshipNameCapitalized + _.upperFirst(pk.name)%>() != null) {
+                specification = specification.and(buildSpecification(criteria.get<%= relationship.relationshipNameCapitalized + _.upperFirst(pk.name) %>(),
+                    root -> root.join(<%= asEntity(entityClass) %>_.<%= metamodelFieldName %>, JoinType.LEFT).get(<%= asEntity(relationship.otherEntityNameCapitalized) %>_.id).get(<%= relationship.otherEntityNameCapitalized %>Id_.<%= pk.name %>)));
+            }
+                        <%_ })
+                    }
+                }
+            }); // forEach
         _%>
         }
         return specification;

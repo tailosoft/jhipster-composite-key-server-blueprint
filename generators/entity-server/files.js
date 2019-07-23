@@ -191,6 +191,16 @@ const serverFiles = {
                     renameTo: generator => `${generator.packageFolder}/service/mapper/${generator.entityClass}Mapper.java`
                 }
             ]
+        },
+        {
+            condition: generator => generator.pkData.length > 1,
+            path: SERVER_MAIN_SRC_DIR,
+            templates: [
+                {
+                    file: 'package/domain/EntityId.java',
+                    renameTo: generator => `${generator.packageFolder}/domain/${generator.entityClass}Id.java`
+                }
+            ]
         }
     ],
     test: [

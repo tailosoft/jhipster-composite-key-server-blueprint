@@ -1,0 +1,80 @@
+<%#
+ Copyright 2013-2019 the original author or authors from the JHipster project.
+
+ This file is part of the JHipster project, see https://www.jhipster.tech/
+ for more information.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-%>
+package <%=packageName%>.domain;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import java.util.Objects;
+
+@Embeddable
+public class <%= entityClass %>Id implements java.io.Serializable {
+<%_ for (idx in pkData) { _%>
+
+    <%_ if (pkData[idx].isEnum) { _%>
+    @Enumerated(EnumType.STRING)
+    <%_ } _%>
+    @Column(name = "<%= pkData[idx].columnName %>"<% if (pkData[idx].fieldValidate === true) { %><% if (pkData[idx].fieldValidateRules.includes('maxlength')) { %>, length = <%= pkData[idx].fieldValidateRulesMaxlength %><% } %><% if (pkData[idx].required) { %>, nullable = false<% } %><% if (pkData[idx].unique) { %>, unique = true<% } %><% } %>)
+    private <%= pkData[idx].type %> <%= pkData[idx].name %>;
+<%_ }_%>
+
+    public <%= entityClass %>Id(){}
+
+    public <%= entityClass %>Id(<%= pkData.map(pk => pk.type + ' ' + pk.name).join(', ') %>){
+<%_ for (idx in pkData) { _%>
+        this.<%= pkData[idx].name %> = <%= pkData[idx].name %>;
+<%_ }_%>
+    }
+<%_ for (idx in pkData) { _%>
+
+    public <%= pkData[idx].type %> <%= pkData[idx].getter %>(){
+        return this.<%= pkData[idx].name %>;
+    }
+
+    public void <%= pkData[idx].setter %>(<%= pkData[idx].type %> <%= pkData[idx].name %>){
+        this.<%= pkData[idx].name %> = <%= pkData[idx].name %>;
+    }
+<%_ }_%>
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof <%= entityClass %>Id)) {
+            return false;
+        }
+
+        <%= entityClass %>Id <%= entityInstance %>Id = (<%= entityClass %>Id) o;
+        return <%- pkData.map(f => `Objects.equals(${f.name}, ${entityInstance}Id.${f.name})`).join('\n            && ') %>;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(<%= pkData.map(f => f.name).join(', ')%>);
+    }
+
+    @Override
+    public String toString() {
+        return "<%= entityClass %>Id{" +
+            <%_ for (idx in pkData) {
+                const isNumeric = ['integer', 'long', 'float', 'double', 'bigdecimal'].includes(pkData[idx].type.toLowerCase()); _%>
+            ", <%= pkData[idx].name %>=<% if (! isNumeric) {%>'<% } %>" + <%= pkData[idx].getter %>() <% if (! isNumeric) { %>+ "'" <% } %>+
+            <%_ } _%>
+            "}";
+    }
+}

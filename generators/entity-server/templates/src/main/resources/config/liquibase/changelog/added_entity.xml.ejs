@@ -16,6 +16,76 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -%>
+<%_
+function fieldToColumnType(field) {
+    let maxlength = 255;
+    if (field.fieldValidate === true && field.fieldValidateRules.includes('maxlength')) {
+        maxlength = field.fieldValidateRulesMaxlength;
+    }
+    const fieldType = field.fieldType;
+    const fieldTypeBlobContent = field.fieldTypeBlobContent;
+    let columnType;
+    if (fieldType === 'String' || field.fieldIsEnum) {
+        columnType="varchar(" + maxlength + ")";
+    } else if (fieldType === 'Integer') {
+        columnType="integer";
+    } else if (fieldType === 'Long') {
+        columnType="bigint";
+    } else if (fieldType === 'Float') {
+        columnType="${floatType}";
+    } else if (fieldType === 'Double') {
+        columnType="double";
+    } else if (fieldType === 'BigDecimal') {
+        columnType="decimal(21,2)";
+    } else if (fieldType === 'LocalDate') {
+        columnType="date";
+    } else if (fieldType === 'Instant') {
+        columnType="datetime";
+    } else if (fieldType === 'ZonedDateTime') {
+        columnType="datetime";
+    } else if (fieldType === 'Duration') {
+        columnType="bigint";
+    } else if (fieldType === 'UUID') {
+        columnType="${uuidType}";
+    } else if (fieldType === 'byte[]' && fieldTypeBlobContent !== 'text') {
+        if (prodDatabaseType === 'mysql' || prodDatabaseType === 'postgresql' || prodDatabaseType === 'mariadb') {
+            columnType="longblob";
+        } else {
+            columnType="blob";
+        }
+    } else if (fieldTypeBlobContent === 'text') {
+        columnType="${clobType}";
+    } else if (fieldType === 'Boolean') {
+        columnType="boolean";
+    }
+    field.columnType = columnType;
+    return columnType;
+}
+
+function fieldToLoadColumnType(field) {
+    // columnType was set after calling the function above
+    let columnType = field.columnType;
+    let loadColumnType = 'string';
+    if (columnType === 'integer' || columnType === 'bigint' || columnType === 'double' || columnType === 'decimal(21,2)' || columnType === '${floatType}') {
+        loadColumnType = 'numeric';
+    } else if (columnType === 'date') {
+        loadColumnType = 'date';
+    } else if (columnType === 'datetime') {
+        loadColumnType = 'datetime';
+    } else if (columnType === 'boolean') {
+        loadColumnType = 'boolean';
+    } else if (field.fieldIsEnum) {
+        loadColumnType = 'string';
+    } else if (columnType === 'blob' || columnType === 'longblob') {
+        loadColumnType = 'blob';
+    } else if (columnType === '${clobType}') {
+        loadColumnType = 'clob';
+    }
+    field.loadColumnType = loadColumnType;
+    return loadColumnType;
+}
+
+_%>
 <?xml version="1.0" encoding="utf-8"?>
 <databaseChangeLog
     xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
@@ -25,17 +95,17 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <%_ let autoIncrementValue = true;
+    if(pkData.length > 1 || pkName !== 'id') {
+        autoIncrementValue = false;
+    } else {
         for (idx in relationships) {
             if (relationships[idx].useJPADerivedIdentifier === true) {
                 autoIncrementValue = false;
                 break;
             }
         }
+    }
     _%>
-    <%_ if (prodDatabaseType === 'mysql' || prodDatabaseType === 'mariadb') { _%>
-    <property name="autoIncrement" value="<%- autoIncrementValue %>"/>
-    <%_ } _%>
-
     <!--
         Added the entity <%= entityClass %>.
     -->
@@ -45,9 +115,7 @@
         <%_ } else { _%>
         <createTable tableName="<%= entityTableName %>" remarks="<%- formatAsLiquibaseRemarks(javadoc) %>">
         <%_ } _%>
-            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
-                <constraints primaryKey="true" nullable="false"/>
-            </column><% for (idx in fields) {
+        <%_ for (idx in fields) {
             let nullable = true;
             if (fields[idx].fieldValidate === true && fields[idx].fieldValidateRules.includes('required')) {
                 nullable = false;
@@ -56,92 +124,43 @@
             if (fields[idx].fieldValidate === true && fields[idx].fieldValidateRules.includes('unique')) {
                 unique = true;
             }
-            let maxlength = 255;
-            if (fields[idx].fieldValidate === true && fields[idx].fieldValidateRules.includes('maxlength')) {
-                maxlength = fields[idx].fieldValidateRulesMaxlength;
-            }
-            const fieldType = fields[idx].fieldType;
-            const fieldTypeBlobContent = fields[idx].fieldTypeBlobContent;
             const columnName = fields[idx].fieldNameAsDatabaseColumn;
-            let columnType;
-            if (fieldType === 'String' || fields[idx].fieldIsEnum) {
-                columnType="varchar(" + maxlength + ")";
-            } else if (fieldType === 'Integer') {
-                columnType="integer";
-            } else if (fieldType === 'Long') {
-                columnType="bigint";
-            } else if (fieldType === 'Float') {
-                columnType="${floatType}";
-            } else if (fieldType === 'Double') {
-                columnType="double";
-            } else if (fieldType === 'BigDecimal') {
-                columnType="decimal(21,2)";
-            } else if (fieldType === 'LocalDate') {
-                columnType="date";
-            } else if (fieldType === 'Instant') {
-                columnType="datetime";
-            } else if (fieldType === 'ZonedDateTime') {
-                columnType="datetime";
-            } else if (fieldType === 'Duration') {
-                columnType="bigint";
-            } else if (fieldType === 'UUID') {
-                columnType="${uuidType}";
-            } else if (fieldType === 'byte[]' && fieldTypeBlobContent !== 'text') {
-                if (prodDatabaseType === 'mysql' || prodDatabaseType === 'postgresql' || prodDatabaseType === 'mariadb') {
-                    columnType="longblob";
-                } else {
-                    columnType="blob";
-                }
-            } else if (fieldTypeBlobContent === 'text') {
-                columnType="${clobType}";
-            } else if (fieldType === 'Boolean') {
-                columnType="boolean";
-            }
-            %>
-            <%_ if (typeof fields[idx].javadoc == 'undefined') { _%>
-            <column name="<%=columnName %>" type="<%=columnType %>">
-            <%_ } else { _%>
-            <column name="<%=columnName %>" type="<%=columnType %>" remarks="<%- formatAsLiquibaseRemarks(fields[idx].javadoc) %>">
-            <%_ } _%>
-                <%_ if (unique) {
-                    const uniqueConstraintName = getUXConstraintName(entityTableName, columnName, prodDatabaseType);
-                _%>
-                <constraints nullable="<%= nullable %>" unique="true" uniqueConstraintName="<%= uniqueConstraintName %>" />
-                <%_ } else { _%>
-                <constraints nullable="<%= nullable %>" />
-                <%_ } _%>
-            </column>
-                <%_ if (fieldType === 'byte[]' && fieldTypeBlobContent !== 'text') {
-                    let contentTypeColumnType = columnType;
-                    contentTypeColumnType = "varchar(255)"; _%>
-            <column name="<%=columnName %>_content_type" type="<%=contentTypeColumnType%>">
-                <constraints nullable="<%= nullable %>" />
-            </column>
-                <%_ } _%>
-            <%_
-            fields[idx].columnType = columnType;
+            let columnType = fieldToColumnType(fields[idx]);
             _%>
+            <column name="<%= columnName %>" type="<%=columnType %>"<%_ if (autoIncrementValue && columnName === 'id' && prodDatabaseType === 'mysql' || prodDatabaseType === 'mariadb') { %> autoIncrement="true"<%_ } _%><%_ if (typeof fields[idx].javadoc !== 'undefined') { _%> remarks="<%- formatAsLiquibaseRemarks(fields[idx].javadoc) %>"<%_ } _%>>
+                <constraints<%_ if(fields[idx].partOfId) { %> primaryKey="true"<%_ } %> nullable="<%= nullable %>"<%_ if (unique) { _%> unique="true" uniqueConstraintName="<%= getUXConstraintName(entityTableName, columnName, prodDatabaseType) %>"<%_ } _%>/>
+            </column>
+            <%_ if (fields[idx].fieldType === 'byte[]' && fields[idx].fieldTypeBlobContent !== 'text') {
+                let contentTypeColumnType = "varchar(255)"; _%>
+            <column name="<%=columnName %>_content_type" type="<%=contentTypeColumnType%>">
+                <constraints nullable="<%= nullable %>"/>
+            </column>
+                <%_ } _%>
             <%_ } _%>
             <%_ for (idx in relationships) {
                 let nullable_relation = true,
                 relationshipType = relationships[idx].relationshipType,
-                relationshipName = relationships[idx].relationshipName,
-                relationshipColumnType = relationships[idx].otherEntityName === 'user' && authenticationType === 'oauth2' ? 'varchar(100)' : 'bigint';
-                if (relationships[idx].relationshipValidate === true && relationships[idx].relationshipRequired) {
-                    nullable_relation = false;
-                }
-                if (relationships[idx].relationshipType === 'many-to-one') { _%>
-
-            <column name="<%=getColumnName(relationshipName) %>_id" type="<%= relationshipColumnType %>">
-                <constraints nullable="<%= nullable_relation %>" />
+                relationshipName = relationships[idx].relationshipName;
+                relationships[idx].pkData.forEach(pk => {
+                    const columnType = fieldToColumnType(pk.field);
+                    relationshipColumnType = relationships[idx].otherEntityName === 'user' && authenticationType === 'oauth2' ? 'varchar(100)' : columnType;
+                    if (relationships[idx].relationshipValidate === true && relationships[idx].relationshipRequired) {
+                        nullable_relation = false;
+                    }
+                    if (relationships[idx].relationshipType === 'many-to-one') { _%>
+            <column name="<%=getColumnName(relationshipName + pk.nameCapitalized) %>" type="<%= relationshipColumnType %>">
+                <constraints<%_ if(relationships[idx].partOfId) { %> primaryKey="true"<%_ } %> nullable="<%= nullable_relation %>"/>
             </column>
-            <%_ } else if (relationshipType === 'one-to-one' && relationships[idx].ownerSide === true
-                            && (relationships[idx].useJPADerivedIdentifier == null || relationships[idx].useJPADerivedIdentifier === false)) {
-                const uniqueConstraintName = getUXConstraintName(entityTableName, getColumnName(relationshipName) + '_id', prodDatabaseType);
-            _%>
-            <column name="<%=getColumnName(relationshipName) %>_id" type="<%= relationshipColumnType %>">
-                <constraints unique="true" nullable="<%= nullable_relation %>" uniqueConstraintName="<%= uniqueConstraintName %>" />
-            </column><% } %><% } %>
+                    <%_ } else if (relationshipType === 'one-to-one' && relationships[idx].ownerSide === true
+                                    && (relationships[idx].useJPADerivedIdentifier == null || relationships[idx].useJPADerivedIdentifier === false)) {
+                        const uniqueConstraintName = getUXConstraintName(entityTableName, getColumnName(relationshipName + pk.nameCapitalized), prodDatabaseType);
+                    _%>
+            <column name="<%=getColumnName(relationshipName + pk.nameCapitalized) %>" type="<%= relationshipColumnType %>">
+                <constraints<%_ if(relationships[idx].partOfId) { %> primaryKey="true"<%_ } %> unique="true" nullable="<%= nullable_relation %>" uniqueConstraintName="<%= uniqueConstraintName %>"/>
+            </column>
+                    <%_ } _%>
+                <%_ }); _%>
+            <%_ } _%>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
 
@@ -160,19 +179,22 @@
             otherEntityName = relationships[idx].otherEntityName;
             if (relationshipType === 'many-to-many' && ownerSide) {
                 const joinTableName = getJoinTableName(entityTableName, relationshipName, prodDatabaseType);
+                const joinedPkData = [
+                    ...pkData.map( pk => ({name: name + pk.nameCapitalized, field: pk.field})),
+                    ...relationships[idx].pkData.map( pk => ({name: relationshipName + pk.nameCapitalized, field: pk.field}))
+                ];
           _%>
 
         <createTable tableName="<%= joinTableName %>">
-            <column name="<%= getColumnName(relationshipName) %>_id" type="bigint">
+            <%_ joinedPkData.forEach(pk => { _%>
+            <column name="<%= getColumnName(pk.name) %>" type="<%= fieldToColumnType(pk.field)%>">
                 <constraints nullable="false"/>
             </column>
-            <column name="<%= getColumnName(name) %>_id" type="bigint">
-                <constraints nullable="false"/>
-            </column>
+            <%_ }); _%>
         </createTable>
 
-        <addPrimaryKey columnNames="<%= getColumnName(name) %>_id, <%= getColumnName(relationshipName) %>_id" tableName="<%= joinTableName %>"/>
-        <% } %><% } %>
+        <addPrimaryKey columnNames="<%= joinedPkData.map(pk => getColumnName(pk.name)).join(', ') %>" tableName="<%= joinTableName %>"/>
+        <%_ } _%><%_ } _%>
     </changeSet>
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
 
@@ -186,28 +208,11 @@
     -->
     <changeSet id="<%= changelogDate %>-1-data" author="jhipster" context="faker">
         <loadData
-                  file="config/liquibase/fake-data/<%= entityTableName %>.csv"
-                  separator=";"
-                  tableName="<%= entityTableName %>">
-            <column name="id" type="numeric"/>
+            file="config/liquibase/fake-data/<%= entityTableName %>.csv"
+            separator=";"
+            tableName="<%= entityTableName %>">
             <%_ for (idx in fields) {
-                let loadColumnType = 'string';
-                let columnType = fields[idx].columnType;
-                if (columnType === 'integer' || columnType === 'bigint' || columnType === 'double' || columnType === 'decimal(21,2)' || columnType === '${floatType}') {
-                    loadColumnType = 'numeric';
-                } else if (columnType === 'date') {
-                    loadColumnType = 'date';
-                } else if (columnType === 'datetime') {
-                    loadColumnType = 'datetime';
-                } else if (columnType === 'boolean') {
-                    loadColumnType = 'boolean';
-                } else if (fields[idx].fieldIsEnum) {
-                    loadColumnType = 'string';
-                } else if (columnType === 'blob' || columnType === 'longblob') {
-                    loadColumnType = 'blob';
-                } else if (columnType === '${clobType}') {
-                    loadColumnType = 'clob';
-                }
+                let loadColumnType = fieldToLoadColumnType(fields[idx]);
                 _%>
             <column name="<%=fields[idx].fieldNameAsDatabaseColumn%>" type="<%=loadColumnType%>"/>
                 <%_ if (fields[idx].fieldType === 'byte[]' && fields[idx].fieldTypeBlobContent !== 'text') { _%>
@@ -215,13 +220,17 @@
                 <%_ } _%>
             <%_ } _%>
             <%_ for (idx in relationships) {
-                    let loadColumnType = 'numeric';
-                    if (relationships[idx].relationshipValidate === true && relationships[idx].relationshipRequired) {
-                        let baseColumnName = getColumnName(relationships[idx].relationshipName) + '_id';
+                let loadColumnType = 'numeric';
+                if (relationships[idx].relationshipType !== 'many-to-many' && relationships[idx].relationshipValidate === true && relationships[idx].relationshipRequired) {
+                    relationships[idx].pkData.forEach(pk => {
+                        let baseColumnName = getColumnName(relationships[idx].relationshipName + pk.nameCapitalized);
                         if (relationships[idx].otherEntityNameCapitalized === 'User' && authenticationType === 'oauth2') {
-                            loadColumnType = 'varchar(100)';
-                        } _%>
+                            loadColumnType = 'string';
+                        } else {
+                            loadColumnType = fieldToLoadColumnType(pk.field);
+                        }_%>
             <column name="<%=baseColumnName%>" type="<%=loadColumnType%>"/>
+                    <%_ }); _%>
                 <%_ } _%>
             <%_  } _%>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->

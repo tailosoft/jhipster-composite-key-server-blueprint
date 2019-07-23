@@ -86,6 +86,7 @@ import javax.validation.constraints.*;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 <%_ } _%>
 import java.io.Serializable;
+import java.util.Objects;
 <%_ if (fieldsContainBigDecimal === true) { _%>
 import java.math.BigDecimal;
 <%_ } if (fieldsContainBlob && databaseType === 'cassandra') { _%>
@@ -116,6 +117,9 @@ import <%=packageName%>.domain.enumeration.<%= element %>;
 import static <%=packageName%>.config.Constants.ID_DELIMITER;
 import static org.springframework.data.couchbase.core.mapping.id.GenerationStrategy.UNIQUE;
 
+<%_ if (pkData.length > 1) { _%>
+import <%=packageName%>.domain.<%=pkType%>;
+<%_ } _%>
 <%_ } _%>
 <%_ if (typeof javadoc == 'undefined') { _%>
 /**
@@ -156,23 +160,11 @@ public class <%= asEntity(entityClass) %> implements Serializable {
     @IdPrefix
     private String prefix = PREFIX;
     <%_ } _%>
+<%_ if (pkData.length > 1) { _%>
 
-    @Id
-    <%_ if (databaseType === 'sql' && isUsingMapsId === false) { _%>
-        <%_ if (prodDatabaseType === 'mysql' || prodDatabaseType === 'mariadb') { _%>
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-        <%_ }  else { _%>
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator")
-        <%_ } _%>
-    <%_ } _%>
-    <%_ if (databaseType === 'couchbase') { _%>
-    @GeneratedValue(strategy = UNIQUE, delimiter = ID_DELIMITER)
-    <%_ } _%>
-    <%_ if (searchEngine === 'elasticsearch') { _%>
-    @org.springframework.data.elasticsearch.annotations.Field(type = FieldType.Keyword)
-    <%_ } _%>
-    private <%= pkType %> id;
+    @EmbeddedId
+    <%= pkType %> id;
+<%_ } _%>
 
 <%_ for (idx in fields) {
     if (typeof fields[idx].javadoc !== 'undefined') { _%>
@@ -188,6 +180,9 @@ public class <%= asEntity(entityClass) %> implements Serializable {
     const fieldName = fields[idx].fieldName;
     const fieldNameUnderscored = fields[idx].fieldNameUnderscored;
     const fieldNameAsDatabaseColumn = fields[idx].fieldNameAsDatabaseColumn;
+    if (fields[idx].partOfId && pkData.length === 1) { _%>
+    @Id
+    <%_ }
     if (fieldValidate === true) {
         if (fieldValidateRules.includes('required')) {
             required = true;
@@ -217,8 +212,8 @@ public class <%= asEntity(entityClass) %> implements Serializable {
         <%_ } else if (fieldType === 'UUID' && ['mysql', 'mariadb'].includes(prodDatabaseType)) { _%>
     @Type(type = "uuid-char")
     @Column(name = "<%-fieldNameAsDatabaseColumn %>", length = 36<% if (required) { %>, nullable = false<% } %><% if (unique) { %>, unique = true<% } %>)
-        <%_ } else { _%>
-    @Column(name = "<%-fieldNameAsDatabaseColumn %>"<% if (fieldValidate === true) { %><% if (fieldValidateRules.includes('maxlength')) { %>, length = <%= fieldValidateRulesMaxlength %><% } %><% if (required) { %>, nullable = false<% } %><% if (unique) { %>, unique = true<% } %><% } %>)
+        <%_ } else if(fieldName !== 'id') { _%>
+    @Column(name = "<%-fieldNameAsDatabaseColumn %>"<% if (fieldValidate === true) { %><% if (fieldValidateRules.includes('maxlength')) { %>, length = <%= fieldValidateRulesMaxlength %><% } %><% if (required) { %>, nullable = false<% } %><% if (unique) { %>, unique = true<% } %><%if (fields[idx].partOfId) { %>, insertable = false, updatable = false<% } %><% } %>)
         <%_ }
     } _%>
     <%_ if (databaseType === 'mongodb' || databaseType === 'couchbase') { _%>
@@ -298,6 +293,13 @@ public class <%= asEntity(entityClass) %> implements Serializable {
         <%_ if (relationshipValidate) { _%>
     <%- include relationship_validators -%>
         <%_ }
+        if (relationships[idx].partOfId) {
+                if (relationships[idx].pkData.length === 1) { _%>
+    @JoinColumn(insertable = false, updatable = false)
+                <%_ } else { _%>
+    @JoinColumns({<%- relationships[idx].pkData.map(pk => '@JoinColumn(insertable = false, updatable = false)').join(', ') %>})
+                <%_ }
+            }
     } else if (databaseType === 'mongodb' || databaseType === 'couchbase') {
         if (databaseType === 'mongodb') { _%>
     @DBRef
@@ -329,8 +331,8 @@ public class <%= asEntity(entityClass) %> implements Serializable {
     <%- include relationship_validators -%>
         <%_ } _%>
     @JoinTable(name = "<%= joinTableName %>",
-               joinColumns = @JoinColumn(name = "<%= getColumnName(name) %>_id", referencedColumnName = "id"),
-               inverseJoinColumns = @JoinColumn(name = "<%= getColumnName(relationships[idx].relationshipName) %>_id", referencedColumnName = "id"))
+        joinColumns = {<%- pkData.map(pk => '@JoinColumn(name = "' + getColumnName(name + pk.nameCapitalized) + '", referencedColumnName = "' + getColumnName(pk.name) + '")').join(', ') %>},
+        inverseJoinColumns = {<%- relationships[idx].pkData.map(pk => '@JoinColumn(name = "' + getColumnName(relationships[idx].relationshipName + pk.nameCapitalized) + '", referencedColumnName = "' + getColumnName(pk.name) + '")').join(', ') %>})
         <%_ }
         } else if (databaseType === 'mongodb' || databaseType === 'couchbase') {
             if (databaseType === 'mongodb') { _%>
@@ -378,18 +380,24 @@ public class <%= asEntity(entityClass) %> implements Serializable {
     @com.fasterxml.jackson.annotation.JsonBackReference
     <%_     }
         } _%>
+    <%_ if (relationships[idx].partOfId) { _%>
+    @JoinColumn(name="<%= getColumnName(relationships[idx].relationshipName) %>_id ", insertable = false, updatable = false)
+    <%_ } _%>
     private <%= asEntity(otherEntityNameCapitalized) %> <%= relationshipFieldName %>;
 
     <%_ }
     } _%>
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
-    public <% if (databaseType === 'sql') { %>Long<% } %><% if (databaseType === 'mongodb' || databaseType === 'couchbase') { %>String<% } %><% if (databaseType === 'cassandra') { %>UUID<% } %> getId() {
+<%_ if (pkData.length > 1) { _%>
+
+    public <%= pkType %> getId() {
         return id;
     }
 
-    public void setId(<% if (databaseType === 'sql') { %>Long<% } %><% if (databaseType === 'mongodb' || databaseType === 'couchbase') { %>String<% } %><% if (databaseType === 'cassandra') { %>UUID<% } %> id) {
+    public void setId(<%= pkType %> id) {
         this.id = id;
     }
+<%_ } _%>
 <%_ for (idx in fields) {
         const fieldType = fields[idx].fieldType;
         const fieldTypeBlobContent = fields[idx].fieldTypeBlobContent;
@@ -541,18 +549,20 @@ public class <%= asEntity(entityClass) %> implements Serializable {
         if (!(o instanceof <%= asEntity(entityClass) %>)) {
             return false;
         }
-        return id != null && id.equals(((<%= asEntity(entityClass) %>) o).id);
+        return <%= pkName %> != null && <%= pkName %>.equals(((<%= asEntity(entityClass) %>) o).<%= pkName %>);
     }
 
     @Override
     public int hashCode() {
-        return 31;
+        return Objects.hashCode(<%= pkName %>);
     }
 
     @Override
     public String toString() {
         return "<%= asEntity(entityClass) %>{" +
+<%_ if (pkData.length > 1) { _%>
             "id=" + getId() +
+<%_ } _%>
             <%_ for (idx in fields) {
                 const fieldType = fields[idx].fieldType;
                 const fieldTypeBlobContent = fields[idx].fieldTypeBlobContent;

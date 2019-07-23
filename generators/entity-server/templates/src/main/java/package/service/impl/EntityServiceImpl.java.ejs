@@ -79,6 +79,9 @@ import java.util.Optional;
 <%_ if (databaseType === 'cassandra') { _%>
 import java.util.UUID;
 <%_ } _%>
+<%_ if (pkData.length > 1) { _%>
+import <%=packageName%>.domain.<%=pkType%>;
+<%_ } _%>
 <%_ if (fieldsContainNoOwnerOneToOne === true || (pagination === 'no' && ((searchEngine === 'elasticsearch' && !viaService) || dto === 'mapstruct'))) { _%>
 import java.util.stream.Collectors;
 <%_ } _%>
@@ -159,7 +162,7 @@ public class <%= serviceClassName %><% if (service === 'serviceImpl') { %> imple
     public Page<<%= instanceType %>> findAllWithEagerRelationships(Pageable pageable) {
         return <%= entityInstance %>Repository.findAllWithEagerRelationships(pageable)<% if (dto !== 'mapstruct') { %>;<% } else { %>.map(<%= entityToDtoReference %>);<% } %>
     }
-    <% } %>
+    <%_ } _%>
 <%- include('../../common/get_filtered_template', {asEntity, asDto}); -%>
     /**
      * Get one <%= entityInstance %> by id.
