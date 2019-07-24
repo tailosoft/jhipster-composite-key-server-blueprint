@@ -11,8 +11,8 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring", uses = {})
 public interface TaskMapper extends EntityMapper<TaskDTO, Task> {
 
-    @Mapping(target = "tasks", ignore = true)
-    @Mapping(target = "removeTask", ignore = true)
+    @Mapping(target = "comments", ignore = true)
+    @Mapping(target = "removeComment", ignore = true)
     @Mapping(target = "employeeSkills", ignore = true)
     @Mapping(target = "removeEmployeeSkill", ignore = true)
     Task toEntity(TaskDTO taskDTO);

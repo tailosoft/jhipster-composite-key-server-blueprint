@@ -28,7 +28,7 @@ public class TaskCriteria implements Serializable, Criteria {
 
     private StringFilter name;
 
-    private LongFilter taskId;
+    private LongFilter commentId;
 
     private StringFilter employeeSkillName;
 
@@ -40,7 +40,7 @@ public class TaskCriteria implements Serializable, Criteria {
     public TaskCriteria(TaskCriteria other){
         this.id = other.id == null ? null : other.id.copy();
         this.name = other.name == null ? null : other.name.copy();
-        this.taskId = other.taskId == null ? null : other.taskId.copy();
+        this.commentId = other.commentId == null ? null : other.commentId.copy();
         this.employeeSkillName = other.employeeSkillName == null ? null : other.employeeSkillName.copy();
         this.employeeSkillEmployeeUsername = other.employeeSkillEmployeeUsername == null ? null : other.employeeSkillEmployeeUsername.copy();
     }
@@ -66,12 +66,12 @@ public class TaskCriteria implements Serializable, Criteria {
         this.name = name;
     }
 
-    public LongFilter getTaskId() {
-        return taskId;
+    public LongFilter getCommentId() {
+        return commentId;
     }
 
-    public void setTaskId(LongFilter taskId) {
-        this.taskId = taskId;
+    public void setCommentId(LongFilter commentId) {
+        this.commentId = commentId;
     }
 
     public StringFilter getEmployeeSkillName() {
@@ -102,7 +102,7 @@ public class TaskCriteria implements Serializable, Criteria {
         final TaskCriteria that = (TaskCriteria) o;
         return Objects.equals(id, that.id) &&
             Objects.equals(name, that.name) &&
-            Objects.equals(taskId, that.taskId) &&
+            Objects.equals(commentId, that.commentId) &&
             Objects.equals(employeeSkillName, that.employeeSkillName) &&
             Objects.equals(employeeSkillEmployeeUsername, that.employeeSkillEmployeeUsername);
     }
@@ -112,7 +112,7 @@ public class TaskCriteria implements Serializable, Criteria {
         return Objects.hash(
             id,
             name,
-            taskId,
+            commentId,
             employeeSkillName,
             employeeSkillEmployeeUsername
         );
@@ -123,7 +123,7 @@ public class TaskCriteria implements Serializable, Criteria {
         return "TaskCriteria{" +
             (id != null ? "id=" + id + ", " : "") +
             (name != null ? "name=" + name + ", " : "") +
-            (taskId != null ? "taskId=" + taskId + ", " : "") +
+            (commentId != null ? "commentId=" + commentId + ", " : "") +
             (employeeSkillName != null ? "employeeSkillName=" + employeeSkillName + ", " : "") +
             (employeeSkillEmployeeUsername != null ? "employeeSkillEmployeeUsername=" + employeeSkillEmployeeUsername + ", " : "") +
             "}";

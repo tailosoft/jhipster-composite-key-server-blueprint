@@ -20,14 +20,16 @@ public class TaskComment implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
     @Column(name = "value", nullable = false)
     private String value;
 
-    @ManyToOne
-    @JsonIgnoreProperties("tasks")
+    @ManyToOne(optional = false)
+    @NotNull
+    @JsonIgnoreProperties("comments")
     private Task task;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove

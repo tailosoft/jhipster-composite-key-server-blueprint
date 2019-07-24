@@ -22,6 +22,7 @@ public class Task implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
@@ -30,7 +31,7 @@ public class Task implements Serializable {
 
     @OneToMany(mappedBy = "task")
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    private Set<TaskComment> tasks = new HashSet<>();
+    private Set<TaskComment> comments = new HashSet<>();
 
     @ManyToMany(mappedBy = "tasks")
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
@@ -65,29 +66,29 @@ public class Task implements Serializable {
         this.name = name;
     }
 
-    public Set<TaskComment> getTasks() {
-        return tasks;
+    public Set<TaskComment> getComments() {
+        return comments;
     }
 
-    public Task tasks(Set<TaskComment> taskComments) {
-        this.tasks = taskComments;
+    public Task comments(Set<TaskComment> taskComments) {
+        this.comments = taskComments;
         return this;
     }
 
-    public Task addTask(TaskComment taskComment) {
-        this.tasks.add(taskComment);
+    public Task addComment(TaskComment taskComment) {
+        this.comments.add(taskComment);
         taskComment.setTask(this);
         return this;
     }
 
-    public Task removeTask(TaskComment taskComment) {
-        this.tasks.remove(taskComment);
+    public Task removeComment(TaskComment taskComment) {
+        this.comments.remove(taskComment);
         taskComment.setTask(null);
         return this;
     }
 
-    public void setTasks(Set<TaskComment> taskComments) {
-        this.tasks = taskComments;
+    public void setComments(Set<TaskComment> taskComments) {
+        this.comments = taskComments;
     }
 
     public Set<EmployeeSkill> getEmployeeSkills() {

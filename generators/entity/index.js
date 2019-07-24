@@ -102,11 +102,13 @@ module.exports = class extends EntityGenerator {
                 });
             },
 
-            compositeKeyServerLoadFieldInrelationship() {
+            compositeKeyServerLoadFieldsInrelationship() {
                 this.context.relationships.forEach(r => {
                     const otherContext = this.getEntityJson(r.otherEntityNameCapitalized);
                     r.fields = otherContext.fields;
-                    r.fields.unshift(defaultIdField);
+                    if (r.pkData.length === 1 && r.pkData[0].name === 'id' && r.pkData[0].type === 'Long') {
+                        r.fields.unshift(defaultIdField);
+                    }
                     r.relationships = otherContext.relationships;
                 });
             }
@@ -174,7 +176,8 @@ module.exports = class extends EntityGenerator {
                         return {
                             ...pk,
                             name,
-                            nameCapitalized: _.upperFirst(name)
+                            nameCapitalized: _.upperFirst(name),
+                            relationship
                         };
                     })
                 );

@@ -19,18 +19,42 @@
 package <%=packageName%>.domain;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+<%_ if (validation) { _%>
+import javax.validation.constraints.*;
+<%_ } _%>
 import java.util.Objects;
 
 @Embeddable
 public class <%= entityClass %>Id implements java.io.Serializable {
-<%_ for (idx in pkData) { _%>
+<%_
+// here we lie to the field_validators code because it was coded to expect fields[idx] to contain the validation info
+const realFields = fields;
+fields = pkData;
+for (idx in pkData) { _%>
 
     <%_ if (pkData[idx].isEnum) { _%>
     @Enumerated(EnumType.STRING)
+    <%_ }
+    if (fields[idx].fieldValidateRules && fields[idx].fieldValidateRules.includes('required')) {
+        required = true;
+    }
+    const fieldValidateRules = fields[idx].fieldValidateRules;
+    const fieldValidateRulesMinlength = fields[idx].fieldValidateRulesMinlength;
+    const fieldValidateRulesMaxlength = fields[idx].fieldValidateRulesMaxlength;
+    const fieldValidateRulesMinbytes = fields[idx].fieldValidateRulesMinbytes;
+    const fieldValidateRulesMaxbytes = fields[idx].fieldValidateRulesMaxbytes;
+    const fieldValidateRulesMin = fields[idx].fieldValidateRulesMin;
+    const fieldValidateRulesMax = fields[idx].fieldValidateRulesMax;
+    const fieldValidateRulesPatternJava = fields[idx].fieldValidateRulesPatternJava;
+    _%>
+    <%_ if (fieldValidateRules && fieldValidateRules.length > 0) { _%>
+    <%- include ../common/field_validators.ejs -%>
     <%_ } _%>
     @Column(name = "<%= pkData[idx].columnName %>"<% if (pkData[idx].fieldValidate === true) { %><% if (pkData[idx].fieldValidateRules.includes('maxlength')) { %>, length = <%= pkData[idx].fieldValidateRulesMaxlength %><% } %><% if (pkData[idx].required) { %>, nullable = false<% } %><% if (pkData[idx].unique) { %>, unique = true<% } %><% } %>)
     private <%= pkData[idx].type %> <%= pkData[idx].name %>;
-<%_ }_%>
+<%_ }
+// we put back the real value of fields
+fields = realFields; _%>
 
     public <%= entityClass %>Id(){}
 

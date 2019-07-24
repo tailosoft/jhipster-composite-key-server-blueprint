@@ -182,6 +182,12 @@ public class <%= asEntity(entityClass) %> implements Serializable {
     const fieldNameAsDatabaseColumn = fields[idx].fieldNameAsDatabaseColumn;
     if (fields[idx].partOfId && pkData.length === 1) { _%>
     @Id
+        <%_ if (pkData[0].name === 'id' && pkData[0].type === 'Long') { _%>
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+        <%_ } _%>
+        <%_ if (searchEngine === 'elasticsearch') { _%>
+    @org.springframework.data.elasticsearch.annotations.Field(type = FieldType.Keyword)
+        <%_ } _%>
     <%_ }
     if (fieldValidate === true) {
         if (fieldValidateRules.includes('required')) {

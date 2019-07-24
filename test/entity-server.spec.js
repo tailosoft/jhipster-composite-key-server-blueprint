@@ -58,7 +58,8 @@ describe('Subgenerator entity-server of composite key server JHipster blueprint'
                 `${javaPackage}/domain`,
                 `${javaPackage}/web/rest`,
                 `${javaPackage}/repository`,
-                `${javaPackage}/service`
+                `${javaPackage}/service`,
+                `${basePath}/src/test/java/com/mycompany/myapp/web/rest`
             ];
             filesToTest.forEach(file =>
                 walker.walk(file).forEach(f => {

@@ -12,6 +12,7 @@ import org.mapstruct.*;
 public interface TaskCommentMapper extends EntityMapper<TaskCommentDTO, TaskComment> {
 
     @Mapping(source = "task.id", target = "taskId")
+    @Mapping(source = "task.name", target = "taskName")
     TaskCommentDTO toDto(TaskComment taskComment);
 
     @Mapping(source = "taskId", target = "task")

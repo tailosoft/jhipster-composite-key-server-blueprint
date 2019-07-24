@@ -1,17 +1,21 @@
 package com.mycompany.myapp.domain;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.validation.constraints.*;
 import java.util.Objects;
 
 @Embeddable
 public class EmployeeSkillCertificateId implements java.io.Serializable {
 
+    @NotNull
     @Column(name = "type_id")
     private Long typeId;
 
+    @NotNull
     @Column(name = "skill_name")
     private String skillName;
 
+    @NotNull
     @Column(name = "skill_employee_username")
     private String skillEmployeeUsername;
 

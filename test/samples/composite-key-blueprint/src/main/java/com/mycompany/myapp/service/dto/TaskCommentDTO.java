@@ -15,6 +15,8 @@ public class TaskCommentDTO implements Serializable {
 
     private Long taskId;
 
+    private String taskName;
+
     public Long getId(){
         return this.id;
     }
@@ -37,6 +39,14 @@ public class TaskCommentDTO implements Serializable {
 
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
+    }
+
+    public String getTaskName() {
+        return taskName;
+    }
+
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
     }
 
     @Override
@@ -66,6 +76,7 @@ public class TaskCommentDTO implements Serializable {
             ", id=" + getId() +
             ", value='" + getValue() + "'" +
             ", taskId='" + getTaskId() + "'" +
+            ", taskName='" + getTaskName() + "'" +
             "}";
     }
 }

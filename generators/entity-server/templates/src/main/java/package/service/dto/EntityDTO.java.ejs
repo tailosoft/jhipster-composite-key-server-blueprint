@@ -93,11 +93,11 @@ for (idx in fields) { _%>
     const fieldValidateRulesMax = fields[idx].fieldValidateRulesMax;
     const fieldValidateRulesPatternJava = fields[idx].fieldValidateRulesPatternJava;
     _%>
-    <%_ if(fieldValidateRules && fieldValidateRules.length > 0) { _%>
+    <%_ if (fieldValidateRules && fieldValidateRules.length > 0) { _%>
     <%- include ../../common/field_validators.ejs -%>
     <%_ } _%>
     <%_ if (typeof fields[idx].javadoc != 'undefined') { _%>
-        @ApiModelProperty(value = "<%- formatAsApiDescription(fields[idx].javadoc) %>"<% if (required) { %>, required = true<% } %>)
+    @ApiModelProperty(value = "<%- formatAsApiDescription(fields[idx].javadoc) %>"<% if (required) { %>, required = true<% } %>)
     <%_ } _%>
     private <%= fields[idx].type %> <%= fields[idx].name %>;
 <%_
