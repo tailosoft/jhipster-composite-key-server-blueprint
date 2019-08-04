@@ -14,15 +14,15 @@
     <property name="uuidType" value="varchar(36)" dbms="h2, mysql, mariadb"/>
 
     <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190718222327_added_entity_Employee.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190718222328_added_entity_EmployeeSkill.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190718222329_added_entity_CertificateType.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190718222330_added_entity_EmployeeSkillCertificate.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190722003009_added_entity_Task.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190722003010_added_entity_TaskComment.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20190803194127_added_entity_Employee.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20190803194128_added_entity_EmployeeSkill.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20190803194129_added_entity_CertificateType.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20190803194130_added_entity_EmployeeSkillCertificate.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20190803194131_added_entity_Task.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20190803194132_added_entity_TaskComment.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
-    <include file="config/liquibase/changelog/20190718222328_added_entity_constraints_EmployeeSkill.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190718222330_added_entity_constraints_EmployeeSkillCertificate.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190722003010_added_entity_constraints_TaskComment.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20190803194128_added_entity_constraints_EmployeeSkill.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20190803194130_added_entity_constraints_EmployeeSkillCertificate.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20190803194132_added_entity_constraints_TaskComment.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
 </databaseChangeLog>

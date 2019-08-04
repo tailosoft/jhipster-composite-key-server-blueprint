@@ -2,7 +2,9 @@ package com.mycompany.myapp.service;
 
 import com.mycompany.myapp.service.dto.EmployeeSkillCertificateDTO;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.Optional;
 import com.mycompany.myapp.domain.EmployeeSkillCertificateId;
 
@@ -22,9 +24,10 @@ public interface EmployeeSkillCertificateService {
     /**
      * Get all the employeeSkillCertificates.
      *
+     * @param pageable the pagination information.
      * @return the list of entities.
      */
-    List<EmployeeSkillCertificateDTO> findAll();
+    Page<EmployeeSkillCertificateDTO> findAll(Pageable pageable);
 
 
     /**

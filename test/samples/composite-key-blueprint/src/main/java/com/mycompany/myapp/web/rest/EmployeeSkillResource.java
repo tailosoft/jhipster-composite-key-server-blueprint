@@ -8,10 +8,16 @@ import com.mycompany.myapp.service.EmployeeSkillQueryService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.jhipster.web.util.HeaderUtil;
+import io.github.jhipster.web.util.PaginationUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -91,14 +97,17 @@ public class EmployeeSkillResource {
      * {@code GET  /employee-skills} : get all the employeeSkills.
      *
 
+     * @param pageable the pagination information.
+
      * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of employeeSkills in body.
      */
     @GetMapping("/employee-skills")
-    public ResponseEntity<List<EmployeeSkillDTO>> getAllEmployeeSkills(EmployeeSkillCriteria criteria) {
+    public ResponseEntity<List<EmployeeSkillDTO>> getAllEmployeeSkills(EmployeeSkillCriteria criteria, Pageable pageable) {
         log.debug("REST request to get EmployeeSkills by criteria: {}", criteria);
-        List<EmployeeSkillDTO> entityList = employeeSkillQueryService.findByCriteria(criteria);
-        return ResponseEntity.ok().body(entityList);
+        Page<EmployeeSkillDTO> page = employeeSkillQueryService.findByCriteria(criteria, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     /**

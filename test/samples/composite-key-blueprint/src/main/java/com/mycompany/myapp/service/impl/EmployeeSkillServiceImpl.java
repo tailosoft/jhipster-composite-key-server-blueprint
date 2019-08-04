@@ -13,11 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Optional;
 import com.mycompany.myapp.domain.EmployeeSkillId;
-import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing {@link EmployeeSkill}.
@@ -54,15 +51,15 @@ public class EmployeeSkillServiceImpl implements EmployeeSkillService {
     /**
      * Get all the employeeSkills.
      *
+     * @param pageable the pagination information.
      * @return the list of entities.
      */
     @Override
     @Transactional(readOnly = true)
-    public List<EmployeeSkillDTO> findAll() {
+    public Page<EmployeeSkillDTO> findAll(Pageable pageable) {
         log.debug("Request to get all EmployeeSkills");
-        return employeeSkillRepository.findAllWithEagerRelationships().stream()
-            .map(employeeSkillMapper::toDto)
-            .collect(Collectors.toCollection(LinkedList::new));
+        return employeeSkillRepository.findAll(pageable)
+            .map(employeeSkillMapper::toDto);
     }
 
     /**

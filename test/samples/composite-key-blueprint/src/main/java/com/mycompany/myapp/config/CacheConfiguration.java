@@ -38,13 +38,23 @@ public class CacheConfiguration {
     @Bean
     public JCacheManagerCustomizer cacheManagerCustomizer() {
         return cm -> {
+            createCache(cm, com.mycompany.myapp.repository.UserRepository.USERS_BY_LOGIN_CACHE);
+            createCache(cm, com.mycompany.myapp.repository.UserRepository.USERS_BY_EMAIL_CACHE);
+            createCache(cm, com.mycompany.myapp.domain.User.class.getName());
+            createCache(cm, com.mycompany.myapp.domain.Authority.class.getName());
+            createCache(cm, com.mycompany.myapp.domain.User.class.getName() + ".authorities");
             createCache(cm, com.mycompany.myapp.domain.Employee.class.getName());
             createCache(cm, com.mycompany.myapp.domain.Employee.class.getName() + ".skills");
             createCache(cm, com.mycompany.myapp.domain.EmployeeSkill.class.getName());
             createCache(cm, com.mycompany.myapp.domain.EmployeeSkill.class.getName() + ".employeeSkillCertificates");
+            createCache(cm, com.mycompany.myapp.domain.EmployeeSkill.class.getName() + ".tasks");
             createCache(cm, com.mycompany.myapp.domain.CertificateType.class.getName());
             createCache(cm, com.mycompany.myapp.domain.CertificateType.class.getName() + ".employeeSkillCertificates");
             createCache(cm, com.mycompany.myapp.domain.EmployeeSkillCertificate.class.getName());
+            createCache(cm, com.mycompany.myapp.domain.Task.class.getName());
+            createCache(cm, com.mycompany.myapp.domain.Task.class.getName() + ".comments");
+            createCache(cm, com.mycompany.myapp.domain.Task.class.getName() + ".employeeSkills");
+            createCache(cm, com.mycompany.myapp.domain.TaskComment.class.getName());
             // jhipster-needle-ehcache-add-entry
         };
     }

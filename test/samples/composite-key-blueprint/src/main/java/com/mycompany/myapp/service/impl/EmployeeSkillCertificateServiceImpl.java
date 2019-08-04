@@ -8,14 +8,13 @@ import com.mycompany.myapp.service.mapper.EmployeeSkillCertificateMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Optional;
 import com.mycompany.myapp.domain.EmployeeSkillCertificateId;
-import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing {@link EmployeeSkillCertificate}.
@@ -52,15 +51,15 @@ public class EmployeeSkillCertificateServiceImpl implements EmployeeSkillCertifi
     /**
      * Get all the employeeSkillCertificates.
      *
+     * @param pageable the pagination information.
      * @return the list of entities.
      */
     @Override
     @Transactional(readOnly = true)
-    public List<EmployeeSkillCertificateDTO> findAll() {
+    public Page<EmployeeSkillCertificateDTO> findAll(Pageable pageable) {
         log.debug("Request to get all EmployeeSkillCertificates");
-        return employeeSkillCertificateRepository.findAll().stream()
-            .map(employeeSkillCertificateMapper::toDto)
-            .collect(Collectors.toCollection(LinkedList::new));
+        return employeeSkillCertificateRepository.findAll(pageable)
+            .map(employeeSkillCertificateMapper::toDto);
     }
 
     /**

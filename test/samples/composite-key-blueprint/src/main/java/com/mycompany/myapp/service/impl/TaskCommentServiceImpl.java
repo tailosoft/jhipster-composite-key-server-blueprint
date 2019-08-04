@@ -8,13 +8,12 @@ import com.mycompany.myapp.service.mapper.TaskCommentMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing {@link TaskComment}.
@@ -51,15 +50,15 @@ public class TaskCommentServiceImpl implements TaskCommentService {
     /**
      * Get all the taskComments.
      *
+     * @param pageable the pagination information.
      * @return the list of entities.
      */
     @Override
     @Transactional(readOnly = true)
-    public List<TaskCommentDTO> findAll() {
+    public Page<TaskCommentDTO> findAll(Pageable pageable) {
         log.debug("Request to get all TaskComments");
-        return taskCommentRepository.findAll().stream()
-            .map(taskCommentMapper::toDto)
-            .collect(Collectors.toCollection(LinkedList::new));
+        return taskCommentRepository.findAll(pageable)
+            .map(taskCommentMapper::toDto);
     }
 
     /**
