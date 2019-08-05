@@ -182,7 +182,7 @@ public class TaskResourceIT {
         taskRepository.saveAndFlush(task);
 
         // Get all the taskList
-        restTaskMockMvc.perform(get("/api/tasks?sort=id,desc"))
+        restTaskMockMvc.perform(get("/api/tasks"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(task.getId().intValue())))
@@ -302,14 +302,14 @@ public class TaskResourceIT {
      * Executes the search, and checks that the default entity is returned.
      */
     private void defaultTaskShouldBeFound(String filter) throws Exception {
-        restTaskMockMvc.perform(get("/api/tasks?sort=id,desc&" + filter))
+        restTaskMockMvc.perform(get("/api/tasks?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(task.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)));
 
         // Check, that the count call also returns 1
-        restTaskMockMvc.perform(get("/api/tasks/count?sort=id,desc&" + filter))
+        restTaskMockMvc.perform(get("/api/tasks/count?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(content().string("1"));
@@ -319,14 +319,14 @@ public class TaskResourceIT {
      * Executes the search, and checks that the default entity is not returned.
      */
     private void defaultTaskShouldNotBeFound(String filter) throws Exception {
-        restTaskMockMvc.perform(get("/api/tasks?sort=id,desc&" + filter))
+        restTaskMockMvc.perform(get("/api/tasks?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$").isEmpty());
 
         // Check, that the count call also returns 0
-        restTaskMockMvc.perform(get("/api/tasks/count?sort=id,desc&" + filter))
+        restTaskMockMvc.perform(get("/api/tasks/count?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(content().string("0"));

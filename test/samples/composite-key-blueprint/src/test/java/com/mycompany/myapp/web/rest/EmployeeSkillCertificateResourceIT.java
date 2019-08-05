@@ -258,7 +258,7 @@ public class EmployeeSkillCertificateResourceIT {
         employeeSkillCertificateRepository.saveAndFlush(employeeSkillCertificate);
 
         // Get all the employeeSkillCertificateList
-        restEmployeeSkillCertificateMockMvc.perform(get("/api/employee-skill-certificates?sort=id,desc"))
+        restEmployeeSkillCertificateMockMvc.perform(get("/api/employee-skill-certificates"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].grade").value(hasItem(DEFAULT_GRADE)))
@@ -514,14 +514,14 @@ public class EmployeeSkillCertificateResourceIT {
      * Executes the search, and checks that the default entity is returned.
      */
     private void defaultEmployeeSkillCertificateShouldBeFound(String filter) throws Exception {
-        restEmployeeSkillCertificateMockMvc.perform(get("/api/employee-skill-certificates?sort=id,desc&" + filter))
+        restEmployeeSkillCertificateMockMvc.perform(get("/api/employee-skill-certificates?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].grade").value(hasItem(DEFAULT_GRADE)))
             .andExpect(jsonPath("$.[*].date").value(hasItem(DEFAULT_DATE.toString())));
 
         // Check, that the count call also returns 1
-        restEmployeeSkillCertificateMockMvc.perform(get("/api/employee-skill-certificates/count?sort=id,desc&" + filter))
+        restEmployeeSkillCertificateMockMvc.perform(get("/api/employee-skill-certificates/count?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(content().string("1"));
@@ -531,14 +531,14 @@ public class EmployeeSkillCertificateResourceIT {
      * Executes the search, and checks that the default entity is not returned.
      */
     private void defaultEmployeeSkillCertificateShouldNotBeFound(String filter) throws Exception {
-        restEmployeeSkillCertificateMockMvc.perform(get("/api/employee-skill-certificates?sort=id,desc&" + filter))
+        restEmployeeSkillCertificateMockMvc.perform(get("/api/employee-skill-certificates?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$").isEmpty());
 
         // Check, that the count call also returns 0
-        restEmployeeSkillCertificateMockMvc.perform(get("/api/employee-skill-certificates/count?sort=id,desc&" + filter))
+        restEmployeeSkillCertificateMockMvc.perform(get("/api/employee-skill-certificates/count?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(content().string("0"));

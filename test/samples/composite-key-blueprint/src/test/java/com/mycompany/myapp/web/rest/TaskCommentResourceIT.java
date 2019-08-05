@@ -203,7 +203,7 @@ public class TaskCommentResourceIT {
         taskCommentRepository.saveAndFlush(taskComment);
 
         // Get all the taskCommentList
-        restTaskCommentMockMvc.perform(get("/api/task-comments?sort=id,desc"))
+        restTaskCommentMockMvc.perform(get("/api/task-comments"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(taskComment.getId().intValue())))
@@ -282,14 +282,14 @@ public class TaskCommentResourceIT {
      * Executes the search, and checks that the default entity is returned.
      */
     private void defaultTaskCommentShouldBeFound(String filter) throws Exception {
-        restTaskCommentMockMvc.perform(get("/api/task-comments?sort=id,desc&" + filter))
+        restTaskCommentMockMvc.perform(get("/api/task-comments?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(taskComment.getId().intValue())))
             .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE)));
 
         // Check, that the count call also returns 1
-        restTaskCommentMockMvc.perform(get("/api/task-comments/count?sort=id,desc&" + filter))
+        restTaskCommentMockMvc.perform(get("/api/task-comments/count?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(content().string("1"));
@@ -299,14 +299,14 @@ public class TaskCommentResourceIT {
      * Executes the search, and checks that the default entity is not returned.
      */
     private void defaultTaskCommentShouldNotBeFound(String filter) throws Exception {
-        restTaskCommentMockMvc.perform(get("/api/task-comments?sort=id,desc&" + filter))
+        restTaskCommentMockMvc.perform(get("/api/task-comments?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$").isEmpty());
 
         // Check, that the count call also returns 0
-        restTaskCommentMockMvc.perform(get("/api/task-comments/count?sort=id,desc&" + filter))
+        restTaskCommentMockMvc.perform(get("/api/task-comments/count?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(content().string("0"));

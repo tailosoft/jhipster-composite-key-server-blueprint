@@ -5,6 +5,14 @@ const assert = require('yeoman-assert');
 const helpers = require('yeoman-test');
 const walker = require('./path-walker');
 
+const importJdl = require('generator-jhipster/cli/import-jdl');
+
+const noopFork = () => ({
+    on(code, cb) {
+        cb(0);
+    }
+});
+
 let testDir;
 describe('Subgenerator entity-server of composite key server JHipster blueprint', () => {
     describe('Sample test', () => {
@@ -14,6 +22,8 @@ describe('Subgenerator entity-server of composite key server JHipster blueprint'
                 .inTmpDir(dir => {
                     testDir = dir;
                     fse.copySync(path.join(__dirname, '../test/templates/composite-key-blueprint'), dir);
+                    importJdl(['jhipster.jh'], { skipInstall: true, noInsight: true, interactive: false, 'skip-git': false }, {}, noopFork);
+                    // even though we use import-jdl we keep the json files to avoid changing the timestamps and therefore the liquibase files
                 })
                 .withOptions({
                     'from-cli': true,
@@ -21,8 +31,7 @@ describe('Subgenerator entity-server of composite key server JHipster blueprint'
                     blueprint: 'composite-key-server',
                     skipChecks: true,
                     // skipClient: true,
-                    withEntities: true,
-                    skipUserManagement: true
+                    withEntities: true
                 })
                 .withGenerators([
                     [

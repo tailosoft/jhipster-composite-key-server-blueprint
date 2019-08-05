@@ -26,6 +26,8 @@ public class EmployeeSkillCertificateDTO implements Serializable {
 
     private String typeName;
 
+    private String skillEmployeeFullname;
+
     public Long getTypeId(){
         return this.typeId;
     }
@@ -74,6 +76,14 @@ public class EmployeeSkillCertificateDTO implements Serializable {
         this.typeName = typeName;
     }
 
+    public String getSkillEmployeeFullname() {
+        return skillEmployeeFullname;
+    }
+
+    public void setSkillEmployeeFullname(String skillEmployeeFullname) {
+        this.skillEmployeeFullname = skillEmployeeFullname;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -108,6 +118,7 @@ public class EmployeeSkillCertificateDTO implements Serializable {
             ", grade=" + getGrade() +
             ", date='" + getDate() + "'" +
             ", typeName='" + getTypeName() + "'" +
+            ", skillEmployeeFullname='" + getSkillEmployeeFullname() + "'" +
             "}";
     }
 }

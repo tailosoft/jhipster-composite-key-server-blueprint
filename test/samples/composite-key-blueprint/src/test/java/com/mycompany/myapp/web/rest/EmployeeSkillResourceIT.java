@@ -246,7 +246,7 @@ public class EmployeeSkillResourceIT {
         employeeSkillRepository.saveAndFlush(employeeSkill);
 
         // Get all the employeeSkillList
-        restEmployeeSkillMockMvc.perform(get("/api/employee-skills?sort=id,desc"))
+        restEmployeeSkillMockMvc.perform(get("/api/employee-skills"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
@@ -507,14 +507,14 @@ public class EmployeeSkillResourceIT {
      * Executes the search, and checks that the default entity is returned.
      */
     private void defaultEmployeeSkillShouldBeFound(String filter) throws Exception {
-        restEmployeeSkillMockMvc.perform(get("/api/employee-skills?sort=id,desc&" + filter))
+        restEmployeeSkillMockMvc.perform(get("/api/employee-skills?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].level").value(hasItem(DEFAULT_LEVEL)));
 
         // Check, that the count call also returns 1
-        restEmployeeSkillMockMvc.perform(get("/api/employee-skills/count?sort=id,desc&" + filter))
+        restEmployeeSkillMockMvc.perform(get("/api/employee-skills/count?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(content().string("1"));
@@ -524,14 +524,14 @@ public class EmployeeSkillResourceIT {
      * Executes the search, and checks that the default entity is not returned.
      */
     private void defaultEmployeeSkillShouldNotBeFound(String filter) throws Exception {
-        restEmployeeSkillMockMvc.perform(get("/api/employee-skills?sort=id,desc&" + filter))
+        restEmployeeSkillMockMvc.perform(get("/api/employee-skills?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$").isEmpty());
 
         // Check, that the count call also returns 0
-        restEmployeeSkillMockMvc.perform(get("/api/employee-skills/count?sort=id,desc&" + filter))
+        restEmployeeSkillMockMvc.perform(get("/api/employee-skills/count?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(content().string("0"));

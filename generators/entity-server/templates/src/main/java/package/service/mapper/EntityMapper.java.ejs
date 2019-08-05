@@ -75,10 +75,10 @@ if(pkData.length > 1) {
             <%_ } else { _%>
     @Mapping(source = "<%= relationshipName %>.<%=pk.name%>", target = "<%= relationships[idx].relationshipFieldName %><%=pk.nameCapitalized%>")
             <%_ } _%>
+            <%_ if (pk.otherEntityField && !relationships[idx].pkData.some( x => x.name === pk.otherEntityField)) { _%>
+    @Mapping(source = "<%= pk.otherEntityFieldDTOSource %>", target = "<%= pk.formName %><%= _.upperFirst(pk.otherEntityField) %>")
+            <%_ } _%>
         <%_ }) _%>
-        <%_ if (relationships[idx].otherEntityFieldCapitalized !='Id' && relationships[idx].otherEntityFieldCapitalized !== '' && !relationships[idx].pkData.some(pk => relationships[idx].otherEntityField === pk.name)) { _%>
-    @Mapping(source = "<%= relationshipName %>.<%= relationships[idx].otherEntityField %>", target = "<%= relationships[idx].relationshipFieldName %><%= relationships[idx].otherEntityFieldCapitalized %>")
-        <%_ } _%>
     <%_ } _%>
 <%_ } _%>
     <%_ if (renMapAnotEnt === true) { _%>

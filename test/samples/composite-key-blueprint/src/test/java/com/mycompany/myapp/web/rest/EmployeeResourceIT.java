@@ -206,7 +206,7 @@ public class EmployeeResourceIT {
         employeeRepository.saveAndFlush(employee);
 
         // Get all the employeeList
-        restEmployeeMockMvc.perform(get("/api/employees?sort=id,desc"))
+        restEmployeeMockMvc.perform(get("/api/employees"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].username").value(hasItem(DEFAULT_USERNAME.toString())))
@@ -344,14 +344,14 @@ public class EmployeeResourceIT {
      * Executes the search, and checks that the default entity is returned.
      */
     private void defaultEmployeeShouldBeFound(String filter) throws Exception {
-        restEmployeeMockMvc.perform(get("/api/employees?sort=id,desc&" + filter))
+        restEmployeeMockMvc.perform(get("/api/employees?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].username").value(hasItem(DEFAULT_USERNAME)))
             .andExpect(jsonPath("$.[*].fullname").value(hasItem(DEFAULT_FULLNAME)));
 
         // Check, that the count call also returns 1
-        restEmployeeMockMvc.perform(get("/api/employees/count?sort=id,desc&" + filter))
+        restEmployeeMockMvc.perform(get("/api/employees/count?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(content().string("1"));
@@ -361,14 +361,14 @@ public class EmployeeResourceIT {
      * Executes the search, and checks that the default entity is not returned.
      */
     private void defaultEmployeeShouldNotBeFound(String filter) throws Exception {
-        restEmployeeMockMvc.perform(get("/api/employees?sort=id,desc&" + filter))
+        restEmployeeMockMvc.perform(get("/api/employees?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$").isEmpty());
 
         // Check, that the count call also returns 0
-        restEmployeeMockMvc.perform(get("/api/employees/count?sort=id,desc&" + filter))
+        restEmployeeMockMvc.perform(get("/api/employees/count?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(content().string("0"));

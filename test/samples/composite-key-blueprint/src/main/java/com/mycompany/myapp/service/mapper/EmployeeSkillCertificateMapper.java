@@ -19,6 +19,7 @@ public abstract class EmployeeSkillCertificateMapper implements EntityMapper<Emp
     @Mapping(source = "type.name", target = "typeName")
     @Mapping(source = "id.skillName", target = "skillName")
     @Mapping(source = "id.skillEmployeeUsername", target = "skillEmployeeUsername")
+    @Mapping(source = "skill.employee.fullname", target = "skillEmployeeFullname")
     public abstract EmployeeSkillCertificateDTO toDto(EmployeeSkillCertificate employeeSkillCertificate);
 
     @Mapping(source = "typeId", target = "id.typeId")

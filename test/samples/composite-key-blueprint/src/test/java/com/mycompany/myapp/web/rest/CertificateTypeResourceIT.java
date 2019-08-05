@@ -181,7 +181,7 @@ public class CertificateTypeResourceIT {
         certificateTypeRepository.saveAndFlush(certificateType);
 
         // Get all the certificateTypeList
-        restCertificateTypeMockMvc.perform(get("/api/certificate-types?sort=id,desc"))
+        restCertificateTypeMockMvc.perform(get("/api/certificate-types"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(certificateType.getId().intValue())))
@@ -301,14 +301,14 @@ public class CertificateTypeResourceIT {
      * Executes the search, and checks that the default entity is returned.
      */
     private void defaultCertificateTypeShouldBeFound(String filter) throws Exception {
-        restCertificateTypeMockMvc.perform(get("/api/certificate-types?sort=id,desc&" + filter))
+        restCertificateTypeMockMvc.perform(get("/api/certificate-types?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(certificateType.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)));
 
         // Check, that the count call also returns 1
-        restCertificateTypeMockMvc.perform(get("/api/certificate-types/count?sort=id,desc&" + filter))
+        restCertificateTypeMockMvc.perform(get("/api/certificate-types/count?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(content().string("1"));
@@ -318,14 +318,14 @@ public class CertificateTypeResourceIT {
      * Executes the search, and checks that the default entity is not returned.
      */
     private void defaultCertificateTypeShouldNotBeFound(String filter) throws Exception {
-        restCertificateTypeMockMvc.perform(get("/api/certificate-types?sort=id,desc&" + filter))
+        restCertificateTypeMockMvc.perform(get("/api/certificate-types?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$").isEmpty());
 
         // Check, that the count call also returns 0
-        restCertificateTypeMockMvc.perform(get("/api/certificate-types/count?sort=id,desc&" + filter))
+        restCertificateTypeMockMvc.perform(get("/api/certificate-types/count?" + filter))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(content().string("0"));

@@ -158,11 +158,24 @@ module.exports = class extends EntityGenerator {
                 relationship.pkData = previousContext.pkData;
             } else {
                 relationship.pkData = this._loadRelationshipPkData(relationship.otherEntityName, context);
+                if (!relationship.otherEntityField || relationship.otherEntityField === 'id') {
+                    relationship.otherEntityField = relationship.pkData[0].name;
+                }
                 relationship.pkData.forEach(pk => {
                     pk.nameCapitalized = _.upperFirst(pk.name);
                     pk.fieldValidate = relationship.relationshipValidateRules === 'required';
                     pk.fieldValidateRules = pk.fieldValidate ? ['required'] : [];
                     pk.otherEntityNameCapitalized = relationship.otherEntityNameCapitalized;
+                    pk.nameHumanized = _.startCase(context.relationshipNameHumanized);
+                    pk.formName = relationship.relationshipName + (pk.formName ? _.upperFirst(pk.formName) : '');
+                    // if two ids are created using fields we might need to check here if so this is done only once, I personally don't see any real use case for this
+                    if (!pk.otherEntityField) {
+                        pk.otherEntityField = relationship.otherEntityField;
+                    }
+                    if (!pk.otherEntityFieldDTOSource) {
+                        pk.otherEntityFieldDTOSource = pk.otherEntityField;
+                    }
+                    pk.otherEntityFieldDTOSource = `${relationship.relationshipName}.${pk.otherEntityFieldDTOSource}`;
                 });
             }
             if (relationship.options && relationship.options.id && relationship.relationshipType === 'many-to-one') {

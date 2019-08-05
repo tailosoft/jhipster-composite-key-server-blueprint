@@ -162,19 +162,20 @@ fields = realFields; _%>
 
     private Set<<%= asDto(otherEntityNameCapitalized) %>> <%= relationshipFieldNamePlural %> = new HashSet<>();
     <%_ } else if (relationshipType === 'many-to-one' || (relationshipType === 'one-to-one' && ownerSide === true)) { _%>
-        <%_ if (!relationships[idx].partOfId) { _%>
-            <%_ if (relationshipFieldName === 'user' && authenticationType === 'oauth2') { _%>
+        <%_ if (relationshipFieldName === 'user' && authenticationType === 'oauth2') { _%>
+
     private String userId;
-            <%_ } else { _%>
-                <%_ relationships[idx].pkData.forEach(pk => { _%>
+        <%_ } else { _%>
+            <%_ relationships[idx].pkData.forEach(pk => { _%>
+                <%_ if (!relationships[idx].partOfId) { _%>
 
     private <%= pk.type %> <%= relationships[idx].relationshipName %><%=pk.nameCapitalized %>;
-                <%_ });_%>
-            <%_ } _%>
-        <%_ } _%>
-        <%_ if (otherEntityFieldCapitalized !== 'Id' && otherEntityFieldCapitalized !== '' && !relationships[idx].pkData.some(pk => relationships[idx].otherEntityField === pk.name)) { _%>
+                <%_ } _%>
+                <%_ if (pk.otherEntityField && !relationships[idx].pkData.some( x => x.name === pk.otherEntityField)) { _%>
 
-    private String <%= relationshipFieldName %><%= otherEntityFieldCapitalized %>;
+    private String <%= pk.formName %><%= _.upperFirst(pk.otherEntityField) %>;
+                <%_ } _%>
+            <%_ });_%>
         <%_ } _%>
     <%_ } _%>
 <%_ } _%>
@@ -246,8 +247,7 @@ fields = realFields; _%>
     }
     <%_ } else if (relationshipType === 'many-to-one' || (relationshipType === 'one-to-one' && ownerSide === true)) { _%>
     <%_ if (relationshipNameCapitalized.length > 1) { _%>
-        <%_ if (!relationships[idx].partOfId) { _%>
-            <%_ if (relationshipFieldName === 'user' && authenticationType === 'oauth2') { _%>
+        <%_ if (relationshipFieldName === 'user' && authenticationType === 'oauth2') { _%>
 
     public String getUserId() {
         return userId;
@@ -256,8 +256,9 @@ fields = realFields; _%>
     public void setUserId(String userId) {
         this.userId =userId;
     }
-            <%_ } else { _%>
-                <%_ relationships[idx].pkData.forEach(pk => { _%>
+        <%_ } else { _%>
+            <%_ relationships[idx].pkData.forEach(pk => { _%>
+                <%_ if (!relationships[idx].partOfId) { _%>
 
     public <%= pk.type %> get<%= relationshipNameCapitalized %><%= pk.nameCapitalized %>() {
         return <%= relationshipFieldName %><%= pk.nameCapitalized %>;
@@ -266,8 +267,18 @@ fields = realFields; _%>
     public void set<%= relationshipNameCapitalized %><%= pk.nameCapitalized %>(<%= pk.type %> <%= relationshipFieldName %><%= pk.nameCapitalized %>) {
         this.<%= relationshipFieldName %><%= pk.nameCapitalized %> = <%= relationshipFieldName %><%= pk.nameCapitalized %>;
     }
-                <%_ }); _%>
-            <%_ } _%>
+                <%_ } _%>
+                <%_ if (pk.otherEntityField && !relationships[idx].pkData.some( x => x.name === pk.otherEntityField)) { _%>
+
+    public String get<%= _.upperFirst(pk.formName) %><%= _.upperFirst(pk.otherEntityField) %>() {
+        return <%= pk.formName %><%= _.upperFirst(pk.otherEntityField) %>;
+    }
+
+    public void set<%= _.upperFirst(pk.formName) %><%= _.upperFirst(pk.otherEntityField) %>(String <%= pk.formName %><%= _.upperFirst(pk.otherEntityField) %>) {
+        this.<%= pk.formName %><%= _.upperFirst(pk.otherEntityField) %> = <%= pk.formName %><%= _.upperFirst(pk.otherEntityField) %>;
+    }
+                <%_ } _%>
+            <%_ }); _%>
         <%_ } _%>
     <%_ } else { // special case when the entity name has one character _%>
     public <%= pkType %> get<%= relationshipNameCapitalized.toLowerCase() %>Id() {
@@ -278,16 +289,7 @@ fields = realFields; _%>
         this.<%= relationshipFieldName %>Id = <%= otherEntityName %>Id;
     }
     <%_ } _%>
-    <%_ if (otherEntityFieldCapitalized !== 'Id' && otherEntityFieldCapitalized !== '' && !relationships[idx].pkData.some(pk => relationships[idx].otherEntityField === pk.name)) { _%>
-
-    public String get<%= relationshipNameCapitalized %><%= otherEntityFieldCapitalized %>() {
-        return <%= relationshipFieldName %><%= otherEntityFieldCapitalized %>;
-    }
-
-    public void set<%= relationshipNameCapitalized %><%= otherEntityFieldCapitalized %>(String <%= relationshipFieldName %><%= otherEntityFieldCapitalized %>) {
-        this.<%= relationshipFieldName %><%= otherEntityFieldCapitalized %> = <%= relationshipFieldName %><%= otherEntityFieldCapitalized %>;
-    }
-    <%_ } } } _%>
+    <%_ } } _%>
 
     @Override
     public boolean equals(Object o) {
@@ -331,19 +333,21 @@ fields = realFields; _%>
                 const relationshipNameCapitalized = relationships[idx].relationshipNameCapitalized;
                 const otherEntityFieldCapitalized = relationships[idx].otherEntityFieldCapitalized;
                 const ownerSide = relationships[idx].ownerSide; _%>
-                <%_ if (relationshipType === 'many-to-one' || (relationshipType === 'one-to-one' && ownerSide === true)) {
-                    if(!relationships[idx].partOfId){  _%>
-                        <%_ if (relationshipFieldName === 'user' && authenticationType === 'oauth2') { _%>
+                <%_ if (relationshipType === 'many-to-one' || (relationshipType === 'one-to-one' && ownerSide === true)) { _%>
+                    <%_ if (relationshipFieldName === 'user' && authenticationType === 'oauth2') { _%>
             ", userId='" + getUserId() + "'" +
-                <%_ } else { _%>
-                    <%_ relationships[idx].pkData.forEach(pk => { _%>
+                    <%_ } else { _%>
+                        <%_ relationships[idx].pkData.forEach(pk => { _%>
+                            <%_ if (!relationships[idx].partOfId) { _%>
             ", <%= relationshipFieldName + pk.nameCapitalized %>='" + get<%= relationshipNameCapitalized + pk.nameCapitalized %>() + "'" +
-                    <%_ });_%>
+                            <%_ } _%>
+                            <%_ if (pk.otherEntityField && !relationships[idx].pkData.some( x => x.name === pk.otherEntityField)) { _%>
+            ", <%= pk.formName %><%= _.upperFirst(pk.otherEntityField) %>='" + get<%= _.upperFirst(pk.formName) %><%= _.upperFirst(pk.otherEntityField) %>() + "'" +
+                            <%_ } _%>
+                        <%_ }); _%>
+                    <%_ } _%>
+                <%_ } _%>
             <%_ } _%>
-                    <%_ }
-                    if (otherEntityFieldCapitalized !== 'Id' && otherEntityFieldCapitalized !== '' && !relationships[idx].pkData.some(pk => relationships[idx].otherEntityField === pk.name)) { _%>
-            ", <%= relationshipFieldName %><%= otherEntityFieldCapitalized %>='" + get<%= relationshipNameCapitalized %><%= otherEntityFieldCapitalized %>() + "'" +
-            <%_ } } } _%>
             "}";
     }
 }
