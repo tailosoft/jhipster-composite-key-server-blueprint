@@ -1,6 +1,6 @@
 {
   "name": "generator-jhipster-composite-key-server",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "this jhipster blueprint allows to generate server code with composte key using custom annotations",
   "keywords": [
     "yeoman-generator",
