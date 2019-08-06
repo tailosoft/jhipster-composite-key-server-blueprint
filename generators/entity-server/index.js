@@ -14,6 +14,7 @@ const defaultIdField = {
     fieldNameAsDatabaseColumn: 'id',
     fieldNameUnderscored: 'id',
     fieldInJavaBeanMethod: 'Id',
+    fieldNameHumanized: 'ID',
     fieldValidate: false,
     fieldValidateRules: [],
     options: { id: true }
