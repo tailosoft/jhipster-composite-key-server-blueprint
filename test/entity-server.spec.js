@@ -35,11 +35,6 @@ describe('Subgenerator entity-server of composite key server JHipster blueprint'
                 })
                 .withGenerators([
                     [
-                        require('../generators/entity/index.js'), // eslint-disable-line global-require
-                        'jhipster-composite-key-server:entity',
-                        path.join(__dirname, '../generators/entity/index.js')
-                    ],
-                    [
                         require('../generators/entity-server/index.js'), // eslint-disable-line global-require
                         'jhipster-composite-key-server:entity-server',
                         path.join(__dirname, '../generators/entity-server/index.js')
