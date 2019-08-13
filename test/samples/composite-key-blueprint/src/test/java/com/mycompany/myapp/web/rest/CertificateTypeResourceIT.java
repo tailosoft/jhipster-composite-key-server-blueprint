@@ -243,25 +243,6 @@ public class CertificateTypeResourceIT {
 
     @Test
     @Transactional
-    public void getAllCertificateTypesByEmployeeSkillCertificateTypeIdIsEqualToSomething() throws Exception {
-        // Initialize the database
-        EmployeeSkillCertificate employeeSkillCertificate = EmployeeSkillCertificateResourceIT.createEntity(em);
-        em.persist(employeeSkillCertificate);
-        em.flush();
-        certificateType.setId(employeeSkillCertificate.getId().getTypeId());
-        certificateTypeRepository.saveAndFlush(certificateType);
-        Long employeeSkillCertificateTypeId = employeeSkillCertificate.getId().getTypeId();
-
-        // Get all the certificateTypeList where employeeSkillCertificateTypeId equals to employeeSkillCertificateTypeId
-        defaultCertificateTypeShouldBeFound("employeeSkillCertificateTypeId.equals=" + employeeSkillCertificateTypeId);
-
-        // Get all the certificateTypeList where employeeSkillCertificateTypeId equals to a different employeeSkillCertificateTypeId
-        defaultCertificateTypeShouldNotBeFound("employeeSkillCertificateTypeId.equals=" + EmployeeSkillCertificateResourceIT.createUpdatedEntity(em).getId().getTypeId());
-    }
-
-
-    @Test
-    @Transactional
     public void getAllCertificateTypesByEmployeeSkillCertificateSkillNameIsEqualToSomething() throws Exception {
         // Initialize the database
         EmployeeSkillCertificate employeeSkillCertificate = EmployeeSkillCertificateResourceIT.createEntity(em);

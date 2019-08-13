@@ -94,10 +94,6 @@ public class CertificateTypeQueryService extends QueryService<CertificateType> {
             if (criteria.getName() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getName(), CertificateType_.name));
             }
-            if (criteria.getEmployeeSkillCertificateTypeId() != null) {
-                specification = specification.and(buildSpecification(criteria.getEmployeeSkillCertificateTypeId(),
-                    root -> root.join(CertificateType_.employeeSkillCertificates, JoinType.LEFT).get(EmployeeSkillCertificate_.id).get(EmployeeSkillCertificateId_.typeId)));
-            }
             if (criteria.getEmployeeSkillCertificateSkillName() != null) {
                 specification = specification.and(buildSpecification(criteria.getEmployeeSkillCertificateSkillName(),
                     root -> root.join(CertificateType_.employeeSkillCertificates, JoinType.LEFT).get(EmployeeSkillCertificate_.id).get(EmployeeSkillCertificateId_.skillName)));

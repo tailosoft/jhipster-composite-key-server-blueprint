@@ -32,8 +32,6 @@ public class EmployeeSkillCriteria implements Serializable, Criteria {
 
     private LongFilter employeeSkillCertificateTypeId;
 
-    private StringFilter employeeSkillCertificateSkillName;
-
     private LongFilter taskId;
 
     public EmployeeSkillCriteria(){
@@ -44,7 +42,6 @@ public class EmployeeSkillCriteria implements Serializable, Criteria {
         this.employeeUsername = other.employeeUsername == null ? null : other.employeeUsername.copy();
         this.level = other.level == null ? null : other.level.copy();
         this.employeeSkillCertificateTypeId = other.employeeSkillCertificateTypeId == null ? null : other.employeeSkillCertificateTypeId.copy();
-        this.employeeSkillCertificateSkillName = other.employeeSkillCertificateSkillName == null ? null : other.employeeSkillCertificateSkillName.copy();
         this.taskId = other.taskId == null ? null : other.taskId.copy();
     }
 
@@ -85,14 +82,6 @@ public class EmployeeSkillCriteria implements Serializable, Criteria {
         this.employeeSkillCertificateTypeId = employeeSkillCertificateTypeId;
     }
 
-    public StringFilter getEmployeeSkillCertificateSkillName() {
-        return employeeSkillCertificateSkillName;
-    }
-
-    public void setEmployeeSkillCertificateSkillName(StringFilter employeeSkillCertificateSkillName) {
-        this.employeeSkillCertificateSkillName = employeeSkillCertificateSkillName;
-    }
-
     public LongFilter getTaskId() {
         return taskId;
     }
@@ -115,7 +104,6 @@ public class EmployeeSkillCriteria implements Serializable, Criteria {
             Objects.equals(employeeUsername, that.employeeUsername) &&
             Objects.equals(level, that.level) &&
             Objects.equals(employeeSkillCertificateTypeId, that.employeeSkillCertificateTypeId) &&
-            Objects.equals(employeeSkillCertificateSkillName, that.employeeSkillCertificateSkillName) &&
             Objects.equals(taskId, that.taskId);
     }
 
@@ -126,7 +114,6 @@ public class EmployeeSkillCriteria implements Serializable, Criteria {
             employeeUsername,
             level,
             employeeSkillCertificateTypeId,
-            employeeSkillCertificateSkillName,
             taskId
         );
     }
@@ -138,7 +125,6 @@ public class EmployeeSkillCriteria implements Serializable, Criteria {
             (employeeUsername != null ? "employeeUsername=" + employeeUsername + ", " : "") +
             (level != null ? "level=" + level + ", " : "") +
             (employeeSkillCertificateTypeId != null ? "employeeSkillCertificateTypeId=" + employeeSkillCertificateTypeId + ", " : "") +
-            (employeeSkillCertificateSkillName != null ? "employeeSkillCertificateSkillName=" + employeeSkillCertificateSkillName + ", " : "") +
             (taskId != null ? "taskId=" + taskId + ", " : "") +
             "}";
     }

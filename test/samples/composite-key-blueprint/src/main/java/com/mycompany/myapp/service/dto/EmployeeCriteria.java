@@ -30,8 +30,6 @@ public class EmployeeCriteria implements Serializable, Criteria {
 
     private StringFilter skillName;
 
-    private StringFilter skillEmployeeUsername;
-
     public EmployeeCriteria(){
     }
 
@@ -39,7 +37,6 @@ public class EmployeeCriteria implements Serializable, Criteria {
         this.username = other.username == null ? null : other.username.copy();
         this.fullname = other.fullname == null ? null : other.fullname.copy();
         this.skillName = other.skillName == null ? null : other.skillName.copy();
-        this.skillEmployeeUsername = other.skillEmployeeUsername == null ? null : other.skillEmployeeUsername.copy();
     }
 
     @Override
@@ -71,14 +68,6 @@ public class EmployeeCriteria implements Serializable, Criteria {
         this.skillName = skillName;
     }
 
-    public StringFilter getSkillEmployeeUsername() {
-        return skillEmployeeUsername;
-    }
-
-    public void setSkillEmployeeUsername(StringFilter skillEmployeeUsername) {
-        this.skillEmployeeUsername = skillEmployeeUsername;
-    }
-
 
     @Override
     public boolean equals(Object o) {
@@ -91,8 +80,7 @@ public class EmployeeCriteria implements Serializable, Criteria {
         final EmployeeCriteria that = (EmployeeCriteria) o;
         return Objects.equals(username, that.username) &&
             Objects.equals(fullname, that.fullname) &&
-            Objects.equals(skillName, that.skillName) &&
-            Objects.equals(skillEmployeeUsername, that.skillEmployeeUsername);
+            Objects.equals(skillName, that.skillName);
     }
 
     @Override
@@ -100,8 +88,7 @@ public class EmployeeCriteria implements Serializable, Criteria {
         return Objects.hash(
             username,
             fullname,
-            skillName,
-            skillEmployeeUsername
+            skillName
         );
     }
 
@@ -111,7 +98,6 @@ public class EmployeeCriteria implements Serializable, Criteria {
             (username != null ? "username=" + username + ", " : "") +
             (fullname != null ? "fullname=" + fullname + ", " : "") +
             (skillName != null ? "skillName=" + skillName + ", " : "") +
-            (skillEmployeeUsername != null ? "skillEmployeeUsername=" + skillEmployeeUsername + ", " : "") +
             "}";
     }
 

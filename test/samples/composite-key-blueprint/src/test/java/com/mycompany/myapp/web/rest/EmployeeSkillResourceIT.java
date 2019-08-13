@@ -453,24 +453,6 @@ public class EmployeeSkillResourceIT {
 
     @Test
     @Transactional
-    public void getAllEmployeeSkillsByEmployeeSkillCertificateSkillNameIsEqualToSomething() throws Exception {
-        // Initialize the database
-        EmployeeSkillCertificate employeeSkillCertificate = EmployeeSkillCertificateResourceIT.createEntity(em);
-        em.persist(employeeSkillCertificate);
-        em.flush();
-        employeeSkillRepository.saveAndFlush(employeeSkill);
-        String employeeSkillCertificateSkillName = employeeSkillCertificate.getId().getSkillName();
-
-        // Get all the employeeSkillList where employeeSkillCertificateSkillName equals to employeeSkillCertificateSkillName
-        defaultEmployeeSkillShouldBeFound("employeeSkillCertificateSkillName.equals=" + employeeSkillCertificateSkillName);
-
-        // Get all the employeeSkillList where employeeSkillCertificateSkillName equals to a different employeeSkillCertificateSkillName
-        defaultEmployeeSkillShouldNotBeFound("employeeSkillCertificateSkillName.equals=" + EmployeeSkillCertificateResourceIT.createUpdatedEntity(em).getId().getSkillName());
-    }
-
-
-    @Test
-    @Transactional
     public void getAllEmployeeSkillsByTaskIdIsEqualToSomething() throws Exception {
         // Initialize the database
         Task task = TaskResourceIT.createEntity(em);

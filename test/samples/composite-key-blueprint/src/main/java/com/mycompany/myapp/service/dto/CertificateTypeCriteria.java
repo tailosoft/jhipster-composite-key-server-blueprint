@@ -28,8 +28,6 @@ public class CertificateTypeCriteria implements Serializable, Criteria {
 
     private StringFilter name;
 
-    private LongFilter employeeSkillCertificateTypeId;
-
     private StringFilter employeeSkillCertificateSkillName;
 
     private StringFilter employeeSkillCertificateSkillEmployeeUsername;
@@ -40,7 +38,6 @@ public class CertificateTypeCriteria implements Serializable, Criteria {
     public CertificateTypeCriteria(CertificateTypeCriteria other){
         this.id = other.id == null ? null : other.id.copy();
         this.name = other.name == null ? null : other.name.copy();
-        this.employeeSkillCertificateTypeId = other.employeeSkillCertificateTypeId == null ? null : other.employeeSkillCertificateTypeId.copy();
         this.employeeSkillCertificateSkillName = other.employeeSkillCertificateSkillName == null ? null : other.employeeSkillCertificateSkillName.copy();
         this.employeeSkillCertificateSkillEmployeeUsername = other.employeeSkillCertificateSkillEmployeeUsername == null ? null : other.employeeSkillCertificateSkillEmployeeUsername.copy();
     }
@@ -64,14 +61,6 @@ public class CertificateTypeCriteria implements Serializable, Criteria {
 
     public void setName(StringFilter name) {
         this.name = name;
-    }
-
-    public LongFilter getEmployeeSkillCertificateTypeId() {
-        return employeeSkillCertificateTypeId;
-    }
-
-    public void setEmployeeSkillCertificateTypeId(LongFilter employeeSkillCertificateTypeId) {
-        this.employeeSkillCertificateTypeId = employeeSkillCertificateTypeId;
     }
 
     public StringFilter getEmployeeSkillCertificateSkillName() {
@@ -102,7 +91,6 @@ public class CertificateTypeCriteria implements Serializable, Criteria {
         final CertificateTypeCriteria that = (CertificateTypeCriteria) o;
         return Objects.equals(id, that.id) &&
             Objects.equals(name, that.name) &&
-            Objects.equals(employeeSkillCertificateTypeId, that.employeeSkillCertificateTypeId) &&
             Objects.equals(employeeSkillCertificateSkillName, that.employeeSkillCertificateSkillName) &&
             Objects.equals(employeeSkillCertificateSkillEmployeeUsername, that.employeeSkillCertificateSkillEmployeeUsername);
     }
@@ -112,7 +100,6 @@ public class CertificateTypeCriteria implements Serializable, Criteria {
         return Objects.hash(
             id,
             name,
-            employeeSkillCertificateTypeId,
             employeeSkillCertificateSkillName,
             employeeSkillCertificateSkillEmployeeUsername
         );
@@ -123,7 +110,6 @@ public class CertificateTypeCriteria implements Serializable, Criteria {
         return "CertificateTypeCriteria{" +
             (id != null ? "id=" + id + ", " : "") +
             (name != null ? "name=" + name + ", " : "") +
-            (employeeSkillCertificateTypeId != null ? "employeeSkillCertificateTypeId=" + employeeSkillCertificateTypeId + ", " : "") +
             (employeeSkillCertificateSkillName != null ? "employeeSkillCertificateSkillName=" + employeeSkillCertificateSkillName + ", " : "") +
             (employeeSkillCertificateSkillEmployeeUsername != null ? "employeeSkillCertificateSkillEmployeeUsername=" + employeeSkillCertificateSkillEmployeeUsername + ", " : "") +
             "}";
