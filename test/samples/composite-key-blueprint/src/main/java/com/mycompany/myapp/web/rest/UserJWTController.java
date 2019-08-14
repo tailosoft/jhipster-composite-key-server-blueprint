@@ -1,4 +1,4 @@
-package com.mycompany.myapp;
+package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.security.jwt.JWTFilter;
 import com.mycompany.myapp.security.jwt.TokenProvider;
