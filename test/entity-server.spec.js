@@ -35,6 +35,11 @@ describe('Subgenerator entity-server of composite key server JHipster blueprint'
                 })
                 .withGenerators([
                     [
+                        require('../generators/server/index.js'), // eslint-disable-line global-require
+                        'jhipster-composite-key-server:server',
+                        path.join(__dirname, '../generators/server/index.js')
+                    ],
+                    [
                         require('../generators/entity-server/index.js'), // eslint-disable-line global-require
                         'jhipster-composite-key-server:entity-server',
                         path.join(__dirname, '../generators/entity-server/index.js')
@@ -63,7 +68,8 @@ describe('Subgenerator entity-server of composite key server JHipster blueprint'
                 `${javaPackage}/web/rest`,
                 `${javaPackage}/repository`,
                 `${javaPackage}/service`,
-                `${basePath}/src/test/java/com/mycompany/myapp/web/rest`
+                `${basePath}/src/test/java/com/mycompany/myapp/web/rest`,
+                `${javaPackage}/config/MatrixVariableConfiguration.java`
             ];
             filesToTest.forEach(file =>
                 walker.walk(file).forEach(f => {
