@@ -140,12 +140,14 @@ public class <%= serviceClassName %> extends QueryService<<%= asEntity(entityCla
             relationships.forEach((relationship) => {
                 if(pkData.length === 1 || !relationship.partOfId) {
                     const metamodelFieldName = (relationship.relationshipType === 'many-to-many' || relationship.relationshipType === 'one-to-many') ? relationship.relationshipFieldNamePlural : relationship.relationshipFieldName;
-                    if(relationship.pkData.length === 1 && !relationship.pkData[0].selfReference) { _%>
-            if (criteria.get<%= relationship.relationshipNameCapitalized + _.upperFirst(pkName)%>() != null) {
-                specification = specification.and(buildSpecification(criteria.get<%= relationship.relationshipNameCapitalized + _.upperFirst(pkName) %>(),
-                    root -> root.join(<%= asEntity(entityClass) %>_.<%= metamodelFieldName %>, JoinType.LEFT).get(<%= asEntity(relationship.otherEntityNameCapitalized) %>_.<%= pkName%>)));
+                    if(relationship.pkData.length === 1) {
+                        if(!relationship.pkData[0].selfReference) { _%>
+            if (criteria.get<%= relationship.relationshipNameCapitalized + _.upperFirst(relationship.pkData[0].name)%>() != null) {
+                specification = specification.and(buildSpecification(criteria.get<%= relationship.relationshipNameCapitalized + _.upperFirst(relationship.pkData[0].name) %>(),
+                    root -> root.join(<%= asEntity(entityClass) %>_.<%= metamodelFieldName %>, JoinType.LEFT).get(<%= asEntity(relationship.otherEntityNameCapitalized) %>_.<%= relationship.pkData[0].name %>)));
             }
-                    <%_ } else {
+                        <%_ }
+                    } else {
                         relationship.pkData.filter(pk => !pk.selfReference).forEach(pk => {  _%>
             if (criteria.get<%= relationship.relationshipNameCapitalized + _.upperFirst(pk.name)%>() != null) {
                 specification = specification.and(buildSpecification(criteria.get<%= relationship.relationshipNameCapitalized + _.upperFirst(pk.name) %>(),
