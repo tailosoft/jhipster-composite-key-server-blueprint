@@ -127,7 +127,7 @@ _%>
             const columnName = fields[idx].fieldNameAsDatabaseColumn;
             let columnType = fieldToColumnType(fields[idx]);
             _%>
-            <column name="<%= columnName %>" type="<%=columnType %>"<% if (autoIncrementValue && columnName === 'id' && prodDatabaseType === 'mysql' || prodDatabaseType === 'mariadb') { %> autoIncrement="true"<% } %><% if (typeof fields[idx].javadoc !== 'undefined') { %> remarks="<%- formatAsLiquibaseRemarks(fields[idx].javadoc) %>"<% } %>>
+            <column name="<%= columnName %>" type="<%=columnType %>"<% if (autoIncrementValue && columnName === 'id' && (prodDatabaseType === 'mysql' || prodDatabaseType === 'mariadb' || prodDatabaseType === 'postgresql' )) { %> autoIncrement="true"<% } %><% if (typeof fields[idx].javadoc !== 'undefined') { %> remarks="<%- formatAsLiquibaseRemarks(fields[idx].javadoc) %>"<% } %>>
                 <constraints<%_ if(fields[idx].partOfId) { %> primaryKey="true"<%_ } %> nullable="<%= nullable %>"<%_ if (unique) { _%> unique="true" uniqueConstraintName="<%= getUXConstraintName(entityTableName, columnName, prodDatabaseType) %>"<%_ } _%>/>
             </column>
             <%_ if (fields[idx].fieldType === 'byte[]' && fields[idx].fieldTypeBlobContent !== 'text') {
