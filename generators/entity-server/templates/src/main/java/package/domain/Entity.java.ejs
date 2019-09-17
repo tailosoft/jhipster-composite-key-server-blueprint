@@ -219,7 +219,7 @@ public class <%= asEntity(entityClass) %> implements Serializable {
     @Type(type = "uuid-char")
     @Column(name = "<%-fieldNameAsDatabaseColumn %>", length = 36<% if (required) { %>, nullable = false<% } %><% if (unique) { %>, unique = true<% } %>)
         <%_ } else if(fieldName !== 'id') { _%>
-    @Column(name = "<%-fieldNameAsDatabaseColumn %>"<% if (fieldValidate === true) { %><% if (fieldValidateRules.includes('maxlength')) { %>, length = <%= fieldValidateRulesMaxlength %><% } %><% if (required) { %>, nullable = false<% } %><% if (unique) { %>, unique = true<% } %><%if (fields[idx].partOfId) { %>, insertable = false, updatable = false<% } %><% } %>)
+    @Column(name = "<%-fieldNameAsDatabaseColumn %>"<% if (fieldValidate === true) { %><% if (fieldValidateRules.includes('maxlength')) { %>, length = <%= fieldValidateRulesMaxlength %><% } %><% if (required) { %>, nullable = false<% } %><% if (unique) { %>, unique = true<% } %><%if (fields[idx].partOfId && pkData.length > 1) { %>, insertable = false, updatable = false<% } %><% } %>)
         <%_ }
     } _%>
     <%_ if (databaseType === 'mongodb' || databaseType === 'couchbase') { _%>

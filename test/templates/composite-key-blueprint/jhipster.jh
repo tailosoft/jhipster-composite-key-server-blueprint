@@ -60,6 +60,12 @@ relationship ManyToMany {
     EmployeeSkill{task(name)} to Task{employeeSkill}
 }
 
+//Entity With integer id not called Id (not autoIncrement)
+entity PriceFormula {
+    @id max Integer required
+    formula String required
+}
+
 dto * with mapstruct
 service * with serviceImpl
 filter *

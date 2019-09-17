@@ -549,7 +549,8 @@ public class EmployeeSkillCertificateResourceIT {
     @Transactional
     public void getNonExistingEmployeeSkillCertificate() throws Exception {
         // Get the employeeSkillCertificate
-        restEmployeeSkillCertificateMockMvc.perform(get("/api/employee-skill-certificates/{id}", Long.MAX_VALUE))
+        EmployeeSkillCertificate employeeSkillCertificate = createUpdatedEntity(em);
+        restEmployeeSkillCertificateMockMvc.perform(get("/api/employee-skill-certificates/{id}", "typeId=" + employeeSkillCertificate.getId().getTypeId() + ";" + "skillName=" + employeeSkillCertificate.getId().getSkillName() + ";" + "skillEmployeeUsername=" + employeeSkillCertificate.getId().getSkillEmployeeUsername()))
             .andExpect(status().isNotFound());
     }
 

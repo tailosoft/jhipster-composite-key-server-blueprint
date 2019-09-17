@@ -361,7 +361,8 @@ public class EmployeeResourceIT {
     @Transactional
     public void getNonExistingEmployee() throws Exception {
         // Get the employee
-        restEmployeeMockMvc.perform(get("/api/employees/{id}", Long.MAX_VALUE))
+        Employee employee = createUpdatedEntity(em);
+        restEmployeeMockMvc.perform(get("/api/employees/{id}", employee.getUsername()))
             .andExpect(status().isNotFound());
     }
 

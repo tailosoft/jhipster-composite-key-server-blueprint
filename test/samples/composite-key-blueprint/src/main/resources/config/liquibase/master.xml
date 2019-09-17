@@ -20,6 +20,7 @@
     <include file="config/liquibase/changelog/20190803194130_added_entity_EmployeeSkillCertificate.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20190803194131_added_entity_Task.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20190803194132_added_entity_TaskComment.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20190916222324_added_entity_PriceFormula.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <include file="config/liquibase/changelog/20190803194128_added_entity_constraints_EmployeeSkill.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20190803194130_added_entity_constraints_EmployeeSkillCertificate.xml" relativeToChangelogFile="false"/>

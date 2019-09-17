@@ -524,7 +524,8 @@ public class EmployeeSkillResourceIT {
     @Transactional
     public void getNonExistingEmployeeSkill() throws Exception {
         // Get the employeeSkill
-        restEmployeeSkillMockMvc.perform(get("/api/employee-skills/{id}", Long.MAX_VALUE))
+        EmployeeSkill employeeSkill = createUpdatedEntity(em);
+        restEmployeeSkillMockMvc.perform(get("/api/employee-skills/{id}", "name=" + employeeSkill.getId().getName() + ";" + "employeeUsername=" + employeeSkill.getId().getEmployeeUsername()))
             .andExpect(status().isNotFound());
     }
 
