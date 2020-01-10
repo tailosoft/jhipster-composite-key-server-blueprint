@@ -30,6 +30,21 @@ bootRun {
     args = []
 }
 
+task webpack(type: NpmTask) {
+    inputs.files("package-lock.json")
+    inputs.files("build.gradle")
+    inputs.dir("src/main/webapp/")
+
+    def webpackDevFiles = fileTree("webpack//")
+    webpackDevFiles.exclude("webpack.prod.js")
+    inputs.files(webpackDevFiles)
+
+    outputs.dir("build/resources/main/static/")
+
+    dependsOn npmInstall
+    args = ["run", "webpack:build"]
+    environment = [APP_VERSION: project.version]
+}
 
 processResources {
     inputs.property('version', version)
@@ -44,3 +59,5 @@ processResources {
     }
 }
 
+processResources.dependsOn webpack
+bootJar.dependsOn processResources

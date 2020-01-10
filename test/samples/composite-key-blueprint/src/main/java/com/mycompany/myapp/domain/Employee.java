@@ -33,6 +33,10 @@ public class Employee implements Serializable {
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<EmployeeSkill> skills = new HashSet<>();
 
+    @OneToMany(mappedBy = "teacher")
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    private Set<EmployeeSkill> taughtSkills = new HashSet<>();
+
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
 
     public String getUsername() {
@@ -84,6 +88,31 @@ public class Employee implements Serializable {
 
     public void setSkills(Set<EmployeeSkill> employeeSkills) {
         this.skills = employeeSkills;
+    }
+
+    public Set<EmployeeSkill> getTaughtSkills() {
+        return taughtSkills;
+    }
+
+    public Employee taughtSkills(Set<EmployeeSkill> employeeSkills) {
+        this.taughtSkills = employeeSkills;
+        return this;
+    }
+
+    public Employee addTaughtSkill(EmployeeSkill employeeSkill) {
+        this.taughtSkills.add(employeeSkill);
+        employeeSkill.setTeacher(this);
+        return this;
+    }
+
+    public Employee removeTaughtSkill(EmployeeSkill employeeSkill) {
+        this.taughtSkills.remove(employeeSkill);
+        employeeSkill.setTeacher(null);
+        return this;
+    }
+
+    public void setTaughtSkills(Set<EmployeeSkill> employeeSkills) {
+        this.taughtSkills = employeeSkills;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 

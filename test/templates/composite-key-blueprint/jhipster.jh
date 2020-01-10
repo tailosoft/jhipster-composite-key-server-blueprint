@@ -44,9 +44,23 @@ relationship OneToMany{
 
 entity Task {
     name String required
+    type TaskType required
+    endDate LocalDate
+    createdAt ZonedDateTime required
+    modifiedAt Instant required
+    done Boolean required
+    description TextBlob required
+    attachment Blob required
+    picture ImageBlob required
+}
+
+enum TaskType {
+    TYPE1, TYPE2, TYPE3
 }
 
 entity TaskComment {
+    // detect autoIncrement
+    @id id Long
     value String required
 }
 
@@ -58,6 +72,11 @@ relationship ManyToOne {
 //ManyToMany with complex ids
 relationship ManyToMany {
     EmployeeSkill{task(name)} to Task{employeeSkill}
+}
+
+//double OneToMany to check double imports, variables names...
+relationship OneToMany {
+    Employee{taughtSkill(name)} to EmployeeSkill{teacher(fullname) required}
 }
 
 //Entity With integer id not called Id (not autoIncrement)

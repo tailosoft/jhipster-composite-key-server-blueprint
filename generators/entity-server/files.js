@@ -39,16 +39,49 @@ faker.seed(42);
  * For any other config an object { file:.., method:.., template:.. } can be used
  */
 const serverFiles = {
-    db: [
+    dbChangelog: [
         {
-            condition: generator => generator.databaseType === 'sql',
+            condition: generator => generator.databaseType === 'sql' && !generator.skipDbChangelog,
             path: SERVER_MAIN_RES_DIR,
             templates: [
                 {
                     file: 'config/liquibase/changelog/added_entity.xml',
                     options: { interpolate: INTERPOLATE_REGEX },
                     renameTo: generator => `config/liquibase/changelog/${generator.changelogDate}_added_entity_${generator.entityClass}.xml`
-                },
+                }
+            ]
+        },
+        {
+            condition: generator =>
+                generator.databaseType === 'sql' &&
+                !generator.skipDbChangelog &&
+                (generator.fieldsContainOwnerManyToMany || generator.fieldsContainOwnerOneToOne || generator.fieldsContainManyToOne),
+            path: SERVER_MAIN_RES_DIR,
+            templates: [
+                {
+                    file: 'config/liquibase/changelog/added_entity_constraints.xml',
+                    options: { interpolate: INTERPOLATE_REGEX },
+                    renameTo: generator =>
+                        `config/liquibase/changelog/${generator.changelogDate}_added_entity_constraints_${generator.entityClass}.xml`
+                }
+            ]
+        },
+        {
+            condition: generator => generator.databaseType === 'cassandra' && !generator.skipDbChangelog,
+            path: SERVER_MAIN_RES_DIR,
+            templates: [
+                {
+                    file: 'config/cql/changelog/added_entity.cql',
+                    renameTo: generator => `config/cql/changelog/${generator.changelogDate}_added_entity_${generator.entityClass}.cql`
+                }
+            ]
+        }
+    ],
+    fakeData: [
+        {
+            condition: generator => generator.databaseType === 'sql' && !generator.skipFakeData && !generator.skipDbChangelog,
+            path: SERVER_MAIN_RES_DIR,
+            templates: [
                 {
                     file: 'config/liquibase/fake-data/table.csv',
                     options: {
@@ -65,37 +98,20 @@ const serverFiles = {
         {
             condition: generator =>
                 generator.databaseType === 'sql' &&
-                (generator.fieldsContainOwnerManyToMany || generator.fieldsContainOwnerOneToOne || generator.fieldsContainManyToOne),
-            path: SERVER_MAIN_RES_DIR,
-            templates: [
-                {
-                    file: 'config/liquibase/changelog/added_entity_constraints.xml',
-                    options: { interpolate: INTERPOLATE_REGEX },
-                    renameTo: generator =>
-                        `config/liquibase/changelog/${generator.changelogDate}_added_entity_constraints_${generator.entityClass}.xml`
-                }
-            ]
-        },
-        {
-            condition: generator =>
-                generator.databaseType === 'sql' && (generator.fieldsContainImageBlob === true || generator.fieldsContainBlob === true),
+                !generator.skipFakeData &&
+                !generator.skipDbChangelog &&
+                (generator.fieldsContainImageBlob === true || generator.fieldsContainBlob === true),
             path: SERVER_MAIN_RES_DIR,
             templates: [{ file: 'config/liquibase/fake-data/blob/hipster.png', method: 'copy', noEjs: true }]
         },
         {
-            condition: generator => generator.databaseType === 'sql' && generator.fieldsContainTextBlob === true,
+            condition: generator =>
+                generator.databaseType === 'sql' &&
+                !generator.skipFakeData &&
+                !generator.skipDbChangelog &&
+                generator.fieldsContainTextBlob === true,
             path: SERVER_MAIN_RES_DIR,
             templates: [{ file: 'config/liquibase/fake-data/blob/hipster.txt', method: 'copy' }]
-        },
-        {
-            condition: generator => generator.databaseType === 'cassandra',
-            path: SERVER_MAIN_RES_DIR,
-            templates: [
-                {
-                    file: 'config/cql/changelog/added_entity.cql',
-                    renameTo: generator => `config/cql/changelog/${generator.changelogDate}_added_entity_${generator.entityClass}.cql`
-                }
-            ]
         }
     ],
     server: [

@@ -34,6 +34,8 @@ public class EmployeeSkillCriteria implements Serializable, Criteria {
 
     private LongFilter taskId;
 
+    private StringFilter teacherUsername;
+
     public EmployeeSkillCriteria(){
     }
 
@@ -43,6 +45,7 @@ public class EmployeeSkillCriteria implements Serializable, Criteria {
         this.level = other.level == null ? null : other.level.copy();
         this.employeeSkillCertificateTypeId = other.employeeSkillCertificateTypeId == null ? null : other.employeeSkillCertificateTypeId.copy();
         this.taskId = other.taskId == null ? null : other.taskId.copy();
+        this.teacherUsername = other.teacherUsername == null ? null : other.teacherUsername.copy();
     }
 
     @Override
@@ -90,6 +93,14 @@ public class EmployeeSkillCriteria implements Serializable, Criteria {
         this.taskId = taskId;
     }
 
+    public StringFilter getTeacherUsername() {
+        return teacherUsername;
+    }
+
+    public void setTeacherUsername(StringFilter teacherUsername) {
+        this.teacherUsername = teacherUsername;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -104,7 +115,8 @@ public class EmployeeSkillCriteria implements Serializable, Criteria {
             Objects.equals(employeeUsername, that.employeeUsername) &&
             Objects.equals(level, that.level) &&
             Objects.equals(employeeSkillCertificateTypeId, that.employeeSkillCertificateTypeId) &&
-            Objects.equals(taskId, that.taskId);
+            Objects.equals(taskId, that.taskId) &&
+            Objects.equals(teacherUsername, that.teacherUsername);
     }
 
     @Override
@@ -114,7 +126,8 @@ public class EmployeeSkillCriteria implements Serializable, Criteria {
             employeeUsername,
             level,
             employeeSkillCertificateTypeId,
-            taskId
+            taskId,
+            teacherUsername
         );
     }
 
@@ -126,6 +139,7 @@ public class EmployeeSkillCriteria implements Serializable, Criteria {
             (level != null ? "level=" + level + ", " : "") +
             (employeeSkillCertificateTypeId != null ? "employeeSkillCertificateTypeId=" + employeeSkillCertificateTypeId + ", " : "") +
             (taskId != null ? "taskId=" + taskId + ", " : "") +
+            (teacherUsername != null ? "teacherUsername=" + teacherUsername + ", " : "") +
             "}";
     }
 

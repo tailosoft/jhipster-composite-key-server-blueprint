@@ -6,6 +6,7 @@ bootWar {
 }
 
 war {
+    webAppDirName = "build/resources/main/static/"
     enabled = true
     archiveExtension = "war.original"
     includes = ["WEB-INF/**", "META-INF/**"]

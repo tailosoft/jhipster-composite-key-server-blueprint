@@ -94,6 +94,21 @@ public class TaskQueryService extends QueryService<Task> {
             if (criteria.getName() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getName(), Task_.name));
             }
+            if (criteria.getType() != null) {
+                specification = specification.and(buildSpecification(criteria.getType(), Task_.type));
+            }
+            if (criteria.getEndDate() != null) {
+                specification = specification.and(buildRangeSpecification(criteria.getEndDate(), Task_.endDate));
+            }
+            if (criteria.getCreatedAt() != null) {
+                specification = specification.and(buildRangeSpecification(criteria.getCreatedAt(), Task_.createdAt));
+            }
+            if (criteria.getModifiedAt() != null) {
+                specification = specification.and(buildRangeSpecification(criteria.getModifiedAt(), Task_.modifiedAt));
+            }
+            if (criteria.getDone() != null) {
+                specification = specification.and(buildSpecification(criteria.getDone(), Task_.done));
+            }
             if (criteria.getCommentId() != null) {
                 specification = specification.and(buildSpecification(criteria.getCommentId(),
                     root -> root.join(Task_.comments, JoinType.LEFT).get(TaskComment_.id)));

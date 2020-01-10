@@ -8,8 +8,13 @@ import javax.validation.constraints.*;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
+
+import com.mycompany.myapp.domain.enumeration.TaskType;
 
 /**
  * A Task.
@@ -28,6 +33,47 @@ public class Task implements Serializable {
     @NotNull
     @Column(name = "name", nullable = false)
     private String name;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
+    private TaskType type;
+
+    @Column(name = "end_date")
+    private LocalDate endDate;
+
+    @NotNull
+    @Column(name = "created_at", nullable = false)
+    private ZonedDateTime createdAt;
+
+    @NotNull
+    @Column(name = "modified_at", nullable = false)
+    private Instant modifiedAt;
+
+    @NotNull
+    @Column(name = "done", nullable = false)
+    private Boolean done;
+
+    
+    @Lob
+    @Column(name = "description", nullable = false)
+    private String description;
+
+    
+    @Lob
+    @Column(name = "attachment", nullable = false)
+    private byte[] attachment;
+
+    @Column(name = "attachment_content_type", nullable = false)
+    private String attachmentContentType;
+
+    
+    @Lob
+    @Column(name = "picture", nullable = false)
+    private byte[] picture;
+
+    @Column(name = "picture_content_type", nullable = false)
+    private String pictureContentType;
 
     @OneToMany(mappedBy = "task")
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
@@ -64,6 +110,136 @@ public class Task implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public TaskType getType() {
+        return type;
+    }
+
+    public Task type(TaskType type) {
+        this.type = type;
+        return this;
+    }
+
+    public void setType(TaskType type) {
+        this.type = type;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public Task endDate(LocalDate endDate) {
+        this.endDate = endDate;
+        return this;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
+    public ZonedDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public Task createdAt(ZonedDateTime createdAt) {
+        this.createdAt = createdAt;
+        return this;
+    }
+
+    public void setCreatedAt(ZonedDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getModifiedAt() {
+        return modifiedAt;
+    }
+
+    public Task modifiedAt(Instant modifiedAt) {
+        this.modifiedAt = modifiedAt;
+        return this;
+    }
+
+    public void setModifiedAt(Instant modifiedAt) {
+        this.modifiedAt = modifiedAt;
+    }
+
+    public Boolean isDone() {
+        return done;
+    }
+
+    public Task done(Boolean done) {
+        this.done = done;
+        return this;
+    }
+
+    public void setDone(Boolean done) {
+        this.done = done;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Task description(String description) {
+        this.description = description;
+        return this;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public byte[] getAttachment() {
+        return attachment;
+    }
+
+    public Task attachment(byte[] attachment) {
+        this.attachment = attachment;
+        return this;
+    }
+
+    public void setAttachment(byte[] attachment) {
+        this.attachment = attachment;
+    }
+
+    public String getAttachmentContentType() {
+        return attachmentContentType;
+    }
+
+    public Task attachmentContentType(String attachmentContentType) {
+        this.attachmentContentType = attachmentContentType;
+        return this;
+    }
+
+    public void setAttachmentContentType(String attachmentContentType) {
+        this.attachmentContentType = attachmentContentType;
+    }
+
+    public byte[] getPicture() {
+        return picture;
+    }
+
+    public Task picture(byte[] picture) {
+        this.picture = picture;
+        return this;
+    }
+
+    public void setPicture(byte[] picture) {
+        this.picture = picture;
+    }
+
+    public String getPictureContentType() {
+        return pictureContentType;
+    }
+
+    public Task pictureContentType(String pictureContentType) {
+        this.pictureContentType = pictureContentType;
+        return this;
+    }
+
+    public void setPictureContentType(String pictureContentType) {
+        this.pictureContentType = pictureContentType;
     }
 
     public Set<TaskComment> getComments() {
@@ -138,6 +314,16 @@ public class Task implements Serializable {
         return "Task{" +
             ", id=" + getId() +
             ", name='" + getName() + "'" +
+            ", type='" + getType() + "'" +
+            ", endDate='" + getEndDate() + "'" +
+            ", createdAt='" + getCreatedAt() + "'" +
+            ", modifiedAt='" + getModifiedAt() + "'" +
+            ", done='" + isDone() + "'" +
+            ", description='" + getDescription() + "'" +
+            ", attachment='" + getAttachment() + "'" +
+            ", attachmentContentType='" + getAttachmentContentType() + "'" +
+            ", picture='" + getPicture() + "'" +
+            ", pictureContentType='" + getPictureContentType() + "'" +
             "}";
     }
 }

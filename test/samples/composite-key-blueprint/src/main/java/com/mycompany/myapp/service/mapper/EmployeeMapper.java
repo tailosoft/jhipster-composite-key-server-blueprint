@@ -13,6 +13,8 @@ public interface EmployeeMapper extends EntityMapper<EmployeeDTO, Employee> {
 
     @Mapping(target = "skills", ignore = true)
     @Mapping(target = "removeSkill", ignore = true)
+    @Mapping(target = "taughtSkills", ignore = true)
+    @Mapping(target = "removeTaughtSkill", ignore = true)
     Employee toEntity(EmployeeDTO employeeDTO);
 
     default Employee fromUsername(String username) {

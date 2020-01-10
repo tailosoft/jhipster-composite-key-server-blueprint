@@ -3,9 +3,9 @@ const fse = require('fs-extra');
 const fs = require('fs');
 const assert = require('yeoman-assert');
 const helpers = require('yeoman-test');
-const walker = require('./path-walker');
 
 const importJdl = require('generator-jhipster/cli/import-jdl');
+const walker = require('./path-walker');
 
 const noopFork = () => ({
     on(code, cb) {

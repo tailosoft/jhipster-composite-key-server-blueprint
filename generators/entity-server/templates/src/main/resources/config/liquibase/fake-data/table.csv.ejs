@@ -136,7 +136,7 @@ this.generateForField = field => {
     if (field.fieldIsEnum) {
         if (field.fieldValues.length !== 0) {
             const enums = field.fieldValues.split(',');
-            data = enums[Math.floor(Math.random() * Math.floor(enums.length))];
+            data = enums[this.faker.random.number(enums.length-1)];
         } else {
             data = '';
         }

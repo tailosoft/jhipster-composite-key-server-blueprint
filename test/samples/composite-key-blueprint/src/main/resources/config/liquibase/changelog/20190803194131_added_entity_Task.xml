@@ -17,9 +17,41 @@
             <column name="name" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="type" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_date" type="date">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created_at" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_at" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="done" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="${clobType}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="attachment" type="longblob">
+                <constraints nullable="false"/>
+            </column>
+            <column name="attachment_content_type" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="picture" type="longblob">
+                <constraints nullable="false"/>
+            </column>
+            <column name="picture_content_type" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
 
+        <dropDefaultValue tableName="task" columnName="created_at" columnDataType="datetime"/>
+        <dropDefaultValue tableName="task" columnName="modified_at" columnDataType="datetime"/>
     </changeSet>
 
     <changeSet id="20190803194131-1-relations" author="jhipster">
@@ -41,6 +73,16 @@
             tableName="task">
             <column name="id" type="numeric"/>
             <column name="name" type="string"/>
+            <column name="type" type="string"/>
+            <column name="end_date" type="date"/>
+            <column name="created_at" type="datetime"/>
+            <column name="modified_at" type="datetime"/>
+            <column name="done" type="boolean"/>
+            <column name="description" type="clob"/>
+            <column name="attachment" type="blob"/>
+            <column name="attachment_content_type" type="string"/>
+            <column name="picture" type="blob"/>
+            <column name="picture_content_type" type="string"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>
     </changeSet>

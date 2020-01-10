@@ -23,6 +23,10 @@ public class EmployeeSkillDTO implements Serializable {
 
     private String employeeFullname;
 
+    private String teacherUsername;
+
+    private String teacherFullname;
+
     public String getName(){
         return this.name;
     }
@@ -63,6 +67,22 @@ public class EmployeeSkillDTO implements Serializable {
         this.employeeFullname = employeeFullname;
     }
 
+    public String getTeacherUsername() {
+        return teacherUsername;
+    }
+
+    public void setTeacherUsername(String teacherUsername) {
+        this.teacherUsername = teacherUsername;
+    }
+
+    public String getTeacherFullname() {
+        return teacherFullname;
+    }
+
+    public void setTeacherFullname(String teacherFullname) {
+        this.teacherFullname = teacherFullname;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -93,6 +113,8 @@ public class EmployeeSkillDTO implements Serializable {
             ", employeeUsername='" + getEmployeeUsername() + "'" +
             ", level=" + getLevel() +
             ", employeeFullname='" + getEmployeeFullname() + "'" +
+            ", teacherUsername='" + getTeacherUsername() + "'" +
+            ", teacherFullname='" + getTeacherFullname() + "'" +
             "}";
     }
 }

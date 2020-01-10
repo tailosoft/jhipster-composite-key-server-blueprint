@@ -125,6 +125,8 @@ public class EmployeeSkillResourceIT {
             em.flush();
         }
         employeeSkill.setEmployee(employee);
+        // Add required entity
+        employeeSkill.setTeacher(employee);
         employeeSkill.setId(new EmployeeSkillId(DEFAULT_NAME, employee.getUsername()));
         return employeeSkill;
     }
@@ -149,6 +151,8 @@ public class EmployeeSkillResourceIT {
             em.flush();
         }
         employeeSkill.setEmployee(employee);
+        // Add required entity
+        employeeSkill.setTeacher(employee);
         employeeSkill.setId(new EmployeeSkillId(UPDATED_NAME, employee.getUsername()));
         return employeeSkill;
     }
@@ -483,6 +487,22 @@ public class EmployeeSkillResourceIT {
 
         // Get all the employeeSkillList where employeeUsername equals to a different employeeUsername
         defaultEmployeeSkillShouldNotBeFound("employeeUsername.equals=" + EmployeeResourceIT.createUpdatedEntity(em).getUsername());
+    }
+
+
+    @Test
+    @Transactional
+    public void getAllEmployeeSkillsByTeacherUsernameIsEqualToSomething() throws Exception {
+        // Get already existing entity
+        Employee teacher = employeeSkill.getTeacher();
+        employeeSkillRepository.saveAndFlush(employeeSkill);
+        String teacherUsername = teacher.getUsername();
+
+        // Get all the employeeSkillList where teacherUsername equals to teacherUsername
+        defaultEmployeeSkillShouldBeFound("teacherUsername.equals=" + teacherUsername);
+
+        // Get all the employeeSkillList where teacherUsername equals to a different teacherUsername
+        defaultEmployeeSkillShouldNotBeFound("teacherUsername.equals=" + EmployeeResourceIT.createUpdatedEntity(em).getUsername());
     }
 
     /**

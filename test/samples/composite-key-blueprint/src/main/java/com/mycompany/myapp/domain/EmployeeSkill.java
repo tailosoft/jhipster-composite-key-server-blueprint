@@ -49,6 +49,11 @@ public class EmployeeSkill implements Serializable {
     @JsonIgnoreProperties("skills")
     private Employee employee;
 
+    @ManyToOne(optional = false)
+    @NotNull
+    @JsonIgnoreProperties("taughtSkills")
+    private Employee teacher;
+
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
 
     public EmployeeSkillId getId() {
@@ -146,6 +151,19 @@ public class EmployeeSkill implements Serializable {
 
     public void setEmployee(Employee employee) {
         this.employee = employee;
+    }
+
+    public Employee getTeacher() {
+        return teacher;
+    }
+
+    public EmployeeSkill teacher(Employee employee) {
+        this.teacher = employee;
+        return this;
+    }
+
+    public void setTeacher(Employee employee) {
+        this.teacher = employee;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 

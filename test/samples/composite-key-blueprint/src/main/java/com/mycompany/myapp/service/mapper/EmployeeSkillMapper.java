@@ -14,6 +14,8 @@ public interface EmployeeSkillMapper extends EntityMapper<EmployeeSkillDTO, Empl
     @Mapping(source = "id.name", target = "name")
     @Mapping(source = "id.employeeUsername", target = "employeeUsername")
     @Mapping(source = "employee.fullname", target = "employeeFullname")
+    @Mapping(source = "teacher.username", target = "teacherUsername")
+    @Mapping(source = "teacher.fullname", target = "teacherFullname")
     EmployeeSkillDTO toDto(EmployeeSkill employeeSkill);
 
     @Mapping(source = "name", target = "id.name")
@@ -22,6 +24,7 @@ public interface EmployeeSkillMapper extends EntityMapper<EmployeeSkillDTO, Empl
     @Mapping(target = "removeTask", ignore = true)
     @Mapping(source = "employeeUsername", target = "id.employeeUsername")
     @Mapping(source = "employeeUsername", target = "employee")
+    @Mapping(source = "teacherUsername", target = "teacher")
     EmployeeSkill toEntity(EmployeeSkillDTO employeeSkillDTO);
 
     default EmployeeSkill fromId(EmployeeSkillId id) {

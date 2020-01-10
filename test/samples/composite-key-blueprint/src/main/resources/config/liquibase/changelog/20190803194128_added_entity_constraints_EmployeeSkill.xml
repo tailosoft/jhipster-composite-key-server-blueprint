@@ -22,5 +22,10 @@
                                  constraintName="fk_employee_skill_employee_id"
                                  referencedColumnNames="username"
                                  referencedTableName="employee"/>
+        <addForeignKeyConstraint baseColumnNames="teacher_username"
+                                 baseTableName="employee_skill"
+                                 constraintName="fk_employee_skill_teacher_id"
+                                 referencedColumnNames="username"
+                                 referencedTableName="employee"/>
     </changeSet>
 </databaseChangeLog>

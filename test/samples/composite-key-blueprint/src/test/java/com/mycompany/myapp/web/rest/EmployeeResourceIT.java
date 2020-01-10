@@ -322,6 +322,24 @@ public class EmployeeResourceIT {
         defaultEmployeeShouldNotBeFound("skillName.equals=" + EmployeeSkillResourceIT.createUpdatedEntity(em).getId().getName());
     }
 
+
+    @Test
+    @Transactional
+    public void getAllEmployeesByTaughtSkillNameIsEqualToSomething() throws Exception {
+        // Initialize the database
+        EmployeeSkill taughtSkill = EmployeeSkillResourceIT.createEntity(em);
+        em.persist(taughtSkill);
+        em.flush();
+        employeeRepository.saveAndFlush(employee);
+        String taughtSkillName = taughtSkill.getId().getName();
+
+        // Get all the employeeList where taughtSkillName equals to taughtSkillName
+        defaultEmployeeShouldBeFound("taughtSkillName.equals=" + taughtSkillName);
+
+        // Get all the employeeList where taughtSkillName equals to a different taughtSkillName
+        defaultEmployeeShouldNotBeFound("taughtSkillName.equals=" + EmployeeSkillResourceIT.createUpdatedEntity(em).getId().getName());
+    }
+
     /**
      * Executes the search, and checks that the default entity is returned.
      */

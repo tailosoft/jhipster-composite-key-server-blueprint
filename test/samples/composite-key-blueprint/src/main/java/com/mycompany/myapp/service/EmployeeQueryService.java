@@ -98,6 +98,10 @@ public class EmployeeQueryService extends QueryService<Employee> {
                 specification = specification.and(buildSpecification(criteria.getSkillName(),
                     root -> root.join(Employee_.skills, JoinType.LEFT).get(EmployeeSkill_.id).get(EmployeeSkillId_.name)));
             }
+            if (criteria.getTaughtSkillName() != null) {
+                specification = specification.and(buildSpecification(criteria.getTaughtSkillName(),
+                    root -> root.join(Employee_.taughtSkills, JoinType.LEFT).get(EmployeeSkill_.id).get(EmployeeSkillId_.name)));
+            }
         }
         return specification;
     }

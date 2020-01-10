@@ -19,6 +19,14 @@ bootRun {
     args = []
 }
 
+task webpack_test(type: NpmTask, dependsOn: "npmInstall") {
+    args = ["run", "webpack:test"]
+}
+
+task webpack(type: NpmTask, dependsOn: "npmInstall") {
+    args = ["run", "webpack:prod"]
+    environment = [APP_VERSION: project.version]
+}
 
 processResources {
     inputs.property('version', version)
@@ -43,3 +51,6 @@ gitProperties {
     keys = ["git.branch", "git.commit.id.abbrev", "git.commit.id.describe"]
 }
 
+test.dependsOn webpack_test
+processResources.dependsOn webpack
+bootJar.dependsOn processResources
