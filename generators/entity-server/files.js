@@ -17,12 +17,14 @@
  * limitations under the License.
  */
 const _ = require('lodash');
-const randexp = require('randexp');
 const chalk = require('chalk');
 const faker = require('faker');
 const fs = require('fs');
 const utils = require('generator-jhipster/generators/utils');
 const constants = require('generator-jhipster/generators/generator-constants');
+
+/* Use customized randexp */
+const randexp = utils.RandexpWithFaker;
 
 /* Constants use throughout */
 const INTERPOLATE_REGEX = constants.INTERPOLATE_REGEX;
@@ -31,8 +33,40 @@ const SERVER_MAIN_RES_DIR = constants.SERVER_MAIN_RES_DIR;
 const TEST_DIR = constants.TEST_DIR;
 const SERVER_TEST_SRC_DIR = constants.SERVER_TEST_SRC_DIR;
 
-// In order to have consistent results with Faker, the seed is fixed.
-faker.seed(42);
+/*
+ * Current faker version is 4.1.0 and was release in 2017
+ * It is outdated
+ * https://github.com/Marak/faker.js/blob/10bfb9f467b0ac2b8912ffc15690b50ef3244f09/lib/date.js#L73-L96
+ * Needed for reproducible builds
+ */
+const getRecentDate = function(days, refDate) {
+    let date = new Date();
+    if (refDate !== undefined) {
+        date = new Date(Date.parse(refDate));
+    }
+
+    const range = {
+        min: 1000,
+        max: (days || 1) * 24 * 3600 * 1000
+    };
+
+    let future = date.getTime();
+    future -= faker.random.number(range); // some time from now to N days ago, in milliseconds
+    date.setTime(future);
+
+    return date;
+};
+
+const getRecentForLiquibase = function(days, changelogDate) {
+    let formatedDate;
+    if (changelogDate !== undefined) {
+        formatedDate = `${changelogDate.substring(0, 4)}-${changelogDate.substring(4, 6)}-${changelogDate.substring(
+            6,
+            8
+        )}T${changelogDate.substring(8, 10)}:${changelogDate.substring(10, 12)}:${changelogDate.substring(12, 14)}+00:00`;
+    }
+    return getRecentDate(1, formatedDate);
+};
 
 /**
  * The default is to use a file path string. It implies use of the template method.
@@ -87,6 +121,7 @@ const serverFiles = {
                     options: {
                         interpolate: INTERPOLATE_REGEX,
                         context: {
+                            getRecentForLiquibase,
                             faker,
                             randexp
                         }
@@ -261,6 +296,37 @@ const serverFiles = {
                     renameTo: generator => `gatling/user-files/simulations/${generator.entityClass}GatlingTest.scala`
                 }
             ]
+        },
+        {
+            path: SERVER_TEST_SRC_DIR,
+            templates: [
+                {
+                    file: 'package/domain/EntityTest.java',
+                    renameTo: generator => `${generator.packageFolder}/domain/${generator.entityClass}Test.java`
+                }
+            ]
+        },
+        {
+            condition: generator => generator.dto === 'mapstruct',
+            path: SERVER_TEST_SRC_DIR,
+            templates: [
+                {
+                    file: 'package/service/dto/EntityDTOTest.java',
+                    renameTo: generator => `${generator.packageFolder}/service/dto/${generator.asDto(generator.entityClass)}Test.java`
+                }
+            ]
+        },
+        {
+            condition: generator =>
+                generator.dto === 'mapstruct' &&
+                (generator.databaseType === 'sql' || generator.databaseType === 'mongodb' || generator.databaseType === 'couchbase'),
+            path: SERVER_TEST_SRC_DIR,
+            templates: [
+                {
+                    file: 'package/service/mapper/EntityMapperTest.java',
+                    renameTo: generator => `${generator.packageFolder}/service/mapper/${generator.entityClass}MapperTest.java`
+                }
+            ]
         }
     ]
 };
@@ -282,6 +348,13 @@ function writeFiles() {
             );
         },
 
+        setupReproducibility() {
+            if (this.skipServer) return;
+
+            // In order to have consistent results with Faker, restart seed with current entity name hash.
+            faker.seed(utils.stringHashCode(this.name.toLowerCase()));
+        },
+
         writeServerFiles() {
             if (this.skipServer) return;
 
@@ -289,12 +362,14 @@ function writeFiles() {
             this.writeFilesToDisk(serverFiles, this, false, '.');
 
             if (this.databaseType === 'sql') {
-                if (this.fieldsContainOwnerManyToMany || this.fieldsContainOwnerOneToOne || this.fieldsContainManyToOne) {
-                    this.addConstraintsChangelogToLiquibase(`${this.changelogDate}_added_entity_constraints_${this.entityClass}`);
+                if (!this.skipDbChangelog) {
+                    if (this.fieldsContainOwnerManyToMany || this.fieldsContainOwnerOneToOne || this.fieldsContainManyToOne) {
+                        this.addConstraintsChangelogToLiquibase(`${this.changelogDate}_added_entity_constraints_${this.entityClass}`);
+                    }
+                    this.addChangelogToLiquibase(`${this.changelogDate}_added_entity_${this.entityClass}`);
                 }
-                this.addChangelogToLiquibase(`${this.changelogDate}_added_entity_${this.entityClass}`);
 
-                if (['ehcache', 'infinispan'].includes(this.cacheProvider) && this.enableHibernateCache) {
+                if (['ehcache', 'caffeine', 'infinispan', 'redis'].includes(this.cacheProvider) && this.enableHibernateCache) {
                     this.addEntityToCache(
                         this.asEntity(this.entityClass),
                         this.relationships,

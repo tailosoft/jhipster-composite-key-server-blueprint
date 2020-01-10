@@ -84,11 +84,11 @@ this.generateForField = field => {
     } else if (columnType === 'boolean') {
         data = this.faker.random.boolean();
     } else if (columnType === 'date') {
-        data = this.faker.date.past(1/12, referenceDate).toISOString().split('T')[0];
+        data = this.getRecentForLiquibase(1, changelogDate).toISOString().split('T')[0];
     } else if (columnType === 'datetime') {
         // Write the date without milliseconds so Java can parse it
         // See https://stackoverflow.com/a/34053802/150868
-        data = this.faker.date.past(1/12, referenceDate).toISOString().split('.')[0];
+        data = this.getRecentForLiquibase(1, changelogDate).toISOString().split('.')[0];
     } else if (columnType.startsWith('varchar')) {
         let columnName = field.fieldNameAsDatabaseColumn;
         if (columnName === 'first_name') {
@@ -150,7 +150,8 @@ this.generateForField = field => {
     // Validation rules
     if (field.fieldValidate === true) {
         if (field.fieldValidateRules.includes('pattern')) {
-            data = new this.randexp(field.fieldValidateRulesPattern).gen();
+            const randExp = new this.randexp(field.fieldValidateRulesPattern)
+            data = `"${randExp.gen().replace(/"/g, '')}"`;
         }
 
         // manage String max length
@@ -168,7 +169,7 @@ this.generateForField = field => {
         // test if generated data is still compatible with the regexp as we potentially modify it with min/maxLength
         if (
             field.fieldValidateRules.includes("pattern") &&
-            !new RegExp("^" + field.fieldValidateRulesPattern + "$").test(data)
+            !new RegExp("^" + field.fieldValidateRulesPattern + "$").test(data.substring(1, data.length - 1))
         ) {
             data = "";
         }
@@ -236,12 +237,7 @@ function stringToNumber(utf8) {
 }
 
 let result = table
-        .map(line =>
-            line.map(data => {
-                    return data;
-                })
-                .join(';')
-        )
+        .map(line => line.join(';'))
         .join('\n');
  _%>
 <%-result%>

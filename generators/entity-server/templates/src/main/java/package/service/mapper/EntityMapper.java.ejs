@@ -95,13 +95,16 @@ if(pkData.length > 1) {
 <%_ })
 }
 // var hasOAuthUser = false; // if OAuthUser, use a String id in fromId() method
+let primaryKeyType = pkType;
 for (idx in relationships) {
     const relationshipType = relationships[idx].relationshipType;
     const relationshipName = relationships[idx].relationshipName;
-    // hasOAuthUser = (relationshipName === 'user' && authenticationType === 'oauth2');
+    const otherEntityName = relationships[idx].otherEntityName;
     const relationshipNamePlural = relationships[idx].relationshipNamePlural;
     const relationshipNameCapitalized = relationships[idx].relationshipNameCapitalized;
     const ownerSide = relationships[idx].ownerSide;
+    const isUsingMapsId = relationships[idx].useJPADerivedIdentifier;
+    primaryKeyType = (isUsingMapsId === true && otherEntityName === 'user' && authenticationType === 'oauth2') ? 'String' : primaryKeyType;
     if (relationshipType === 'many-to-one' || (relationshipType === 'one-to-one' && ownerSide === true)) {
         renMapAnotDto = true;
         relationships[idx].pkData.forEach(pk => {
@@ -130,7 +133,7 @@ for (idx in relationships) {
     <%_ } _%>
     <%_ if (databaseType === 'sql' || databaseType === 'mongodb' || databaseType === 'couchbase') { _%>
 
-    <% if (hasNestedCompositeKey) { %>public <% } else {%>default <% } %><%= asEntity(entityClass) %> from<%= _.upperFirst(pkName) %>(<%= pkType %> <%= pkName %>) {
+    <% if (hasNestedCompositeKey) { %>public <% } else {%>default <% } %><%= asEntity(entityClass) %> from<%= _.upperFirst(pkName) %>(<%= primaryKeyType %> <%= pkName %>) {
         if (<%= pkName %> == null) {
             return null;
         }

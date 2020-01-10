@@ -16,6 +16,36 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -%>
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <%_ let autoIncrementValue = true;
+    if(pkData.length > 1 || pkName !== 'id') {
+        autoIncrementValue = false;
+    } else {
+        for (idx in relationships) {
+            if (relationships[idx].useJPADerivedIdentifier === true) {
+                autoIncrementValue = false;
+                break;
+            }
+        }
+    }
+    _%>
+
+    <!--
+        Added the entity <%= entityClass %>.
+    -->
+    <changeSet id="<%= changelogDate %>-1" author="jhipster">
+        <%_ if (typeof javadoc == 'undefined') { _%>
+        <createTable tableName="<%= entityTableName %>">
+        <%_ } else { _%>
+        <createTable tableName="<%= entityTableName %>" remarks="<%- formatAsLiquibaseRemarks(javadoc) %>">
+        <%_ } _%>
 <%_
 function fieldToColumnType(field) {
     let maxlength = 255;
@@ -61,61 +91,8 @@ function fieldToColumnType(field) {
     field.columnType = columnType;
     return columnType;
 }
-
-function fieldToLoadColumnType(field) {
-    // columnType was set after calling the function above
-    let columnType = field.columnType;
-    let loadColumnType = 'string';
-    if (columnType === 'integer' || columnType === 'bigint' || columnType === 'double' || columnType === 'decimal(21,2)' || columnType === '${floatType}') {
-        loadColumnType = 'numeric';
-    } else if (columnType === 'date') {
-        loadColumnType = 'date';
-    } else if (columnType === 'datetime') {
-        loadColumnType = 'datetime';
-    } else if (columnType === 'boolean') {
-        loadColumnType = 'boolean';
-    } else if (field.fieldIsEnum) {
-        loadColumnType = 'string';
-    } else if (columnType === 'blob' || columnType === 'longblob') {
-        loadColumnType = 'blob';
-    } else if (columnType === '${clobType}') {
-        loadColumnType = 'clob';
-    }
-    field.loadColumnType = loadColumnType;
-    return loadColumnType;
-}
-
 _%>
-<?xml version="1.0" encoding="utf-8"?>
-<databaseChangeLog
-    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
-                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
-
-    <%_ let autoIncrementValue = true;
-    if(pkData.length > 1 || pkName !== 'id') {
-        autoIncrementValue = false;
-    } else {
-        for (idx in relationships) {
-            if (relationships[idx].useJPADerivedIdentifier === true) {
-                autoIncrementValue = false;
-                break;
-            }
-        }
-    }
-    _%>
-    <!--
-        Added the entity <%= entityClass %>.
-    -->
-    <changeSet id="<%= changelogDate %>-1" author="jhipster">
-        <%_ if (typeof javadoc == 'undefined') { _%>
-        <createTable tableName="<%= entityTableName %>">
-        <%_ } else { _%>
-        <createTable tableName="<%= entityTableName %>" remarks="<%- formatAsLiquibaseRemarks(javadoc) %>">
-        <%_ } _%>
-        <%_ for (idx in fields) {
+        <% for (idx in fields) {
             let nullable = true;
             if (fields[idx].fieldValidate === true && fields[idx].fieldValidateRules.includes('required')) {
                 nullable = false;
@@ -126,9 +103,17 @@ _%>
             }
             const columnName = fields[idx].fieldNameAsDatabaseColumn;
             let columnType = fieldToColumnType(fields[idx]);
-            _%>
-            <column name="<%= columnName %>" type="<%=columnType %>"<% if (autoIncrementValue && columnName === 'id' && (prodDatabaseType === 'mysql' || prodDatabaseType === 'mariadb' || prodDatabaseType === 'postgresql' )) { %> autoIncrement="true"<% } %><% if (typeof fields[idx].javadoc !== 'undefined') { %> remarks="<%- formatAsLiquibaseRemarks(fields[idx].javadoc) %>"<% } %>>
+        _%>
+            <column name="<%= columnName %>" type="<%=columnType %>"<% if (autoIncrementValue && columnName === 'id' && (isAutoIncrementDB) { %> autoIncrement="true"<% } %><% if (typeof fields[idx].javadoc !== 'undefined') { %> remarks="<%- formatAsLiquibaseRemarks(fields[idx].javadoc) %>"<% } %>>
                 <constraints<%_ if(fields[idx].partOfId) { %> primaryKey="true"<%_ } %> nullable="<%= nullable %>"<%_ if (unique) { _%> unique="true" uniqueConstraintName="<%= getUXConstraintName(entityTableName, columnName, prodDatabaseType) %>"<%_ } _%>/>
+            </column>
+                <%_ if (unique) {
+                    const uniqueConstraintName = getUXConstraintName(entityTableName, columnName, prodDatabaseType);
+                _%>
+                <constraints nullable="<%= nullable %>" unique="true" uniqueConstraintName="<%= uniqueConstraintName %>" />
+                <%_ } else { _%>
+                <constraints nullable="<%= nullable %>" />
+                <%_ } _%>
             </column>
             <%_ if (fields[idx].fieldType === 'byte[]' && fields[idx].fieldTypeBlobContent !== 'text') {
                 let contentTypeColumnType = "varchar(255)"; _%>
@@ -163,7 +148,6 @@ _%>
             <%_ } _%>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
-
         <%_ for (const idx in fields) {
             if (fields[idx].fieldType === 'ZonedDateTime' || fields[idx].fieldType === 'Instant') { _%>
         <dropDefaultValue tableName="<%= entityTableName %>" columnName="<%=fields[idx].fieldNameAsDatabaseColumn %>" columnDataType="datetime"/>
@@ -197,11 +181,12 @@ _%>
         <%_ } _%><%_ } _%>
     </changeSet>
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
+    <%_ if (!skipFakeData) { _%>
 
     <!--
         Load sample data generated with Faker.js
         - This data can be easily edited using a CSV editor (or even MS Excel) and
-          is located in the 'src/main/resources/config/liquibase/data' directory
+          is located in the 'src/main/resources/config/liquibase/fake-data' directory
         - By default this data is applied when running with the JHipster 'dev' profile.
           This can be customized by adding or removing 'faker' in the 'spring.liquibase.contexts'
           Spring Boot configuration key.
@@ -211,6 +196,34 @@ _%>
             file="config/liquibase/fake-data/<%= entityTableName %>.csv"
             separator=";"
             tableName="<%= entityTableName %>">
+<%_
+// define function here in the middle for easier git merge...
+function fieldToLoadColumnType(field) {
+    // columnType was set after calling the function above
+    let columnType = field.columnType;
+    let loadColumnType = 'string';
+    if (columnType === 'integer' || columnType === 'bigint' || columnType === 'double' || columnType === 'decimal(21,2)' || columnType === '${floatType}') {
+        loadColumnType = 'numeric';
+    } else if (columnType === 'date') {
+        loadColumnType = 'date';
+    } else if (columnType === 'datetime') {
+        loadColumnType = 'datetime';
+    } else if (columnType === 'boolean') {
+        loadColumnType = 'boolean';
+    } else if (field.fieldIsEnum) {
+        loadColumnType = 'string';
+    } else if (columnType === 'blob' || columnType === 'longblob') {
+        loadColumnType = 'blob';
+    } else if (columnType === '${clobType}') {
+        loadColumnType = 'clob';
+    }  else if (columnType === '${uuidType}' && prodDatabaseType !== 'mysql' && prodDatabaseType !== 'mariadb') {
+        loadColumnType = '${uuidType}';
+    }
+    field.loadColumnType = loadColumnType;
+    return loadColumnType;
+}
+_%>
+_%>
             <%_ for (idx in fields) {
                 let loadColumnType = fieldToLoadColumnType(fields[idx]);
                 _%>
@@ -221,7 +234,11 @@ _%>
             <%_ } _%>
             <%_ for (idx in relationships) {
                 let loadColumnType = 'numeric';
-                if (relationships[idx].relationshipType !== 'many-to-many' && relationships[idx].relationshipValidate === true && relationships[idx].relationshipRequired) {
+                if (relationships[idx].relationshipValidate === true && relationships[idx].relationshipRequired
+                        && (relationships[idx].relationshipType === "many-to-one"
+                            || (relationships[idx].relationshipType === "one-to-one" && relationships[idx].ownerSide === true
+                                && (relationships[idx].useJPADerivedIdentifier == null || relationships[idx].useJPADerivedIdentifier === false))
+                    )) {
                     relationships[idx].pkData.forEach(pk => {
                         let baseColumnName = getColumnName(relationships[idx].relationshipName + pk.nameCapitalized);
                         if (relationships[idx].otherEntityNameCapitalized === 'User' && authenticationType === 'oauth2') {
@@ -236,5 +253,6 @@ _%>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>
     </changeSet>
+    <%_ } _%>
 
 </databaseChangeLog>

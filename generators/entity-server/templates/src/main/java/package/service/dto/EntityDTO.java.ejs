@@ -22,6 +22,7 @@ let importJsonIgnore = false;
 let importJsonIgnoreProperties = false;
 let importSet = false;
 const uniqueEnums = {};
+const primaryKeyType = getPkTypeBasedOnDBAndAssociation(authenticationType, databaseType, relationships);
 %><%- include ../../domain/imports -%>
 <%_ if (typeof javadoc != 'undefined') { _%>
 import io.swagger.annotations.ApiModel;
@@ -61,9 +62,9 @@ import java.util.UUID;
 <%_ if (fieldsContainBlob && databaseType === 'sql') { _%>
 import javax.persistence.Lob;
 <%_ } _%>
-<%_ for (idx in fields) { if (fields[idx].fieldIsEnum) { _%>
-import <%=packageName%>.domain.enumeration.<%= fields[idx].fieldType %>;
-<%_ } } _%>
+<%_ Object.keys(uniqueEnums).forEach(function(element) { _%>
+import <%=packageName%>.domain.enumeration.<%= element %>;
+<%_ }); _%>
 
 /**
  * A DTO for the {@link <%=packageName%>.domain.<%= asEntity(entityClass) %>} entity.
@@ -281,11 +282,11 @@ fields = realFields; _%>
             <%_ }); _%>
         <%_ } _%>
     <%_ } else { // special case when the entity name has one character _%>
-    public <%= pkType %> get<%= relationshipNameCapitalized.toLowerCase() %>Id() {
+    public <%= primaryKeyType %> get<%= relationshipNameCapitalized.toLowerCase() %>Id() {
         return <%= relationshipFieldName %>Id;
     }
 
-    public void set<%= relationshipNameCapitalized.toLowerCase() %>Id(<%= pkType %> <%= otherEntityName %>Id) {
+    public void set<%= relationshipNameCapitalized.toLowerCase() %>Id(<%= primaryKeyType %> <%= otherEntityName %>Id) {
         this.<%= relationshipFieldName %>Id = <%= otherEntityName %>Id;
     }
     <%_ } _%>
