@@ -257,6 +257,7 @@ const serverFiles = {
     test: [
         {
             // TODO: add test for reactive
+            // make sure to run EntityResourceIT test before others to fill default and updated value
             condition: generator => !generator.reactive,
             path: SERVER_TEST_SRC_DIR,
             templates: [

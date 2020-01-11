@@ -17,7 +17,7 @@
  limitations under the License.
 -%>
 package <%=packageName%>.service;<%
-const primaryKeyType = getPkTypeBasedOnDBAndAssociation(authenticationType, databaseType, relationships);
+const primaryKeyType = pkType;
 %>
 <%  const instanceType = (dto === 'mapstruct') ? asDto(entityClass) : asEntity(entityClass);
     const instanceName = (dto === 'mapstruct') ? asDto(entityInstance) : asEntity(entityInstance); %>

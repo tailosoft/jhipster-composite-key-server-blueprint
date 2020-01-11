@@ -33,7 +33,7 @@ import io.github.jhipster.service.filter.ZonedDateTimeFilter;
 <%_ } _%>
 
 <%_
-const primaryKeyType = getPkTypeBasedOnDBAndAssociation(authenticationType, databaseType, relationships);
+const primaryKeyType = pkType;
   const referenceFilterType = '' + primaryKeyType + 'Filter';
   var filterVariables = [];
   var extraFilters = {};

@@ -44,44 +44,43 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.mycompany.myapp.domain.enumeration.TaskType;
 /**
- * Integration tests for the {@Link TaskResource} REST controller.
+ * Integration tests for the {@link TaskResource} REST controller.
  */
 @SpringBootTest(classes = CompositekeyApp.class)
 public class TaskResourceIT {
 
-    private static final String DEFAULT_NAME = "AAAAAAAAAA";
-    private static final String UPDATED_NAME = "BBBBBBBBBB";
+    public static final String DEFAULT_NAME = "AAAAAAAAAA";
+    public static final String UPDATED_NAME = "BBBBBBBBBB";
 
-    private static final TaskType DEFAULT_TYPE = TaskType.TYPE1;
-    private static final TaskType UPDATED_TYPE = TaskType.TYPE2;
+    public static final TaskType DEFAULT_TYPE = TaskType.TYPE1;
+    public static final TaskType UPDATED_TYPE = TaskType.TYPE2;
 
-    private static final LocalDate DEFAULT_END_DATE = LocalDate.ofEpochDay(0L);
-    private static final LocalDate UPDATED_END_DATE = LocalDate.now(ZoneId.systemDefault());
-    private static final LocalDate SMALLER_END_DATE = LocalDate.ofEpochDay(-1L);
+    public static final LocalDate DEFAULT_END_DATE = LocalDate.ofEpochDay(0L);
+    public static final LocalDate UPDATED_END_DATE = LocalDate.now(ZoneId.systemDefault());
+    public static final LocalDate SMALLER_END_DATE = LocalDate.ofEpochDay(-1L);
 
-    private static final ZonedDateTime DEFAULT_CREATED_AT = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0L), ZoneOffset.UTC);
-    private static final ZonedDateTime UPDATED_CREATED_AT = ZonedDateTime.now(ZoneId.systemDefault()).withNano(0);
-    private static final ZonedDateTime SMALLER_CREATED_AT = ZonedDateTime.ofInstant(Instant.ofEpochMilli(-1L), ZoneOffset.UTC);
+    public static final ZonedDateTime DEFAULT_CREATED_AT = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0L), ZoneOffset.UTC);
+    public static final ZonedDateTime UPDATED_CREATED_AT = ZonedDateTime.now(ZoneId.systemDefault()).withNano(0);
+    public static final ZonedDateTime SMALLER_CREATED_AT = ZonedDateTime.ofInstant(Instant.ofEpochMilli(-1L), ZoneOffset.UTC);
 
-    private static final Instant DEFAULT_MODIFIED_AT = Instant.ofEpochMilli(0L);
-    private static final Instant UPDATED_MODIFIED_AT = Instant.now().truncatedTo(ChronoUnit.MILLIS);
-    private static final Instant SMALLER_MODIFIED_AT = Instant.ofEpochMilli(-1L);
+    public static final Instant DEFAULT_MODIFIED_AT = Instant.ofEpochMilli(0L);
+    public static final Instant UPDATED_MODIFIED_AT = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
-    private static final Boolean DEFAULT_DONE = false;
-    private static final Boolean UPDATED_DONE = true;
+    public static final Boolean DEFAULT_DONE = false;
+    public static final Boolean UPDATED_DONE = true;
 
-    private static final String DEFAULT_DESCRIPTION = "AAAAAAAAAA";
-    private static final String UPDATED_DESCRIPTION = "BBBBBBBBBB";
+    public static final String DEFAULT_DESCRIPTION = "AAAAAAAAAA";
+    public static final String UPDATED_DESCRIPTION = "BBBBBBBBBB";
 
-    private static final byte[] DEFAULT_ATTACHMENT = TestUtil.createByteArray(1, "0");
-    private static final byte[] UPDATED_ATTACHMENT = TestUtil.createByteArray(1, "1");
-    private static final String DEFAULT_ATTACHMENT_CONTENT_TYPE = "image/jpg";
-    private static final String UPDATED_ATTACHMENT_CONTENT_TYPE = "image/png";
+    public static final byte[] DEFAULT_ATTACHMENT = TestUtil.createByteArray(1, "0");
+    public static final byte[] UPDATED_ATTACHMENT = TestUtil.createByteArray(1, "1");
+    public static final String DEFAULT_ATTACHMENT_CONTENT_TYPE = "image/jpg";
+    public static final String UPDATED_ATTACHMENT_CONTENT_TYPE = "image/png";
 
-    private static final byte[] DEFAULT_PICTURE = TestUtil.createByteArray(1, "0");
-    private static final byte[] UPDATED_PICTURE = TestUtil.createByteArray(1, "1");
-    private static final String DEFAULT_PICTURE_CONTENT_TYPE = "image/jpg";
-    private static final String UPDATED_PICTURE_CONTENT_TYPE = "image/png";
+    public static final byte[] DEFAULT_PICTURE = TestUtil.createByteArray(1, "0");
+    public static final byte[] UPDATED_PICTURE = TestUtil.createByteArray(1, "1");
+    public static final String DEFAULT_PICTURE_CONTENT_TYPE = "image/jpg";
+    public static final String UPDATED_PICTURE_CONTENT_TYPE = "image/png";
 
     @Autowired
     private TaskRepository taskRepository;
@@ -225,7 +224,6 @@ public class TaskResourceIT {
         assertThat(taskList).hasSize(databaseSizeBeforeCreate);
     }
 
-
     @Test
     @Transactional
     public void checkNameIsRequired() throws Exception {
@@ -332,7 +330,7 @@ public class TaskResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(task.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
             .andExpect(jsonPath("$.[*].endDate").value(hasItem(DEFAULT_END_DATE.toString())))
             .andExpect(jsonPath("$.[*].createdAt").value(hasItem(sameInstant(DEFAULT_CREATED_AT))))
@@ -356,7 +354,7 @@ public class TaskResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(task.getId().intValue()))
-            .andExpect(jsonPath("$.name").value(DEFAULT_NAME.toString()))
+            .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
             .andExpect(jsonPath("$.endDate").value(DEFAULT_END_DATE.toString()))
             .andExpect(jsonPath("$.createdAt").value(sameInstant(DEFAULT_CREATED_AT)))
@@ -371,6 +369,24 @@ public class TaskResourceIT {
 
     @Test
     @Transactional
+    public void getTasksByIdFiltering() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        Long id = task.getId();
+
+        defaultTaskShouldBeFound("id.equals=" + id);
+        defaultTaskShouldNotBeFound("id.notEquals=" + id);
+
+        defaultTaskShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultTaskShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultTaskShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultTaskShouldNotBeFound("id.lessThan=" + id);
+    }
+
+    @Test
+    @Transactional
     public void getAllTasksByNameIsEqualToSomething() throws Exception {
         // Initialize the database
         taskRepository.saveAndFlush(task);
@@ -380,6 +396,19 @@ public class TaskResourceIT {
 
         // Get all the taskList where name equals to UPDATED_NAME
         defaultTaskShouldNotBeFound("name.equals=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByNameIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where name not equals to DEFAULT_NAME
+        defaultTaskShouldNotBeFound("name.notEquals=" + DEFAULT_NAME);
+
+        // Get all the taskList where name not equals to UPDATED_NAME
+        defaultTaskShouldBeFound("name.notEquals=" + UPDATED_NAME);
     }
 
     @Test
@@ -410,6 +439,32 @@ public class TaskResourceIT {
 
     @Test
     @Transactional
+    public void getAllTasksByNameContainsSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where name contains DEFAULT_NAME
+        defaultTaskShouldBeFound("name.contains=" + DEFAULT_NAME);
+
+        // Get all the taskList where name contains UPDATED_NAME
+        defaultTaskShouldNotBeFound("name.contains=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByNameNotContainsSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where name does not contain DEFAULT_NAME
+        defaultTaskShouldNotBeFound("name.doesNotContain=" + DEFAULT_NAME);
+
+        // Get all the taskList where name does not contain UPDATED_NAME
+        defaultTaskShouldBeFound("name.doesNotContain=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
     public void getAllTasksByTypeIsEqualToSomething() throws Exception {
         // Initialize the database
         taskRepository.saveAndFlush(task);
@@ -419,6 +474,19 @@ public class TaskResourceIT {
 
         // Get all the taskList where type equals to UPDATED_TYPE
         defaultTaskShouldNotBeFound("type.equals=" + UPDATED_TYPE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByTypeIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where type not equals to DEFAULT_TYPE
+        defaultTaskShouldNotBeFound("type.notEquals=" + DEFAULT_TYPE);
+
+        // Get all the taskList where type not equals to UPDATED_TYPE
+        defaultTaskShouldBeFound("type.notEquals=" + UPDATED_TYPE);
     }
 
     @Test
@@ -458,6 +526,19 @@ public class TaskResourceIT {
 
         // Get all the taskList where endDate equals to UPDATED_END_DATE
         defaultTaskShouldNotBeFound("endDate.equals=" + UPDATED_END_DATE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByEndDateIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where endDate not equals to DEFAULT_END_DATE
+        defaultTaskShouldNotBeFound("endDate.notEquals=" + DEFAULT_END_DATE);
+
+        // Get all the taskList where endDate not equals to UPDATED_END_DATE
+        defaultTaskShouldBeFound("endDate.notEquals=" + UPDATED_END_DATE);
     }
 
     @Test
@@ -538,7 +619,6 @@ public class TaskResourceIT {
         defaultTaskShouldBeFound("endDate.greaterThan=" + SMALLER_END_DATE);
     }
 
-
     @Test
     @Transactional
     public void getAllTasksByCreatedAtIsEqualToSomething() throws Exception {
@@ -550,6 +630,19 @@ public class TaskResourceIT {
 
         // Get all the taskList where createdAt equals to UPDATED_CREATED_AT
         defaultTaskShouldNotBeFound("createdAt.equals=" + UPDATED_CREATED_AT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByCreatedAtIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where createdAt not equals to DEFAULT_CREATED_AT
+        defaultTaskShouldNotBeFound("createdAt.notEquals=" + DEFAULT_CREATED_AT);
+
+        // Get all the taskList where createdAt not equals to UPDATED_CREATED_AT
+        defaultTaskShouldBeFound("createdAt.notEquals=" + UPDATED_CREATED_AT);
     }
 
     @Test
@@ -630,7 +723,6 @@ public class TaskResourceIT {
         defaultTaskShouldBeFound("createdAt.greaterThan=" + SMALLER_CREATED_AT);
     }
 
-
     @Test
     @Transactional
     public void getAllTasksByModifiedAtIsEqualToSomething() throws Exception {
@@ -642,6 +734,19 @@ public class TaskResourceIT {
 
         // Get all the taskList where modifiedAt equals to UPDATED_MODIFIED_AT
         defaultTaskShouldNotBeFound("modifiedAt.equals=" + UPDATED_MODIFIED_AT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByModifiedAtIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where modifiedAt not equals to DEFAULT_MODIFIED_AT
+        defaultTaskShouldNotBeFound("modifiedAt.notEquals=" + DEFAULT_MODIFIED_AT);
+
+        // Get all the taskList where modifiedAt not equals to UPDATED_MODIFIED_AT
+        defaultTaskShouldBeFound("modifiedAt.notEquals=" + UPDATED_MODIFIED_AT);
     }
 
     @Test
@@ -685,6 +790,19 @@ public class TaskResourceIT {
 
     @Test
     @Transactional
+    public void getAllTasksByDoneIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where done not equals to DEFAULT_DONE
+        defaultTaskShouldNotBeFound("done.notEquals=" + DEFAULT_DONE);
+
+        // Get all the taskList where done not equals to UPDATED_DONE
+        defaultTaskShouldBeFound("done.notEquals=" + UPDATED_DONE);
+    }
+
+    @Test
+    @Transactional
     public void getAllTasksByDoneIsInShouldWork() throws Exception {
         // Initialize the database
         taskRepository.saveAndFlush(task);
@@ -713,6 +831,7 @@ public class TaskResourceIT {
     @Transactional
     public void getAllTasksByCommentIdIsEqualToSomething() throws Exception {
         // Initialize the database
+        taskRepository.saveAndFlush(task);
         TaskComment comment = TaskCommentResourceIT.createEntity(em);
         em.persist(comment);
         em.flush();
@@ -727,11 +846,11 @@ public class TaskResourceIT {
         defaultTaskShouldNotBeFound("commentId.equals=" + (commentId + 1));
     }
 
-
     @Test
     @Transactional
     public void getAllTasksByEmployeeSkillNameIsEqualToSomething() throws Exception {
         // Initialize the database
+        taskRepository.saveAndFlush(task);
         EmployeeSkill employeeSkill = EmployeeSkillResourceIT.createEntity(em);
         em.persist(employeeSkill);
         em.flush();
@@ -746,11 +865,11 @@ public class TaskResourceIT {
         defaultTaskShouldNotBeFound("employeeSkillName.equals=" + EmployeeSkillResourceIT.createUpdatedEntity(em).getId().getName());
     }
 
-
     @Test
     @Transactional
     public void getAllTasksByEmployeeSkillEmployeeUsernameIsEqualToSomething() throws Exception {
         // Initialize the database
+        taskRepository.saveAndFlush(task);
         EmployeeSkill employeeSkill = EmployeeSkillResourceIT.createEntity(em);
         em.persist(employeeSkill);
         em.flush();
@@ -808,7 +927,6 @@ public class TaskResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(content().string("0"));
     }
-
 
     @Test
     @Transactional
@@ -901,43 +1019,5 @@ public class TaskResourceIT {
         // Validate the database contains one less item
         List<Task> taskList = taskRepository.findAll();
         assertThat(taskList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Task.class);
-        Task task1 = new Task();
-        task1.setId(1L);
-        Task task2 = new Task();
-        task2.setId(task1.getId());
-        assertThat(task1).isEqualTo(task2);
-        task2.setId(2L);
-        assertThat(task1).isNotEqualTo(task2);
-        task1.setId(null);
-        assertThat(task1).isNotEqualTo(task2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(TaskDTO.class);
-        TaskDTO taskDTO1 = new TaskDTO();
-        taskDTO1.setId(1L);
-        TaskDTO taskDTO2 = new TaskDTO();
-        assertThat(taskDTO1).isNotEqualTo(taskDTO2);
-        taskDTO2.setId(taskDTO1.getId());
-        assertThat(taskDTO1).isEqualTo(taskDTO2);
-        taskDTO2.setId(2L);
-        assertThat(taskDTO1).isNotEqualTo(taskDTO2);
-        taskDTO1.setId(null);
-        assertThat(taskDTO1).isNotEqualTo(taskDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(taskMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(taskMapper.fromId(null)).isNull();
     }
 }

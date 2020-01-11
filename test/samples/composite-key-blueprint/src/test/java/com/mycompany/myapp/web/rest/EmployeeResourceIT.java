@@ -34,16 +34,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@Link EmployeeResource} REST controller.
+ * Integration tests for the {@link EmployeeResource} REST controller.
  */
 @SpringBootTest(classes = CompositekeyApp.class)
 public class EmployeeResourceIT {
 
-    private static final String DEFAULT_USERNAME = "AAAAAAAAAA";
-    private static final String UPDATED_USERNAME = "BBBBBBBBBB";
+    public static final String DEFAULT_USERNAME = "AAAAAAAAAA";
+    public static final String UPDATED_USERNAME = "BBBBBBBBBB";
 
-    private static final String DEFAULT_FULLNAME = "AAAAAAAAAA";
-    private static final String UPDATED_FULLNAME = "BBBBBBBBBB";
+    public static final String DEFAULT_FULLNAME = "AAAAAAAAAA";
+    public static final String UPDATED_FULLNAME = "BBBBBBBBBB";
 
     @Autowired
     private EmployeeRepository employeeRepository;
@@ -160,7 +160,6 @@ public class EmployeeResourceIT {
         assertThat(employeeList).hasSize(databaseSizeBeforeCreate);
     }
 
-
     @Test
     @Transactional
     public void checkUsernameIsRequired() throws Exception {
@@ -209,8 +208,8 @@ public class EmployeeResourceIT {
         restEmployeeMockMvc.perform(get("/api/employees"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].username").value(hasItem(DEFAULT_USERNAME.toString())))
-            .andExpect(jsonPath("$.[*].fullname").value(hasItem(DEFAULT_FULLNAME.toString())));
+            .andExpect(jsonPath("$.[*].username").value(hasItem(DEFAULT_USERNAME)))
+            .andExpect(jsonPath("$.[*].fullname").value(hasItem(DEFAULT_FULLNAME)));
     }
 
     @Test
@@ -223,8 +222,8 @@ public class EmployeeResourceIT {
         restEmployeeMockMvc.perform(get("/api/employees/{username}", employee.getUsername()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.username").value(DEFAULT_USERNAME.toString()))
-            .andExpect(jsonPath("$.fullname").value(DEFAULT_FULLNAME.toString()));
+            .andExpect(jsonPath("$.username").value(DEFAULT_USERNAME))
+            .andExpect(jsonPath("$.fullname").value(DEFAULT_FULLNAME));
     }
 
     @Test
@@ -238,6 +237,19 @@ public class EmployeeResourceIT {
 
         // Get all the employeeList where username equals to UPDATED_USERNAME
         defaultEmployeeShouldNotBeFound("username.equals=" + UPDATED_USERNAME);
+    }
+
+    @Test
+    @Transactional
+    public void getAllEmployeesByUsernameIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        employeeRepository.saveAndFlush(employee);
+
+        // Get all the employeeList where username not equals to DEFAULT_USERNAME
+        defaultEmployeeShouldNotBeFound("username.notEquals=" + DEFAULT_USERNAME);
+
+        // Get all the employeeList where username not equals to UPDATED_USERNAME
+        defaultEmployeeShouldBeFound("username.notEquals=" + UPDATED_USERNAME);
     }
 
     @Test
@@ -268,6 +280,32 @@ public class EmployeeResourceIT {
 
     @Test
     @Transactional
+    public void getAllEmployeesByUsernameContainsSomething() throws Exception {
+        // Initialize the database
+        employeeRepository.saveAndFlush(employee);
+
+        // Get all the employeeList where username contains DEFAULT_USERNAME
+        defaultEmployeeShouldBeFound("username.contains=" + DEFAULT_USERNAME);
+
+        // Get all the employeeList where username contains UPDATED_USERNAME
+        defaultEmployeeShouldNotBeFound("username.contains=" + UPDATED_USERNAME);
+    }
+
+    @Test
+    @Transactional
+    public void getAllEmployeesByUsernameNotContainsSomething() throws Exception {
+        // Initialize the database
+        employeeRepository.saveAndFlush(employee);
+
+        // Get all the employeeList where username does not contain DEFAULT_USERNAME
+        defaultEmployeeShouldNotBeFound("username.doesNotContain=" + DEFAULT_USERNAME);
+
+        // Get all the employeeList where username does not contain UPDATED_USERNAME
+        defaultEmployeeShouldBeFound("username.doesNotContain=" + UPDATED_USERNAME);
+    }
+
+    @Test
+    @Transactional
     public void getAllEmployeesByFullnameIsEqualToSomething() throws Exception {
         // Initialize the database
         employeeRepository.saveAndFlush(employee);
@@ -277,6 +315,19 @@ public class EmployeeResourceIT {
 
         // Get all the employeeList where fullname equals to UPDATED_FULLNAME
         defaultEmployeeShouldNotBeFound("fullname.equals=" + UPDATED_FULLNAME);
+    }
+
+    @Test
+    @Transactional
+    public void getAllEmployeesByFullnameIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        employeeRepository.saveAndFlush(employee);
+
+        // Get all the employeeList where fullname not equals to DEFAULT_FULLNAME
+        defaultEmployeeShouldNotBeFound("fullname.notEquals=" + DEFAULT_FULLNAME);
+
+        // Get all the employeeList where fullname not equals to UPDATED_FULLNAME
+        defaultEmployeeShouldBeFound("fullname.notEquals=" + UPDATED_FULLNAME);
     }
 
     @Test
@@ -307,8 +358,35 @@ public class EmployeeResourceIT {
 
     @Test
     @Transactional
+    public void getAllEmployeesByFullnameContainsSomething() throws Exception {
+        // Initialize the database
+        employeeRepository.saveAndFlush(employee);
+
+        // Get all the employeeList where fullname contains DEFAULT_FULLNAME
+        defaultEmployeeShouldBeFound("fullname.contains=" + DEFAULT_FULLNAME);
+
+        // Get all the employeeList where fullname contains UPDATED_FULLNAME
+        defaultEmployeeShouldNotBeFound("fullname.contains=" + UPDATED_FULLNAME);
+    }
+
+    @Test
+    @Transactional
+    public void getAllEmployeesByFullnameNotContainsSomething() throws Exception {
+        // Initialize the database
+        employeeRepository.saveAndFlush(employee);
+
+        // Get all the employeeList where fullname does not contain DEFAULT_FULLNAME
+        defaultEmployeeShouldNotBeFound("fullname.doesNotContain=" + DEFAULT_FULLNAME);
+
+        // Get all the employeeList where fullname does not contain UPDATED_FULLNAME
+        defaultEmployeeShouldBeFound("fullname.doesNotContain=" + UPDATED_FULLNAME);
+    }
+
+    @Test
+    @Transactional
     public void getAllEmployeesBySkillNameIsEqualToSomething() throws Exception {
         // Initialize the database
+        employeeRepository.saveAndFlush(employee);
         EmployeeSkill skill = EmployeeSkillResourceIT.createEntity(em);
         em.persist(skill);
         em.flush();
@@ -322,11 +400,11 @@ public class EmployeeResourceIT {
         defaultEmployeeShouldNotBeFound("skillName.equals=" + EmployeeSkillResourceIT.createUpdatedEntity(em).getId().getName());
     }
 
-
     @Test
     @Transactional
     public void getAllEmployeesByTaughtSkillNameIsEqualToSomething() throws Exception {
         // Initialize the database
+        employeeRepository.saveAndFlush(employee);
         EmployeeSkill taughtSkill = EmployeeSkillResourceIT.createEntity(em);
         em.persist(taughtSkill);
         em.flush();
@@ -373,7 +451,6 @@ public class EmployeeResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(content().string("0"));
     }
-
 
     @Test
     @Transactional
@@ -447,43 +524,5 @@ public class EmployeeResourceIT {
         // Validate the database contains one less item
         List<Employee> employeeList = employeeRepository.findAll();
         assertThat(employeeList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Employee.class);
-        Employee employee1 = new Employee();
-        employee1.setUsername(DEFAULT_USERNAME);
-        Employee employee2 = new Employee();
-        employee2.setUsername(employee1.getUsername());
-        assertThat(employee1).isEqualTo(employee2);
-        employee2.setUsername(UPDATED_USERNAME);
-        assertThat(employee1).isNotEqualTo(employee2);
-        employee1.setUsername(null);
-        assertThat(employee1).isNotEqualTo(employee2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(EmployeeDTO.class);
-        EmployeeDTO employeeDTO1 = new EmployeeDTO();
-        employeeDTO1.setUsername(DEFAULT_USERNAME);
-        EmployeeDTO employeeDTO2 = new EmployeeDTO();
-        assertThat(employeeDTO1).isNotEqualTo(employeeDTO2);
-        employeeDTO2.setUsername(employeeDTO1.getUsername());
-        assertThat(employeeDTO1).isEqualTo(employeeDTO2);
-        employeeDTO2.setUsername(UPDATED_USERNAME);
-        assertThat(employeeDTO1).isNotEqualTo(employeeDTO2);
-        employeeDTO1.setUsername(null);
-        assertThat(employeeDTO1).isNotEqualTo(employeeDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(employeeMapper.fromUsername(UPDATED_USERNAME).getUsername()).isEqualTo(UPDATED_USERNAME);
-        assertThat(employeeMapper.fromUsername(null)).isNull();
     }
 }

@@ -3,6 +3,7 @@ const fse = require('fs-extra');
 const fs = require('fs');
 const assert = require('yeoman-assert');
 const helpers = require('yeoman-test');
+const rimraf = require('rimraf');
 
 const importJdl = require('generator-jhipster/cli/import-jdl');
 const walker = require('./path-walker');
@@ -13,13 +14,14 @@ const noopFork = () => ({
     }
 });
 
-let testDir;
+let testDir = '/tmp/composite-key-blueprint-test';
 describe('Subgenerator entity-server of composite key server JHipster blueprint', () => {
     describe('Sample test', () => {
         before(done => {
+            rimraf.sync(testDir);
             helpers
                 .run('generator-jhipster/generators/app')
-                .inTmpDir(dir => {
+                .inDir(testDir, dir => {
                     testDir = dir;
                     fse.copySync(path.join(__dirname, '../test/templates/composite-key-blueprint'), dir);
                     importJdl(['jhipster.jh'], { skipInstall: true, noInsight: true, interactive: false, 'skip-git': false }, {}, noopFork);
@@ -68,6 +70,9 @@ describe('Subgenerator entity-server of composite key server JHipster blueprint'
                 `${javaPackage}/web/rest`,
                 `${javaPackage}/repository`,
                 `${javaPackage}/service`,
+                `${basePath}/src/test/java/com/mycompany/myapp/service/dto`,
+                `${basePath}/src/test/java/com/mycompany/myapp/service/mapper`,
+                `${basePath}/src/test/java/com/mycompany/myapp/domain`,
                 `${basePath}/src/test/java/com/mycompany/myapp/web/rest`,
                 `${javaPackage}/config/MatrixVariableConfiguration.java`
             ];

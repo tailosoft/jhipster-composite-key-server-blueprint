@@ -81,11 +81,11 @@ public class PriceFormulaQueryService extends QueryService<PriceFormula> {
     }
 
     /**
-     * Function to convert ConsumerCriteria to a {@link Specification}
+     * Function to convert {@link PriceFormulaCriteria} to a {@link Specification}
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the matching {@link Specification} of the entity.
      */
-    private Specification<PriceFormula> createSpecification(PriceFormulaCriteria criteria) {
+    protected Specification<PriceFormula> createSpecification(PriceFormulaCriteria criteria) {
         Specification<PriceFormula> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getMax() != null) {

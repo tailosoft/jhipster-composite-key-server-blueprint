@@ -33,17 +33,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@Link PriceFormulaResource} REST controller.
+ * Integration tests for the {@link PriceFormulaResource} REST controller.
  */
 @SpringBootTest(classes = CompositekeyApp.class)
 public class PriceFormulaResourceIT {
 
-    private static final Integer DEFAULT_MAX = 1;
-    private static final Integer UPDATED_MAX = 2;
-    private static final Integer SMALLER_MAX = 1 - 1;
+    public static final Integer DEFAULT_MAX = 1;
+    public static final Integer UPDATED_MAX = 2;
+    public static final Integer SMALLER_MAX = 1 - 1;
 
-    private static final String DEFAULT_FORMULA = "AAAAAAAAAA";
-    private static final String UPDATED_FORMULA = "BBBBBBBBBB";
+    public static final String DEFAULT_FORMULA = "AAAAAAAAAA";
+    public static final String UPDATED_FORMULA = "BBBBBBBBBB";
 
     @Autowired
     private PriceFormulaRepository priceFormulaRepository;
@@ -160,7 +160,6 @@ public class PriceFormulaResourceIT {
         assertThat(priceFormulaList).hasSize(databaseSizeBeforeCreate);
     }
 
-
     @Test
     @Transactional
     public void checkMaxIsRequired() throws Exception {
@@ -210,7 +209,7 @@ public class PriceFormulaResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].max").value(hasItem(DEFAULT_MAX)))
-            .andExpect(jsonPath("$.[*].formula").value(hasItem(DEFAULT_FORMULA.toString())));
+            .andExpect(jsonPath("$.[*].formula").value(hasItem(DEFAULT_FORMULA)));
     }
 
     @Test
@@ -224,7 +223,7 @@ public class PriceFormulaResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.max").value(DEFAULT_MAX))
-            .andExpect(jsonPath("$.formula").value(DEFAULT_FORMULA.toString()));
+            .andExpect(jsonPath("$.formula").value(DEFAULT_FORMULA));
     }
 
     @Test
@@ -238,6 +237,19 @@ public class PriceFormulaResourceIT {
 
         // Get all the priceFormulaList where max equals to UPDATED_MAX
         defaultPriceFormulaShouldNotBeFound("max.equals=" + UPDATED_MAX);
+    }
+
+    @Test
+    @Transactional
+    public void getAllPriceFormulasByMaxIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        priceFormulaRepository.saveAndFlush(priceFormula);
+
+        // Get all the priceFormulaList where max not equals to DEFAULT_MAX
+        defaultPriceFormulaShouldNotBeFound("max.notEquals=" + DEFAULT_MAX);
+
+        // Get all the priceFormulaList where max not equals to UPDATED_MAX
+        defaultPriceFormulaShouldBeFound("max.notEquals=" + UPDATED_MAX);
     }
 
     @Test
@@ -318,7 +330,6 @@ public class PriceFormulaResourceIT {
         defaultPriceFormulaShouldBeFound("max.greaterThan=" + SMALLER_MAX);
     }
 
-
     @Test
     @Transactional
     public void getAllPriceFormulasByFormulaIsEqualToSomething() throws Exception {
@@ -330,6 +341,19 @@ public class PriceFormulaResourceIT {
 
         // Get all the priceFormulaList where formula equals to UPDATED_FORMULA
         defaultPriceFormulaShouldNotBeFound("formula.equals=" + UPDATED_FORMULA);
+    }
+
+    @Test
+    @Transactional
+    public void getAllPriceFormulasByFormulaIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        priceFormulaRepository.saveAndFlush(priceFormula);
+
+        // Get all the priceFormulaList where formula not equals to DEFAULT_FORMULA
+        defaultPriceFormulaShouldNotBeFound("formula.notEquals=" + DEFAULT_FORMULA);
+
+        // Get all the priceFormulaList where formula not equals to UPDATED_FORMULA
+        defaultPriceFormulaShouldBeFound("formula.notEquals=" + UPDATED_FORMULA);
     }
 
     @Test
@@ -357,6 +381,33 @@ public class PriceFormulaResourceIT {
         // Get all the priceFormulaList where formula is null
         defaultPriceFormulaShouldNotBeFound("formula.specified=false");
     }
+
+    @Test
+    @Transactional
+    public void getAllPriceFormulasByFormulaContainsSomething() throws Exception {
+        // Initialize the database
+        priceFormulaRepository.saveAndFlush(priceFormula);
+
+        // Get all the priceFormulaList where formula contains DEFAULT_FORMULA
+        defaultPriceFormulaShouldBeFound("formula.contains=" + DEFAULT_FORMULA);
+
+        // Get all the priceFormulaList where formula contains UPDATED_FORMULA
+        defaultPriceFormulaShouldNotBeFound("formula.contains=" + UPDATED_FORMULA);
+    }
+
+    @Test
+    @Transactional
+    public void getAllPriceFormulasByFormulaNotContainsSomething() throws Exception {
+        // Initialize the database
+        priceFormulaRepository.saveAndFlush(priceFormula);
+
+        // Get all the priceFormulaList where formula does not contain DEFAULT_FORMULA
+        defaultPriceFormulaShouldNotBeFound("formula.doesNotContain=" + DEFAULT_FORMULA);
+
+        // Get all the priceFormulaList where formula does not contain UPDATED_FORMULA
+        defaultPriceFormulaShouldBeFound("formula.doesNotContain=" + UPDATED_FORMULA);
+    }
+
     /**
      * Executes the search, and checks that the default entity is returned.
      */
@@ -390,7 +441,6 @@ public class PriceFormulaResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(content().string("0"));
     }
-
 
     @Test
     @Transactional
@@ -464,43 +514,5 @@ public class PriceFormulaResourceIT {
         // Validate the database contains one less item
         List<PriceFormula> priceFormulaList = priceFormulaRepository.findAll();
         assertThat(priceFormulaList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(PriceFormula.class);
-        PriceFormula priceFormula1 = new PriceFormula();
-        priceFormula1.setMax(DEFAULT_MAX);
-        PriceFormula priceFormula2 = new PriceFormula();
-        priceFormula2.setMax(priceFormula1.getMax());
-        assertThat(priceFormula1).isEqualTo(priceFormula2);
-        priceFormula2.setMax(UPDATED_MAX);
-        assertThat(priceFormula1).isNotEqualTo(priceFormula2);
-        priceFormula1.setMax(null);
-        assertThat(priceFormula1).isNotEqualTo(priceFormula2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(PriceFormulaDTO.class);
-        PriceFormulaDTO priceFormulaDTO1 = new PriceFormulaDTO();
-        priceFormulaDTO1.setMax(DEFAULT_MAX);
-        PriceFormulaDTO priceFormulaDTO2 = new PriceFormulaDTO();
-        assertThat(priceFormulaDTO1).isNotEqualTo(priceFormulaDTO2);
-        priceFormulaDTO2.setMax(priceFormulaDTO1.getMax());
-        assertThat(priceFormulaDTO1).isEqualTo(priceFormulaDTO2);
-        priceFormulaDTO2.setMax(UPDATED_MAX);
-        assertThat(priceFormulaDTO1).isNotEqualTo(priceFormulaDTO2);
-        priceFormulaDTO1.setMax(null);
-        assertThat(priceFormulaDTO1).isNotEqualTo(priceFormulaDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(priceFormulaMapper.fromMax(UPDATED_MAX).getMax()).isEqualTo(UPDATED_MAX);
-        assertThat(priceFormulaMapper.fromMax(null)).isNull();
     }
 }

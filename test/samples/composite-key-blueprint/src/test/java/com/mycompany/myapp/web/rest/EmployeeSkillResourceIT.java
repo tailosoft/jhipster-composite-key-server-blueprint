@@ -42,17 +42,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@Link EmployeeSkillResource} REST controller.
+ * Integration tests for the {@link EmployeeSkillResource} REST controller.
  */
 @SpringBootTest(classes = CompositekeyApp.class)
 public class EmployeeSkillResourceIT {
 
-    private static final String DEFAULT_NAME = "AAAAAAAAAA";
-    private static final String UPDATED_NAME = "BBBBBBBBBB";
+    public static final String DEFAULT_NAME = "AAAAAAAAAA";
+    public static final String UPDATED_NAME = "BBBBBBBBBB";
 
-    private static final Integer DEFAULT_LEVEL = 1;
-    private static final Integer UPDATED_LEVEL = 2;
-    private static final Integer SMALLER_LEVEL = 1 - 1;
+    public static final Integer DEFAULT_LEVEL = 1;
+    public static final Integer UPDATED_LEVEL = 2;
+    public static final Integer SMALLER_LEVEL = 1 - 1;
 
     @Autowired
     private EmployeeSkillRepository employeeSkillRepository;
@@ -203,7 +203,6 @@ public class EmployeeSkillResourceIT {
         assertThat(employeeSkillList).hasSize(databaseSizeBeforeCreate);
     }
 
-
     @Test
     @Transactional
     public void checkNameIsRequired() throws Exception {
@@ -253,7 +252,7 @@ public class EmployeeSkillResourceIT {
         restEmployeeSkillMockMvc.perform(get("/api/employee-skills"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].level").value(hasItem(DEFAULT_LEVEL)));
     }
 
@@ -302,7 +301,7 @@ public class EmployeeSkillResourceIT {
         restEmployeeSkillMockMvc.perform(get("/api/employee-skills/{id}", "name=" + employeeSkill.getId().getName() + ";" + "employeeUsername=" + employeeSkill.getId().getEmployeeUsername()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.name").value(DEFAULT_NAME.toString()))
+            .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.level").value(DEFAULT_LEVEL));
     }
 
@@ -317,6 +316,19 @@ public class EmployeeSkillResourceIT {
 
         // Get all the employeeSkillList where name equals to UPDATED_NAME
         defaultEmployeeSkillShouldNotBeFound("name.equals=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    public void getAllEmployeeSkillsByNameIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        employeeSkillRepository.saveAndFlush(employeeSkill);
+
+        // Get all the employeeSkillList where name not equals to DEFAULT_NAME
+        defaultEmployeeSkillShouldNotBeFound("name.notEquals=" + DEFAULT_NAME);
+
+        // Get all the employeeSkillList where name not equals to UPDATED_NAME
+        defaultEmployeeSkillShouldBeFound("name.notEquals=" + UPDATED_NAME);
     }
 
     @Test
@@ -347,6 +359,32 @@ public class EmployeeSkillResourceIT {
 
     @Test
     @Transactional
+    public void getAllEmployeeSkillsByNameContainsSomething() throws Exception {
+        // Initialize the database
+        employeeSkillRepository.saveAndFlush(employeeSkill);
+
+        // Get all the employeeSkillList where name contains DEFAULT_NAME
+        defaultEmployeeSkillShouldBeFound("name.contains=" + DEFAULT_NAME);
+
+        // Get all the employeeSkillList where name contains UPDATED_NAME
+        defaultEmployeeSkillShouldNotBeFound("name.contains=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    public void getAllEmployeeSkillsByNameNotContainsSomething() throws Exception {
+        // Initialize the database
+        employeeSkillRepository.saveAndFlush(employeeSkill);
+
+        // Get all the employeeSkillList where name does not contain DEFAULT_NAME
+        defaultEmployeeSkillShouldNotBeFound("name.doesNotContain=" + DEFAULT_NAME);
+
+        // Get all the employeeSkillList where name does not contain UPDATED_NAME
+        defaultEmployeeSkillShouldBeFound("name.doesNotContain=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
     public void getAllEmployeeSkillsByLevelIsEqualToSomething() throws Exception {
         // Initialize the database
         employeeSkillRepository.saveAndFlush(employeeSkill);
@@ -356,6 +394,19 @@ public class EmployeeSkillResourceIT {
 
         // Get all the employeeSkillList where level equals to UPDATED_LEVEL
         defaultEmployeeSkillShouldNotBeFound("level.equals=" + UPDATED_LEVEL);
+    }
+
+    @Test
+    @Transactional
+    public void getAllEmployeeSkillsByLevelIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        employeeSkillRepository.saveAndFlush(employeeSkill);
+
+        // Get all the employeeSkillList where level not equals to DEFAULT_LEVEL
+        defaultEmployeeSkillShouldNotBeFound("level.notEquals=" + DEFAULT_LEVEL);
+
+        // Get all the employeeSkillList where level not equals to UPDATED_LEVEL
+        defaultEmployeeSkillShouldBeFound("level.notEquals=" + UPDATED_LEVEL);
     }
 
     @Test
@@ -436,11 +487,11 @@ public class EmployeeSkillResourceIT {
         defaultEmployeeSkillShouldBeFound("level.greaterThan=" + SMALLER_LEVEL);
     }
 
-
     @Test
     @Transactional
     public void getAllEmployeeSkillsByEmployeeSkillCertificateTypeIdIsEqualToSomething() throws Exception {
         // Initialize the database
+        employeeSkillRepository.saveAndFlush(employeeSkill);
         EmployeeSkillCertificate employeeSkillCertificate = EmployeeSkillCertificateResourceIT.createEntity(em);
         em.persist(employeeSkillCertificate);
         em.flush();
@@ -454,11 +505,11 @@ public class EmployeeSkillResourceIT {
         defaultEmployeeSkillShouldNotBeFound("employeeSkillCertificateTypeId.equals=" + EmployeeSkillCertificateResourceIT.createUpdatedEntity(em).getId().getTypeId());
     }
 
-
     @Test
     @Transactional
     public void getAllEmployeeSkillsByTaskIdIsEqualToSomething() throws Exception {
         // Initialize the database
+        employeeSkillRepository.saveAndFlush(employeeSkill);
         Task task = TaskResourceIT.createEntity(em);
         em.persist(task);
         em.flush();
@@ -472,7 +523,6 @@ public class EmployeeSkillResourceIT {
         // Get all the employeeSkillList where taskId equals to taskId + 1
         defaultEmployeeSkillShouldNotBeFound("taskId.equals=" + (taskId + 1));
     }
-
 
     @Test
     @Transactional
@@ -488,7 +538,6 @@ public class EmployeeSkillResourceIT {
         // Get all the employeeSkillList where employeeUsername equals to a different employeeUsername
         defaultEmployeeSkillShouldNotBeFound("employeeUsername.equals=" + EmployeeResourceIT.createUpdatedEntity(em).getUsername());
     }
-
 
     @Test
     @Transactional
@@ -538,7 +587,6 @@ public class EmployeeSkillResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(content().string("0"));
     }
-
 
     @Test
     @Transactional
@@ -612,48 +660,5 @@ public class EmployeeSkillResourceIT {
         // Validate the database contains one less item
         List<EmployeeSkill> employeeSkillList = employeeSkillRepository.findAll();
         assertThat(employeeSkillList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(EmployeeSkill.class);
-        EmployeeSkill employeeSkill1 = new EmployeeSkill();
-        employeeSkill1.setId(createEntity(em).getId());
-        EmployeeSkill employeeSkill2 = new EmployeeSkill();
-        employeeSkill2.setId(employeeSkill1.getId());
-        assertThat(employeeSkill1).isEqualTo(employeeSkill2);
-        employeeSkill2.setId(createUpdatedEntity(em).getId());
-        assertThat(employeeSkill1).isNotEqualTo(employeeSkill2);
-        employeeSkill1.setId(null);
-        assertThat(employeeSkill1).isNotEqualTo(employeeSkill2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(EmployeeSkillDTO.class);
-        EmployeeSkillDTO employeeSkillDTO1 = new EmployeeSkillDTO();
-        EmployeeSkill employeeSkill1 = createEntity(em);
-        employeeSkillDTO1.setName(employeeSkill1.getId().getName());
-        employeeSkillDTO1.setEmployeeUsername(employeeSkill1.getId().getEmployeeUsername());
-        EmployeeSkillDTO employeeSkillDTO2 = new EmployeeSkillDTO();
-        assertThat(employeeSkillDTO1).isNotEqualTo(employeeSkillDTO2);
-        employeeSkillDTO2.setName(employeeSkillDTO1.getName());
-        employeeSkillDTO2.setEmployeeUsername(employeeSkillDTO1.getEmployeeUsername());
-        assertThat(employeeSkillDTO1).isEqualTo(employeeSkillDTO2);
-        EmployeeSkill employeeSkill2 = createUpdatedEntity(em);
-        employeeSkillDTO2.setName(employeeSkill2.getId().getName());
-        employeeSkillDTO2.setEmployeeUsername(employeeSkill2.getId().getEmployeeUsername());
-        assertThat(employeeSkillDTO1).isNotEqualTo(employeeSkillDTO2);
-        employeeSkillDTO1.setEmployeeUsername(null);
-        assertThat(employeeSkillDTO1).isNotEqualTo(employeeSkillDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(employeeSkillMapper.fromId(createUpdatedEntity(em).getId())).isEqualTo(createUpdatedEntity(em));
-        assertThat(employeeSkillMapper.fromId(null)).isNull();
     }
 }

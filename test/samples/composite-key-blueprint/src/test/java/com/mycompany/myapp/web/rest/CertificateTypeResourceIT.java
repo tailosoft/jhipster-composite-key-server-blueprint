@@ -34,13 +34,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@Link CertificateTypeResource} REST controller.
+ * Integration tests for the {@link CertificateTypeResource} REST controller.
  */
 @SpringBootTest(classes = CompositekeyApp.class)
 public class CertificateTypeResourceIT {
 
-    private static final String DEFAULT_NAME = "AAAAAAAAAA";
-    private static final String UPDATED_NAME = "BBBBBBBBBB";
+    public static final String DEFAULT_NAME = "AAAAAAAAAA";
+    public static final String UPDATED_NAME = "BBBBBBBBBB";
 
     @Autowired
     private CertificateTypeRepository certificateTypeRepository;
@@ -154,7 +154,6 @@ public class CertificateTypeResourceIT {
         assertThat(certificateTypeList).hasSize(databaseSizeBeforeCreate);
     }
 
-
     @Test
     @Transactional
     public void checkNameIsRequired() throws Exception {
@@ -185,7 +184,7 @@ public class CertificateTypeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(certificateType.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())));
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)));
     }
 
     @Test
@@ -199,7 +198,25 @@ public class CertificateTypeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(certificateType.getId().intValue()))
-            .andExpect(jsonPath("$.name").value(DEFAULT_NAME.toString()));
+            .andExpect(jsonPath("$.name").value(DEFAULT_NAME));
+    }
+
+    @Test
+    @Transactional
+    public void getCertificateTypesByIdFiltering() throws Exception {
+        // Initialize the database
+        certificateTypeRepository.saveAndFlush(certificateType);
+
+        Long id = certificateType.getId();
+
+        defaultCertificateTypeShouldBeFound("id.equals=" + id);
+        defaultCertificateTypeShouldNotBeFound("id.notEquals=" + id);
+
+        defaultCertificateTypeShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultCertificateTypeShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultCertificateTypeShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultCertificateTypeShouldNotBeFound("id.lessThan=" + id);
     }
 
     @Test
@@ -213,6 +230,19 @@ public class CertificateTypeResourceIT {
 
         // Get all the certificateTypeList where name equals to UPDATED_NAME
         defaultCertificateTypeShouldNotBeFound("name.equals=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCertificateTypesByNameIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        certificateTypeRepository.saveAndFlush(certificateType);
+
+        // Get all the certificateTypeList where name not equals to DEFAULT_NAME
+        defaultCertificateTypeShouldNotBeFound("name.notEquals=" + DEFAULT_NAME);
+
+        // Get all the certificateTypeList where name not equals to UPDATED_NAME
+        defaultCertificateTypeShouldBeFound("name.notEquals=" + UPDATED_NAME);
     }
 
     @Test
@@ -243,8 +273,35 @@ public class CertificateTypeResourceIT {
 
     @Test
     @Transactional
+    public void getAllCertificateTypesByNameContainsSomething() throws Exception {
+        // Initialize the database
+        certificateTypeRepository.saveAndFlush(certificateType);
+
+        // Get all the certificateTypeList where name contains DEFAULT_NAME
+        defaultCertificateTypeShouldBeFound("name.contains=" + DEFAULT_NAME);
+
+        // Get all the certificateTypeList where name contains UPDATED_NAME
+        defaultCertificateTypeShouldNotBeFound("name.contains=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCertificateTypesByNameNotContainsSomething() throws Exception {
+        // Initialize the database
+        certificateTypeRepository.saveAndFlush(certificateType);
+
+        // Get all the certificateTypeList where name does not contain DEFAULT_NAME
+        defaultCertificateTypeShouldNotBeFound("name.doesNotContain=" + DEFAULT_NAME);
+
+        // Get all the certificateTypeList where name does not contain UPDATED_NAME
+        defaultCertificateTypeShouldBeFound("name.doesNotContain=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
     public void getAllCertificateTypesByEmployeeSkillCertificateSkillNameIsEqualToSomething() throws Exception {
         // Initialize the database
+        certificateTypeRepository.saveAndFlush(certificateType);
         EmployeeSkillCertificate employeeSkillCertificate = EmployeeSkillCertificateResourceIT.createEntity(em);
         em.persist(employeeSkillCertificate);
         em.flush();
@@ -259,11 +316,11 @@ public class CertificateTypeResourceIT {
         defaultCertificateTypeShouldNotBeFound("employeeSkillCertificateSkillName.equals=" + EmployeeSkillCertificateResourceIT.createUpdatedEntity(em).getId().getSkillName());
     }
 
-
     @Test
     @Transactional
     public void getAllCertificateTypesByEmployeeSkillCertificateSkillEmployeeUsernameIsEqualToSomething() throws Exception {
         // Initialize the database
+        certificateTypeRepository.saveAndFlush(certificateType);
         EmployeeSkillCertificate employeeSkillCertificate = EmployeeSkillCertificateResourceIT.createEntity(em);
         em.persist(employeeSkillCertificate);
         em.flush();
@@ -311,7 +368,6 @@ public class CertificateTypeResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(content().string("0"));
     }
-
 
     @Test
     @Transactional
@@ -384,43 +440,5 @@ public class CertificateTypeResourceIT {
         // Validate the database contains one less item
         List<CertificateType> certificateTypeList = certificateTypeRepository.findAll();
         assertThat(certificateTypeList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(CertificateType.class);
-        CertificateType certificateType1 = new CertificateType();
-        certificateType1.setId(1L);
-        CertificateType certificateType2 = new CertificateType();
-        certificateType2.setId(certificateType1.getId());
-        assertThat(certificateType1).isEqualTo(certificateType2);
-        certificateType2.setId(2L);
-        assertThat(certificateType1).isNotEqualTo(certificateType2);
-        certificateType1.setId(null);
-        assertThat(certificateType1).isNotEqualTo(certificateType2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(CertificateTypeDTO.class);
-        CertificateTypeDTO certificateTypeDTO1 = new CertificateTypeDTO();
-        certificateTypeDTO1.setId(1L);
-        CertificateTypeDTO certificateTypeDTO2 = new CertificateTypeDTO();
-        assertThat(certificateTypeDTO1).isNotEqualTo(certificateTypeDTO2);
-        certificateTypeDTO2.setId(certificateTypeDTO1.getId());
-        assertThat(certificateTypeDTO1).isEqualTo(certificateTypeDTO2);
-        certificateTypeDTO2.setId(2L);
-        assertThat(certificateTypeDTO1).isNotEqualTo(certificateTypeDTO2);
-        certificateTypeDTO1.setId(null);
-        assertThat(certificateTypeDTO1).isNotEqualTo(certificateTypeDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(certificateTypeMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(certificateTypeMapper.fromId(null)).isNull();
     }
 }

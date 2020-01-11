@@ -18,6 +18,18 @@
 -%>
 package <%=packageName%>.service.mapper;
 
+<%_
+const isAutoIncrement = pkData.length === 1 && pkData[0].name === 'id' && pkData[0].type === 'Long';
+const importedEntities = [];
+pkData.filter(pk => pk.type !== 'Long').map(pk => pk.entityName).forEach(entityName => {
+    if(!importedEntities.includes(entityName)){ _%>
+import <%=packageName%>.web.rest.<%= entityName %>ResourceIT;
+        <%_  importedEntities.push(entityName); _%>
+    <%_ } _%>
+<%_ }); _%>
+<%_ if (pkData.length > 1) { _%>
+import <%=packageName%>.domain.<%= entityClass %>Id;
+<%_ } _%>
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,9 +57,15 @@ public class <%= entityClass %>MapperTest {
     }
 
     @Test
-    public void testEntityFromId() {
-        <%= primaryKeyType %> id = <% if (databaseType === 'sql' && hasOauthUser === true) { %>UUID.randomUUID().toString()<%} else if (databaseType === 'sql') { %>2L<% } else if (databaseType === 'mongodb' || databaseType === 'couchbase') { %>"id2"<% } %>;
-        assertThat(<%= entityInstance %>Mapper.fromId(id).getId()).isEqualTo(id);
-        assertThat(<%= entityInstance %>Mapper.fromId(null)).isNull();
+        public void testEntityFromId() {
+    <%_ if (isAutoIncrement) {_%>
+        assertThat(<%= entityInstance %>Mapper.fromId(42L).getId()).isEqualTo(42);
+    <%_ } else if (pkData.length === 1) { _%>
+        assertThat(<%= entityInstance %>Mapper.from<%= _.upperFirst(pkName) %>(<%= entityClass + 'ResourceIT.UPDATED_' + _.snakeCase(pkName).toUpperCase() %>).get<%= _.upperFirst(pkName) %>()).isEqualTo(<%= entityClass + 'ResourceIT.UPDATED_' + _.snakeCase(pkName).toUpperCase() %>);
+    <%_ } else { _%>
+        <%_ const idParams = pkData.map(pk => pk.type === 'Long' ? '2L' : `${pk.entityName}ResourceIT.UPDATED_${_.snakeCase(pk.fieldName).toUpperCase()}`).join(', ') _%>
+        assertThat(<%= entityInstance %>Mapper.fromId(new <%= entityClass %>Id(<%= idParams %>)).getId()).isEqualTo(new <%= entityClass %>Id(<%= idParams %>));
+    <%_ } _%>
+        assertThat(<%= entityInstance %>Mapper.from<%= _.upperFirst(pkName) %>(null)).isNull();
     }
 }

@@ -49,7 +49,6 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
-
         <dropDefaultValue tableName="task" columnName="created_at" columnDataType="datetime"/>
         <dropDefaultValue tableName="task" columnName="modified_at" columnDataType="datetime"/>
     </changeSet>

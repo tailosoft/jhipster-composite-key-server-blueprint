@@ -18,6 +18,15 @@
 -%>
 package <%=packageName%>.service.dto;
 
+<%_
+const isAutoIncrement = pkData.length === 1 && pkData[0].name === 'id' && pkData[0].type === 'Long';
+const importedEntities = [];
+pkData.filter(pk => pk.type !== 'Long').map(pk => pk.entityName).forEach(entityName => {
+    if(!importedEntities.includes(entityName)){ _%>
+import <%=packageName%>.web.rest.<%= entityName %>ResourceIT;
+        <%_  importedEntities.push(entityName); _%>
+    <%_ } _%>
+<%_ }); _%>
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import <%=packageName%>.web.rest.TestUtil;
@@ -37,14 +46,20 @@ public class <%= asDto(entityClass) %>Test {
     public void dtoEqualsVerifier() throws Exception {
         TestUtil.equalsVerifier(<%= asDto(entityClass) %>.class);
         <%= asDto(entityClass) %> <%= asDto(entityInstance) %>1 = new <%= asDto(entityClass) %>();
-        <%= asDto(entityInstance) %>1.setId(<% if (databaseType === 'sql' && hasOauthUser === true) { %>UUID.randomUUID().toString()<% } else  if (databaseType === 'sql') { %>1L<% } else if (databaseType === 'mongodb' || databaseType === 'couchbase') { %>"id1"<% } else if (databaseType === 'cassandra') { %>UUID.randomUUID()<% } %>);
+<%_ pkData.forEach(pk => { _%>
+        <%= asDto(entityInstance) %>1.<%= pk.setter %>(<%= pk.type === 'Long' ? '1L' : `${pk.entityName}ResourceIT.DEFAULT_${_.snakeCase(pk.fieldName).toUpperCase()}` %>);
+<%_ }); _%>
         <%= asDto(entityClass) %> <%= asDto(entityInstance) %>2 = new <%= asDto(entityClass) %>();
         assertThat(<%= asDto(entityInstance) %>1).isNotEqualTo(<%= asDto(entityInstance) %>2);
-        <%= asDto(entityInstance) %>2.setId(<%= asDto(entityInstance) %>1.getId());
+<%_ pkData.forEach(pk => { _%>
+        <%= asDto(entityInstance) %>2.<%= pk.setter %>(<%= asDto(entityInstance) %>1.<%= pk.getter %>());
+<%_ }); _%>
         assertThat(<%= asDto(entityInstance) %>1).isEqualTo(<%= asDto(entityInstance) %>2);
-        <%= asDto(entityInstance) %>2.setId(<% if (databaseType === 'sql' && hasOauthUser === true) { %>UUID.randomUUID().toString()<% } else  if (databaseType === 'sql') { %>2L<% } else if (databaseType === 'mongodb' || databaseType === 'couchbase') { %>"id2"<% } else if (databaseType === 'cassandra') { %>UUID.randomUUID()<% } %>);
+<%_ pkData.forEach(pk => { _%>
+        <%= asDto(entityInstance) %>2.<%= pk.setter %>(<%= pk.type === 'Long' ? '2L' : `${pk.entityName}ResourceIT.UPDATED_${_.snakeCase(pk.fieldName).toUpperCase()}` %>);
+<%_ }); _%>
         assertThat(<%= asDto(entityInstance) %>1).isNotEqualTo(<%= asDto(entityInstance) %>2);
-        <%= asDto(entityInstance) %>1.setId(null);
+        <%= asDto(entityInstance) %>1.<%= pkData[pkData.length-1].setter %>(null);
         assertThat(<%= asDto(entityInstance) %>1).isNotEqualTo(<%= asDto(entityInstance) %>2);
     }
 }

@@ -18,7 +18,7 @@
 -%>
 package <%= packageName %>.repository.reactive;
 <%
-const primaryKeyType = getPkTypeBasedOnDBAndAssociation(authenticationType, databaseType, relationships);
+const primaryKeyType = pkType;
 %>
 import <%= packageName %>.domain.<%= asEntity(entityClass) %>;
 <%_ if (databaseType === 'cassandra') { _%>

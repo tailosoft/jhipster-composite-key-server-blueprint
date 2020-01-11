@@ -34,13 +34,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@Link TaskCommentResource} REST controller.
+ * Integration tests for the {@link TaskCommentResource} REST controller.
  */
 @SpringBootTest(classes = CompositekeyApp.class)
 public class TaskCommentResourceIT {
 
-    private static final String DEFAULT_VALUE = "AAAAAAAAAA";
-    private static final String UPDATED_VALUE = "BBBBBBBBBB";
+    public static final String DEFAULT_VALUE = "AAAAAAAAAA";
+    public static final String UPDATED_VALUE = "BBBBBBBBBB";
 
     @Autowired
     private TaskCommentRepository taskCommentRepository;
@@ -176,7 +176,6 @@ public class TaskCommentResourceIT {
         assertThat(taskCommentList).hasSize(databaseSizeBeforeCreate);
     }
 
-
     @Test
     @Transactional
     public void checkValueIsRequired() throws Exception {
@@ -207,7 +206,7 @@ public class TaskCommentResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(taskComment.getId().intValue())))
-            .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE.toString())));
+            .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE)));
     }
 
     @Test
@@ -221,7 +220,25 @@ public class TaskCommentResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(taskComment.getId().intValue()))
-            .andExpect(jsonPath("$.value").value(DEFAULT_VALUE.toString()));
+            .andExpect(jsonPath("$.value").value(DEFAULT_VALUE));
+    }
+
+    @Test
+    @Transactional
+    public void getTaskCommentsByIdFiltering() throws Exception {
+        // Initialize the database
+        taskCommentRepository.saveAndFlush(taskComment);
+
+        Long id = taskComment.getId();
+
+        defaultTaskCommentShouldBeFound("id.equals=" + id);
+        defaultTaskCommentShouldNotBeFound("id.notEquals=" + id);
+
+        defaultTaskCommentShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultTaskCommentShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultTaskCommentShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultTaskCommentShouldNotBeFound("id.lessThan=" + id);
     }
 
     @Test
@@ -235,6 +252,19 @@ public class TaskCommentResourceIT {
 
         // Get all the taskCommentList where value equals to UPDATED_VALUE
         defaultTaskCommentShouldNotBeFound("value.equals=" + UPDATED_VALUE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTaskCommentsByValueIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskCommentRepository.saveAndFlush(taskComment);
+
+        // Get all the taskCommentList where value not equals to DEFAULT_VALUE
+        defaultTaskCommentShouldNotBeFound("value.notEquals=" + DEFAULT_VALUE);
+
+        // Get all the taskCommentList where value not equals to UPDATED_VALUE
+        defaultTaskCommentShouldBeFound("value.notEquals=" + UPDATED_VALUE);
     }
 
     @Test
@@ -261,6 +291,32 @@ public class TaskCommentResourceIT {
 
         // Get all the taskCommentList where value is null
         defaultTaskCommentShouldNotBeFound("value.specified=false");
+    }
+
+    @Test
+    @Transactional
+    public void getAllTaskCommentsByValueContainsSomething() throws Exception {
+        // Initialize the database
+        taskCommentRepository.saveAndFlush(taskComment);
+
+        // Get all the taskCommentList where value contains DEFAULT_VALUE
+        defaultTaskCommentShouldBeFound("value.contains=" + DEFAULT_VALUE);
+
+        // Get all the taskCommentList where value contains UPDATED_VALUE
+        defaultTaskCommentShouldNotBeFound("value.contains=" + UPDATED_VALUE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTaskCommentsByValueNotContainsSomething() throws Exception {
+        // Initialize the database
+        taskCommentRepository.saveAndFlush(taskComment);
+
+        // Get all the taskCommentList where value does not contain DEFAULT_VALUE
+        defaultTaskCommentShouldNotBeFound("value.doesNotContain=" + DEFAULT_VALUE);
+
+        // Get all the taskCommentList where value does not contain UPDATED_VALUE
+        defaultTaskCommentShouldBeFound("value.doesNotContain=" + UPDATED_VALUE);
     }
 
     @Test
@@ -311,7 +367,6 @@ public class TaskCommentResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(content().string("0"));
     }
-
 
     @Test
     @Transactional
@@ -384,43 +439,5 @@ public class TaskCommentResourceIT {
         // Validate the database contains one less item
         List<TaskComment> taskCommentList = taskCommentRepository.findAll();
         assertThat(taskCommentList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(TaskComment.class);
-        TaskComment taskComment1 = new TaskComment();
-        taskComment1.setId(1L);
-        TaskComment taskComment2 = new TaskComment();
-        taskComment2.setId(taskComment1.getId());
-        assertThat(taskComment1).isEqualTo(taskComment2);
-        taskComment2.setId(2L);
-        assertThat(taskComment1).isNotEqualTo(taskComment2);
-        taskComment1.setId(null);
-        assertThat(taskComment1).isNotEqualTo(taskComment2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(TaskCommentDTO.class);
-        TaskCommentDTO taskCommentDTO1 = new TaskCommentDTO();
-        taskCommentDTO1.setId(1L);
-        TaskCommentDTO taskCommentDTO2 = new TaskCommentDTO();
-        assertThat(taskCommentDTO1).isNotEqualTo(taskCommentDTO2);
-        taskCommentDTO2.setId(taskCommentDTO1.getId());
-        assertThat(taskCommentDTO1).isEqualTo(taskCommentDTO2);
-        taskCommentDTO2.setId(2L);
-        assertThat(taskCommentDTO1).isNotEqualTo(taskCommentDTO2);
-        taskCommentDTO1.setId(null);
-        assertThat(taskCommentDTO1).isNotEqualTo(taskCommentDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(taskCommentMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(taskCommentMapper.fromId(null)).isNull();
     }
 }

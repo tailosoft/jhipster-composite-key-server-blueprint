@@ -38,18 +38,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@Link EmployeeSkillCertificateResource} REST controller.
+ * Integration tests for the {@link EmployeeSkillCertificateResource} REST controller.
  */
 @SpringBootTest(classes = CompositekeyApp.class)
 public class EmployeeSkillCertificateResourceIT {
 
-    private static final Integer DEFAULT_GRADE = 1;
-    private static final Integer UPDATED_GRADE = 2;
-    private static final Integer SMALLER_GRADE = 1 - 1;
+    public static final Integer DEFAULT_GRADE = 1;
+    public static final Integer UPDATED_GRADE = 2;
+    public static final Integer SMALLER_GRADE = 1 - 1;
 
-    private static final LocalDate DEFAULT_DATE = LocalDate.ofEpochDay(0L);
-    private static final LocalDate UPDATED_DATE = LocalDate.now(ZoneId.systemDefault());
-    private static final LocalDate SMALLER_DATE = LocalDate.ofEpochDay(-1L);
+    public static final LocalDate DEFAULT_DATE = LocalDate.ofEpochDay(0L);
+    public static final LocalDate UPDATED_DATE = LocalDate.now(ZoneId.systemDefault());
+    public static final LocalDate SMALLER_DATE = LocalDate.ofEpochDay(-1L);
 
     @Autowired
     private EmployeeSkillCertificateRepository employeeSkillCertificateRepository;
@@ -212,7 +212,6 @@ public class EmployeeSkillCertificateResourceIT {
         assertThat(employeeSkillCertificateList).hasSize(databaseSizeBeforeCreate);
     }
 
-
     @Test
     @Transactional
     public void checkGradeIsRequired() throws Exception {
@@ -294,6 +293,19 @@ public class EmployeeSkillCertificateResourceIT {
 
     @Test
     @Transactional
+    public void getAllEmployeeSkillCertificatesByGradeIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        employeeSkillCertificateRepository.saveAndFlush(employeeSkillCertificate);
+
+        // Get all the employeeSkillCertificateList where grade not equals to DEFAULT_GRADE
+        defaultEmployeeSkillCertificateShouldNotBeFound("grade.notEquals=" + DEFAULT_GRADE);
+
+        // Get all the employeeSkillCertificateList where grade not equals to UPDATED_GRADE
+        defaultEmployeeSkillCertificateShouldBeFound("grade.notEquals=" + UPDATED_GRADE);
+    }
+
+    @Test
+    @Transactional
     public void getAllEmployeeSkillCertificatesByGradeIsInShouldWork() throws Exception {
         // Initialize the database
         employeeSkillCertificateRepository.saveAndFlush(employeeSkillCertificate);
@@ -370,7 +382,6 @@ public class EmployeeSkillCertificateResourceIT {
         defaultEmployeeSkillCertificateShouldBeFound("grade.greaterThan=" + SMALLER_GRADE);
     }
 
-
     @Test
     @Transactional
     public void getAllEmployeeSkillCertificatesByDateIsEqualToSomething() throws Exception {
@@ -382,6 +393,19 @@ public class EmployeeSkillCertificateResourceIT {
 
         // Get all the employeeSkillCertificateList where date equals to UPDATED_DATE
         defaultEmployeeSkillCertificateShouldNotBeFound("date.equals=" + UPDATED_DATE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllEmployeeSkillCertificatesByDateIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        employeeSkillCertificateRepository.saveAndFlush(employeeSkillCertificate);
+
+        // Get all the employeeSkillCertificateList where date not equals to DEFAULT_DATE
+        defaultEmployeeSkillCertificateShouldNotBeFound("date.notEquals=" + DEFAULT_DATE);
+
+        // Get all the employeeSkillCertificateList where date not equals to UPDATED_DATE
+        defaultEmployeeSkillCertificateShouldBeFound("date.notEquals=" + UPDATED_DATE);
     }
 
     @Test
@@ -462,7 +486,6 @@ public class EmployeeSkillCertificateResourceIT {
         defaultEmployeeSkillCertificateShouldBeFound("date.greaterThan=" + SMALLER_DATE);
     }
 
-
     @Test
     @Transactional
     public void getAllEmployeeSkillCertificatesByTypeIdIsEqualToSomething() throws Exception {
@@ -478,7 +501,6 @@ public class EmployeeSkillCertificateResourceIT {
         defaultEmployeeSkillCertificateShouldNotBeFound("typeId.equals=" + (typeId + 1));
     }
 
-
     @Test
     @Transactional
     public void getAllEmployeeSkillCertificatesBySkillNameIsEqualToSomething() throws Exception {
@@ -493,7 +515,6 @@ public class EmployeeSkillCertificateResourceIT {
         // Get all the employeeSkillCertificateList where skillName equals to a different skillName
         defaultEmployeeSkillCertificateShouldNotBeFound("skillName.equals=" + EmployeeSkillResourceIT.createUpdatedEntity(em).getId().getName());
     }
-
 
     @Test
     @Transactional
@@ -543,7 +564,6 @@ public class EmployeeSkillCertificateResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(content().string("0"));
     }
-
 
     @Test
     @Transactional
@@ -619,51 +639,5 @@ public class EmployeeSkillCertificateResourceIT {
         // Validate the database contains one less item
         List<EmployeeSkillCertificate> employeeSkillCertificateList = employeeSkillCertificateRepository.findAll();
         assertThat(employeeSkillCertificateList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(EmployeeSkillCertificate.class);
-        EmployeeSkillCertificate employeeSkillCertificate1 = new EmployeeSkillCertificate();
-        employeeSkillCertificate1.setId(createEntity(em).getId());
-        EmployeeSkillCertificate employeeSkillCertificate2 = new EmployeeSkillCertificate();
-        employeeSkillCertificate2.setId(employeeSkillCertificate1.getId());
-        assertThat(employeeSkillCertificate1).isEqualTo(employeeSkillCertificate2);
-        employeeSkillCertificate2.setId(createUpdatedEntity(em).getId());
-        assertThat(employeeSkillCertificate1).isNotEqualTo(employeeSkillCertificate2);
-        employeeSkillCertificate1.setId(null);
-        assertThat(employeeSkillCertificate1).isNotEqualTo(employeeSkillCertificate2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(EmployeeSkillCertificateDTO.class);
-        EmployeeSkillCertificateDTO employeeSkillCertificateDTO1 = new EmployeeSkillCertificateDTO();
-        EmployeeSkillCertificate employeeSkillCertificate1 = createEntity(em);
-        employeeSkillCertificateDTO1.setTypeId(employeeSkillCertificate1.getId().getTypeId());
-        employeeSkillCertificateDTO1.setSkillName(employeeSkillCertificate1.getId().getSkillName());
-        employeeSkillCertificateDTO1.setSkillEmployeeUsername(employeeSkillCertificate1.getId().getSkillEmployeeUsername());
-        EmployeeSkillCertificateDTO employeeSkillCertificateDTO2 = new EmployeeSkillCertificateDTO();
-        assertThat(employeeSkillCertificateDTO1).isNotEqualTo(employeeSkillCertificateDTO2);
-        employeeSkillCertificateDTO2.setTypeId(employeeSkillCertificateDTO1.getTypeId());
-        employeeSkillCertificateDTO2.setSkillName(employeeSkillCertificateDTO1.getSkillName());
-        employeeSkillCertificateDTO2.setSkillEmployeeUsername(employeeSkillCertificateDTO1.getSkillEmployeeUsername());
-        assertThat(employeeSkillCertificateDTO1).isEqualTo(employeeSkillCertificateDTO2);
-        EmployeeSkillCertificate employeeSkillCertificate2 = createUpdatedEntity(em);
-        employeeSkillCertificateDTO2.setTypeId(employeeSkillCertificate2.getId().getTypeId());
-        employeeSkillCertificateDTO2.setSkillName(employeeSkillCertificate2.getId().getSkillName());
-        employeeSkillCertificateDTO2.setSkillEmployeeUsername(employeeSkillCertificate2.getId().getSkillEmployeeUsername());
-        assertThat(employeeSkillCertificateDTO1).isNotEqualTo(employeeSkillCertificateDTO2);
-        employeeSkillCertificateDTO1.setSkillEmployeeUsername(null);
-        assertThat(employeeSkillCertificateDTO1).isNotEqualTo(employeeSkillCertificateDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(employeeSkillCertificateMapper.fromId(createUpdatedEntity(em).getId())).isEqualTo(createUpdatedEntity(em));
-        assertThat(employeeSkillCertificateMapper.fromId(null)).isNull();
     }
 }
