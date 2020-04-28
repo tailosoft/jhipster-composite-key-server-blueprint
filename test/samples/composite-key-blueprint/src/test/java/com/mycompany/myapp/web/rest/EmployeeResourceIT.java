@@ -7,27 +7,21 @@ import com.mycompany.myapp.repository.EmployeeRepository;
 import com.mycompany.myapp.service.EmployeeService;
 import com.mycompany.myapp.service.dto.EmployeeDTO;
 import com.mycompany.myapp.service.mapper.EmployeeMapper;
-import com.mycompany.myapp.web.rest.errors.ExceptionTranslator;
 import com.mycompany.myapp.service.dto.EmployeeCriteria;
 import com.mycompany.myapp.service.EmployeeQueryService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.util.List;
 
-import static com.mycompany.myapp.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -37,6 +31,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for the {@link EmployeeResource} REST controller.
  */
 @SpringBootTest(classes = CompositekeyApp.class)
+
+@AutoConfigureMockMvc
+@WithMockUser
 public class EmployeeResourceIT {
 
     public static final String DEFAULT_USERNAME = "AAAAAAAAAA";
@@ -58,36 +55,12 @@ public class EmployeeResourceIT {
     private EmployeeQueryService employeeQueryService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restEmployeeMockMvc;
 
     private Employee employee;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final EmployeeResource employeeResource = new EmployeeResource(employeeService, employeeQueryService);
-        this.restEmployeeMockMvc = MockMvcBuilders.standaloneSetup(employeeResource)
-            .setRemoveSemicolonContent(false)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -127,7 +100,7 @@ public class EmployeeResourceIT {
         // Create the Employee
         EmployeeDTO employeeDTO = employeeMapper.toDto(employee);
         restEmployeeMockMvc.perform(post("/api/employees")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(employeeDTO)))
             .andExpect(status().isCreated());
 
@@ -151,7 +124,7 @@ public class EmployeeResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restEmployeeMockMvc.perform(post("/api/employees")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(employeeDTO)))
             .andExpect(status().isBadRequest());
 
@@ -171,7 +144,7 @@ public class EmployeeResourceIT {
         EmployeeDTO employeeDTO = employeeMapper.toDto(employee);
 
         restEmployeeMockMvc.perform(post("/api/employees")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(employeeDTO)))
             .andExpect(status().isBadRequest());
 
@@ -190,7 +163,7 @@ public class EmployeeResourceIT {
         EmployeeDTO employeeDTO = employeeMapper.toDto(employee);
 
         restEmployeeMockMvc.perform(post("/api/employees")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(employeeDTO)))
             .andExpect(status().isBadRequest());
 
@@ -207,7 +180,7 @@ public class EmployeeResourceIT {
         // Get all the employeeList
         restEmployeeMockMvc.perform(get("/api/employees"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].username").value(hasItem(DEFAULT_USERNAME)))
             .andExpect(jsonPath("$.[*].fullname").value(hasItem(DEFAULT_FULLNAME)));
     }
@@ -221,7 +194,7 @@ public class EmployeeResourceIT {
         // Get the employee
         restEmployeeMockMvc.perform(get("/api/employees/{username}", employee.getUsername()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.username").value(DEFAULT_USERNAME))
             .andExpect(jsonPath("$.fullname").value(DEFAULT_FULLNAME));
     }
@@ -424,14 +397,14 @@ public class EmployeeResourceIT {
     private void defaultEmployeeShouldBeFound(String filter) throws Exception {
         restEmployeeMockMvc.perform(get("/api/employees?" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].username").value(hasItem(DEFAULT_USERNAME)))
             .andExpect(jsonPath("$.[*].fullname").value(hasItem(DEFAULT_FULLNAME)));
 
         // Check, that the count call also returns 1
         restEmployeeMockMvc.perform(get("/api/employees/count?" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(content().string("1"));
     }
 
@@ -441,14 +414,14 @@ public class EmployeeResourceIT {
     private void defaultEmployeeShouldNotBeFound(String filter) throws Exception {
         restEmployeeMockMvc.perform(get("/api/employees?" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$").isEmpty());
 
         // Check, that the count call also returns 0
         restEmployeeMockMvc.perform(get("/api/employees/count?" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(content().string("0"));
     }
 
@@ -478,7 +451,7 @@ public class EmployeeResourceIT {
         EmployeeDTO employeeDTO = employeeMapper.toDto(updatedEmployee);
 
         restEmployeeMockMvc.perform(put("/api/employees")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(employeeDTO)))
             .andExpect(status().isOk());
 
@@ -499,7 +472,7 @@ public class EmployeeResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restEmployeeMockMvc.perform(put("/api/employees")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(employeeDTO)))
             .andExpect(status().isBadRequest());
 
@@ -518,7 +491,7 @@ public class EmployeeResourceIT {
 
         // Delete the employee
         restEmployeeMockMvc.perform(delete("/api/employees/{username}", employee.getUsername())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

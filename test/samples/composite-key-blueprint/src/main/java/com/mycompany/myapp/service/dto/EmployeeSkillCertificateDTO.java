@@ -1,4 +1,5 @@
 package com.mycompany.myapp.service.dto;
+
 import java.time.LocalDate;
 import javax.validation.constraints.*;
 import java.io.Serializable;

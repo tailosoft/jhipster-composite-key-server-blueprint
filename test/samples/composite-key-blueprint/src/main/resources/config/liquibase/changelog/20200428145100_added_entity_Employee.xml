@@ -3,25 +3,25 @@
     xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
     xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <!--
-        Added the entity PriceFormula.
+        Added the entity Employee.
     -->
-    <changeSet id="20190916222324-1" author="jhipster">
-        <createTable tableName="price_formula">
-            <column name="max" type="integer">
+    <changeSet id="20200428145100-1" author="jhipster">
+        <createTable tableName="employee">
+            <column name="username" type="varchar(255)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="formula" type="varchar(255)">
+            <column name="fullname" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
         </createTable>
     </changeSet>
 
-    <changeSet id="20190916222324-1-relations" author="jhipster">
+    <changeSet id="20200428145100-1-relations" author="jhipster">
     </changeSet>
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
 
@@ -33,13 +33,13 @@
           This can be customized by adding or removing 'faker' in the 'spring.liquibase.contexts'
           Spring Boot configuration key.
     -->
-    <changeSet id="20190916222324-1-data" author="jhipster" context="faker">
+    <changeSet id="20200428145100-1-data" author="jhipster" context="faker">
         <loadData
-            file="config/liquibase/fake-data/price_formula.csv"
+            file="config/liquibase/fake-data/employee.csv"
             separator=";"
-            tableName="price_formula">
-            <column name="max" type="numeric"/>
-            <column name="formula" type="string"/>
+            tableName="employee">
+            <column name="username" type="string"/>
+            <column name="fullname" type="string"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>
     </changeSet>

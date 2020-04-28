@@ -36,10 +36,10 @@ public class EmployeeSkillCriteria implements Serializable, Criteria {
 
     private StringFilter teacherUsername;
 
-    public EmployeeSkillCriteria(){
+    public EmployeeSkillCriteria() {
     }
 
-    public EmployeeSkillCriteria(EmployeeSkillCriteria other){
+    public EmployeeSkillCriteria(EmployeeSkillCriteria other) {
         this.name = other.name == null ? null : other.name.copy();
         this.employeeUsername = other.employeeUsername == null ? null : other.employeeUsername.copy();
         this.level = other.level == null ? null : other.level.copy();

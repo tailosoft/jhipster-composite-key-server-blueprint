@@ -1,4 +1,5 @@
 package com.mycompany.myapp.domain;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -29,7 +30,7 @@ public class TaskComment implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
-    @JsonIgnoreProperties("comments")
+    @JsonIgnoreProperties("taskComments")
     private Task task;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove

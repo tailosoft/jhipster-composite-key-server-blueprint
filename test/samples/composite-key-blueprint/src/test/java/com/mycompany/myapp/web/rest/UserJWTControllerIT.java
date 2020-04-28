@@ -3,14 +3,12 @@ package com.mycompany.myapp.web.rest;
 import com.mycompany.myapp.CompositekeyApp;
 import com.mycompany.myapp.domain.User;
 import com.mycompany.myapp.repository.UserRepository;
-import com.mycompany.myapp.security.jwt.TokenProvider;
-import com.mycompany.myapp.web.rest.errors.ExceptionTranslator;
 import com.mycompany.myapp.web.rest.vm.LoginVM;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -21,20 +19,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.isEmptyString;
+import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 /**
  * Integration tests for the {@link UserJWTController} REST controller.
  */
+@AutoConfigureMockMvc
 @SpringBootTest(classes = CompositekeyApp.class)
 public class UserJWTControllerIT {
-
-    @Autowired
-    private TokenProvider tokenProvider;
-
-    @Autowired
-    private AuthenticationManagerBuilder authenticationManager;
 
     @Autowired
     private UserRepository userRepository;
@@ -43,17 +37,7 @@ public class UserJWTControllerIT {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
     private MockMvc mockMvc;
-
-    @BeforeEach
-    public void setup() {
-        UserJWTController userJWTController = new UserJWTController(tokenProvider, authenticationManager);
-        this.mockMvc = MockMvcBuilders.standaloneSetup(userJWTController)
-            .setControllerAdvice(exceptionTranslator)
-            .build();
-    }
 
     @Test
     @Transactional
@@ -70,13 +54,13 @@ public class UserJWTControllerIT {
         login.setUsername("user-jwt-controller");
         login.setPassword("test");
         mockMvc.perform(post("/api/authenticate")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(login)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id_token").isString())
             .andExpect(jsonPath("$.id_token").isNotEmpty())
             .andExpect(header().string("Authorization", not(nullValue())))
-            .andExpect(header().string("Authorization", not(isEmptyString())));
+            .andExpect(header().string("Authorization", not(is(emptyString()))));
     }
 
     @Test
@@ -95,13 +79,13 @@ public class UserJWTControllerIT {
         login.setPassword("test");
         login.setRememberMe(true);
         mockMvc.perform(post("/api/authenticate")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(login)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id_token").isString())
             .andExpect(jsonPath("$.id_token").isNotEmpty())
             .andExpect(header().string("Authorization", not(nullValue())))
-            .andExpect(header().string("Authorization", not(isEmptyString())));
+            .andExpect(header().string("Authorization", not(is(emptyString()))));
     }
 
     @Test
@@ -110,7 +94,7 @@ public class UserJWTControllerIT {
         login.setUsername("wrong-user");
         login.setPassword("wrong password");
         mockMvc.perform(post("/api/authenticate")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(login)))
             .andExpect(status().isUnauthorized())
             .andExpect(jsonPath("$.id_token").doesNotExist())

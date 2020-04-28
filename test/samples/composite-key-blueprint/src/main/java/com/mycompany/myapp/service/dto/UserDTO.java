@@ -5,9 +5,6 @@ import com.mycompany.myapp.config.Constants;
 import com.mycompany.myapp.domain.Authority;
 import com.mycompany.myapp.domain.User;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-
 import javax.validation.constraints.*;
 import java.time.Instant;
 import java.util.Set;

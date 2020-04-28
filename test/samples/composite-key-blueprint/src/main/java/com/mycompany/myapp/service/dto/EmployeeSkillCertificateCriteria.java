@@ -35,10 +35,10 @@ public class EmployeeSkillCertificateCriteria implements Serializable, Criteria 
 
     private LocalDateFilter date;
 
-    public EmployeeSkillCertificateCriteria(){
+    public EmployeeSkillCertificateCriteria() {
     }
 
-    public EmployeeSkillCertificateCriteria(EmployeeSkillCertificateCriteria other){
+    public EmployeeSkillCertificateCriteria(EmployeeSkillCertificateCriteria other) {
         this.typeId = other.typeId == null ? null : other.typeId.copy();
         this.skillName = other.skillName == null ? null : other.skillName.copy();
         this.skillEmployeeUsername = other.skillEmployeeUsername == null ? null : other.skillEmployeeUsername.copy();

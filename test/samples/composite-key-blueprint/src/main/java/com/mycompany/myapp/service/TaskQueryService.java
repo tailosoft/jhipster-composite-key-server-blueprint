@@ -109,10 +109,6 @@ public class TaskQueryService extends QueryService<Task> {
             if (criteria.getDone() != null) {
                 specification = specification.and(buildSpecification(criteria.getDone(), Task_.done));
             }
-            if (criteria.getCommentId() != null) {
-                specification = specification.and(buildSpecification(criteria.getCommentId(),
-                    root -> root.join(Task_.comments, JoinType.LEFT).get(TaskComment_.id)));
-            }
             if (criteria.getEmployeeSkillName() != null) {
                 specification = specification.and(buildSpecification(criteria.getEmployeeSkillName(),
                     root -> root.join(Task_.employeeSkills, JoinType.LEFT).get(EmployeeSkill_.id).get(EmployeeSkillId_.name)));

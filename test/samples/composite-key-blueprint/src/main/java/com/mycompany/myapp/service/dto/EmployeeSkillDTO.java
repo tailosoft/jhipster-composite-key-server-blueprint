@@ -1,4 +1,5 @@
 package com.mycompany.myapp.service.dto;
+
 import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -18,7 +19,6 @@ public class EmployeeSkillDTO implements Serializable {
 
     @NotNull
     private Integer level;
-
     private Set<TaskDTO> tasks = new HashSet<>();
 
     private String employeeFullname;

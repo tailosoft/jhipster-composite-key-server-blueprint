@@ -1,4 +1,5 @@
 package com.mycompany.myapp.domain;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -74,10 +75,6 @@ public class Task implements Serializable {
 
     @Column(name = "picture_content_type", nullable = false)
     private String pictureContentType;
-
-    @OneToMany(mappedBy = "task")
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    private Set<TaskComment> comments = new HashSet<>();
 
     @ManyToMany(mappedBy = "tasks")
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
@@ -240,31 +237,6 @@ public class Task implements Serializable {
 
     public void setPictureContentType(String pictureContentType) {
         this.pictureContentType = pictureContentType;
-    }
-
-    public Set<TaskComment> getComments() {
-        return comments;
-    }
-
-    public Task comments(Set<TaskComment> taskComments) {
-        this.comments = taskComments;
-        return this;
-    }
-
-    public Task addComment(TaskComment taskComment) {
-        this.comments.add(taskComment);
-        taskComment.setTask(this);
-        return this;
-    }
-
-    public Task removeComment(TaskComment taskComment) {
-        this.comments.remove(taskComment);
-        taskComment.setTask(null);
-        return this;
-    }
-
-    public void setComments(Set<TaskComment> taskComments) {
-        this.comments = taskComments;
     }
 
     public Set<EmployeeSkill> getEmployeeSkills() {

@@ -30,10 +30,10 @@ public class TaskCommentCriteria implements Serializable, Criteria {
 
     private LongFilter taskId;
 
-    public TaskCommentCriteria(){
+    public TaskCommentCriteria() {
     }
 
-    public TaskCommentCriteria(TaskCommentCriteria other){
+    public TaskCommentCriteria(TaskCommentCriteria other) {
         this.id = other.id == null ? null : other.id.copy();
         this.value = other.value == null ? null : other.value.copy();
         this.taskId = other.taskId == null ? null : other.taskId.copy();

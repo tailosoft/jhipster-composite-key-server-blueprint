@@ -22,20 +22,15 @@ const defaultIdField = {
 
 module.exports = class extends EntityServerGenerator {
     constructor(args, opts) {
-        super(args, Object.assign({ fromBlueprint: true }, opts)); // fromBlueprint variable is important
+        super(args, { fromBlueprint: true, ...opts }); // fromBlueprint variable is important
 
-        const jhContext = (this.jhipsterContext = opts.jhipsterContext);
-
-        if (!jhContext) {
-            this.error(
-                `This is a JHipster blueprint and should be used only like ${chalk.yellow('jhipster --blueprint composite-key-server')}`
-            );
+        if (!this.jhipsterContext) {
+            this.error(`This is a JHipster blueprint and should be used only like ${chalk.yellow('jhipster --blueprint helloworld')}`);
         }
+    }
 
-        this.configOptions = jhContext.configOptions || {};
-        if (jhContext.databaseType === 'cassandra') {
-            this.error("cassandra doesn't support composite keys");
-        }
+    get initializing() {
+        return super._initializing();
     }
 
     get writing() {

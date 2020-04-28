@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2019 the original author or authors from the JHipster project.
+ Copyright 2013-2020 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -49,26 +49,28 @@ public class <%= entityClass %>Test {
     @Test
     public void equalsVerifier() throws Exception {
         TestUtil.equalsVerifier(<%= asEntity(entityClass) %>.class);
+<%_if (!embedded) { _%>
         <%= asEntity(entityClass) %> <%= entityInstance %>1 = new <%= asEntity(entityClass) %>();
-<%_ if (pkData.length === 1) {_%>
+    <%_ if (pkData.length === 1) {_%>
         <%= entityInstance %>1.<%= pkData[0].setter %>(<%= pkData[0].type === 'Long' ? '1L' : `${pkData[0].entityName}ResourceIT.DEFAULT_${_.snakeCase(pkData[0].fieldName).toUpperCase()}` %>);
-<%_ } else { _%>
+    <%_ } else { _%>
         <%= entityInstance %>1.setId(new <%= entityClass %>Id(<%= pkData.map(pk => pk.type === 'Long' ? '1L' : `${pk.entityName}ResourceIT.DEFAULT_${_.snakeCase(pk.fieldName).toUpperCase()}`).join(', ') %>));
-<%_ } _%>
+    <%_ } _%>
         <%= asEntity(entityClass) %> <%= entityInstance %>2 = new <%= asEntity(entityClass) %>();
-<%_ if (pkData.length === 1) {_%>
+    <%_ if (pkData.length === 1) {_%>
         <%= entityInstance %>2.<%= pkData[0].setter %>(<%= pkData[0].type === 'Long' ? '1L' : `${pkData[0].entityName}ResourceIT.DEFAULT_${_.snakeCase(pkData[0].fieldName).toUpperCase()}` %>);
-<%_ } else { _%>
+    <%_ } else { _%>
         <%= entityInstance %>2.setId(new <%= entityClass %>Id(<%= pkData.map(pk => pk.type === 'Long' ? '1L' : `${pk.entityName}ResourceIT.DEFAULT_${_.snakeCase(pk.fieldName).toUpperCase()}`).join(', ') %>));
-<%_ } _%>
+    <%_ } _%>
         assertThat(<%= entityInstance %>1).isEqualTo(<%= entityInstance %>2);
-<%_ if (pkData.length === 1) {_%>
+    <%_ if (pkData.length === 1) {_%>
         <%= entityInstance %>2.<%= pkData[0].setter %>(<%= pkData[0].type === 'Long' ? '2L' : `${pkData[0].entityName}ResourceIT.UPDATED_${_.snakeCase(pkData[0].fieldName).toUpperCase()}` %>);
-<%_ } else { _%>
+    <%_ } else { _%>
         <%= entityInstance %>2.setId(new <%= entityClass %>Id(<%= pkData.map(pk => pk.type === 'Long' ? '2L' : `${pk.entityName}ResourceIT.UPDATED_${_.snakeCase(pk.fieldName).toUpperCase()}`).join(', ') %>));
-<%_ } _%>
+    <%_ } _%>
         assertThat(<%= entityInstance %>1).isNotEqualTo(<%= entityInstance %>2);
         <%= entityInstance %>1.set<%= _.upperFirst(pkName) %>(null);
         assertThat(<%= entityInstance %>1).isNotEqualTo(<%= entityInstance %>2);
+<%_ } _%>
     }
 }

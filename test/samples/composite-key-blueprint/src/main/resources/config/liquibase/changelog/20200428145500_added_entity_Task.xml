@@ -3,13 +3,13 @@
     xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
     xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <!--
         Added the entity Task.
     -->
-    <changeSet id="20190803194131-1" author="jhipster">
+    <changeSet id="20200428145500-1" author="jhipster">
         <createTable tableName="task">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="true"/>
@@ -53,7 +53,7 @@
         <dropDefaultValue tableName="task" columnName="modified_at" columnDataType="datetime"/>
     </changeSet>
 
-    <changeSet id="20190803194131-1-relations" author="jhipster">
+    <changeSet id="20200428145500-1-relations" author="jhipster">
     </changeSet>
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
 
@@ -65,7 +65,7 @@
           This can be customized by adding or removing 'faker' in the 'spring.liquibase.contexts'
           Spring Boot configuration key.
     -->
-    <changeSet id="20190803194131-1-data" author="jhipster" context="faker">
+    <changeSet id="20200428145500-1-data" author="jhipster" context="faker">
         <loadData
             file="config/liquibase/fake-data/task.csv"
             separator=";"

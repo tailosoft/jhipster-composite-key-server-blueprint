@@ -9,29 +9,23 @@ import com.mycompany.myapp.repository.EmployeeSkillCertificateRepository;
 import com.mycompany.myapp.service.EmployeeSkillCertificateService;
 import com.mycompany.myapp.service.dto.EmployeeSkillCertificateDTO;
 import com.mycompany.myapp.service.mapper.EmployeeSkillCertificateMapper;
-import com.mycompany.myapp.web.rest.errors.ExceptionTranslator;
 import com.mycompany.myapp.service.dto.EmployeeSkillCertificateCriteria;
 import com.mycompany.myapp.service.EmployeeSkillCertificateQueryService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 
-import static com.mycompany.myapp.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -41,6 +35,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for the {@link EmployeeSkillCertificateResource} REST controller.
  */
 @SpringBootTest(classes = CompositekeyApp.class)
+
+@AutoConfigureMockMvc
+@WithMockUser
 public class EmployeeSkillCertificateResourceIT {
 
     public static final Integer DEFAULT_GRADE = 1;
@@ -64,36 +61,12 @@ public class EmployeeSkillCertificateResourceIT {
     private EmployeeSkillCertificateQueryService employeeSkillCertificateQueryService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restEmployeeSkillCertificateMockMvc;
 
     private EmployeeSkillCertificate employeeSkillCertificate;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final EmployeeSkillCertificateResource employeeSkillCertificateResource = new EmployeeSkillCertificateResource(employeeSkillCertificateService, employeeSkillCertificateQueryService);
-        this.restEmployeeSkillCertificateMockMvc = MockMvcBuilders.standaloneSetup(employeeSkillCertificateResource)
-            .setRemoveSemicolonContent(false)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -179,7 +152,7 @@ public class EmployeeSkillCertificateResourceIT {
         // Create the EmployeeSkillCertificate
         EmployeeSkillCertificateDTO employeeSkillCertificateDTO = employeeSkillCertificateMapper.toDto(employeeSkillCertificate);
         restEmployeeSkillCertificateMockMvc.perform(post("/api/employee-skill-certificates")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(employeeSkillCertificateDTO)))
             .andExpect(status().isCreated());
 
@@ -203,7 +176,7 @@ public class EmployeeSkillCertificateResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restEmployeeSkillCertificateMockMvc.perform(post("/api/employee-skill-certificates")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(employeeSkillCertificateDTO)))
             .andExpect(status().isBadRequest());
 
@@ -223,7 +196,7 @@ public class EmployeeSkillCertificateResourceIT {
         EmployeeSkillCertificateDTO employeeSkillCertificateDTO = employeeSkillCertificateMapper.toDto(employeeSkillCertificate);
 
         restEmployeeSkillCertificateMockMvc.perform(post("/api/employee-skill-certificates")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(employeeSkillCertificateDTO)))
             .andExpect(status().isBadRequest());
 
@@ -242,7 +215,7 @@ public class EmployeeSkillCertificateResourceIT {
         EmployeeSkillCertificateDTO employeeSkillCertificateDTO = employeeSkillCertificateMapper.toDto(employeeSkillCertificate);
 
         restEmployeeSkillCertificateMockMvc.perform(post("/api/employee-skill-certificates")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(employeeSkillCertificateDTO)))
             .andExpect(status().isBadRequest());
 
@@ -259,7 +232,7 @@ public class EmployeeSkillCertificateResourceIT {
         // Get all the employeeSkillCertificateList
         restEmployeeSkillCertificateMockMvc.perform(get("/api/employee-skill-certificates"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].grade").value(hasItem(DEFAULT_GRADE)))
             .andExpect(jsonPath("$.[*].date").value(hasItem(DEFAULT_DATE.toString())));
     }
@@ -273,7 +246,7 @@ public class EmployeeSkillCertificateResourceIT {
         // Get the employeeSkillCertificate
         restEmployeeSkillCertificateMockMvc.perform(get("/api/employee-skill-certificates/{id}", "typeId=" + employeeSkillCertificate.getId().getTypeId() + ";" + "skillName=" + employeeSkillCertificate.getId().getSkillName() + ";" + "skillEmployeeUsername=" + employeeSkillCertificate.getId().getSkillEmployeeUsername()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.grade").value(DEFAULT_GRADE))
             .andExpect(jsonPath("$.date").value(DEFAULT_DATE.toString()));
     }
@@ -537,14 +510,14 @@ public class EmployeeSkillCertificateResourceIT {
     private void defaultEmployeeSkillCertificateShouldBeFound(String filter) throws Exception {
         restEmployeeSkillCertificateMockMvc.perform(get("/api/employee-skill-certificates?" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].grade").value(hasItem(DEFAULT_GRADE)))
             .andExpect(jsonPath("$.[*].date").value(hasItem(DEFAULT_DATE.toString())));
 
         // Check, that the count call also returns 1
         restEmployeeSkillCertificateMockMvc.perform(get("/api/employee-skill-certificates/count?" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(content().string("1"));
     }
 
@@ -554,14 +527,14 @@ public class EmployeeSkillCertificateResourceIT {
     private void defaultEmployeeSkillCertificateShouldNotBeFound(String filter) throws Exception {
         restEmployeeSkillCertificateMockMvc.perform(get("/api/employee-skill-certificates?" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$").isEmpty());
 
         // Check, that the count call also returns 0
         restEmployeeSkillCertificateMockMvc.perform(get("/api/employee-skill-certificates/count?" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(content().string("0"));
     }
 
@@ -592,7 +565,7 @@ public class EmployeeSkillCertificateResourceIT {
         EmployeeSkillCertificateDTO employeeSkillCertificateDTO = employeeSkillCertificateMapper.toDto(updatedEmployeeSkillCertificate);
 
         restEmployeeSkillCertificateMockMvc.perform(put("/api/employee-skill-certificates")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(employeeSkillCertificateDTO)))
             .andExpect(status().isOk());
 
@@ -614,7 +587,7 @@ public class EmployeeSkillCertificateResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restEmployeeSkillCertificateMockMvc.perform(put("/api/employee-skill-certificates")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(employeeSkillCertificateDTO)))
             .andExpect(status().isBadRequest());
 
@@ -633,7 +606,7 @@ public class EmployeeSkillCertificateResourceIT {
 
         // Delete the employeeSkillCertificate
         restEmployeeSkillCertificateMockMvc.perform(delete("/api/employee-skill-certificates/{id}", "typeId=" + employeeSkillCertificate.getId().getTypeId() + ";" + "skillName=" + employeeSkillCertificate.getId().getSkillName() + ";" + "skillEmployeeUsername=" + employeeSkillCertificate.getId().getSkillEmployeeUsername())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

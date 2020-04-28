@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2019 the original author or authors from the JHipster project.
+ Copyright 2013-2020 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -21,7 +21,7 @@
     xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
     xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-<%= LIQUIBASE_DTD_VERSION %>.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <%_ let autoIncrementValue = true;
@@ -108,7 +108,7 @@ _%>
             </column>
             <%_ if (fields[idx].fieldType === 'byte[]' && fields[idx].fieldTypeBlobContent !== 'text') {
                 let contentTypeColumnType = "varchar(255)"; _%>
-            <column name="<%=columnName %>_content_type" type="<%=contentTypeColumnType%>">
+            <column name="<%= columnName %>_content_type" type="<%= contentTypeColumnType %>">
                 <constraints nullable="<%= nullable %>"/>
             </column>
             <%_ } _%>
@@ -124,14 +124,14 @@ _%>
                         nullable_relation = false;
                     }
                     if (relationships[idx].relationshipType === 'many-to-one') { _%>
-            <column name="<%=getColumnName(relationshipName + pk.nameCapitalized) %>" type="<%= relationshipColumnType %>">
+            <column name="<%= getColumnName(relationshipName + pk.nameCapitalized) %>" type="<%= relationshipColumnType %>">
                 <constraints<%_ if(relationships[idx].partOfId) { %> primaryKey="true"<%_ } %> nullable="<%= nullable_relation %>"/>
             </column>
                     <%_ } else if (relationshipType === 'one-to-one' && relationships[idx].ownerSide === true
                                     && (relationships[idx].useJPADerivedIdentifier == null || relationships[idx].useJPADerivedIdentifier === false)) {
                         const uniqueConstraintName = getUXConstraintName(entityTableName, getColumnName(relationshipName + pk.nameCapitalized), prodDatabaseType);
                     _%>
-            <column name="<%=getColumnName(relationshipName + pk.nameCapitalized) %>" type="<%= relationshipColumnType %>">
+            <column name="<%= getColumnName(relationshipName + pk.nameCapitalized) %>" type="<%= relationshipColumnType %>">
                 <constraints<%_ if(relationships[idx].partOfId) { %> primaryKey="true"<%_ } %> unique="true" nullable="<%= nullable_relation %>" uniqueConstraintName="<%= uniqueConstraintName %>"/>
             </column>
                     <%_ } _%>
@@ -141,7 +141,7 @@ _%>
         </createTable>
         <%_ for (const idx in fields) {
             if (fields[idx].fieldType === 'ZonedDateTime' || fields[idx].fieldType === 'Instant') { _%>
-        <dropDefaultValue tableName="<%= entityTableName %>" columnName="<%=fields[idx].fieldNameAsDatabaseColumn %>" columnDataType="datetime"/>
+        <dropDefaultValue tableName="<%= entityTableName %>" columnName="<%= fields[idx].fieldNameAsDatabaseColumn %>" columnDataType="datetime"/>
         <%_ }
         } _%>
     </changeSet>
@@ -152,6 +152,7 @@ _%>
             relationshipName = relationships[idx].relationshipName,
             ownerSide = relationships[idx].ownerSide,
             otherEntityName = relationships[idx].otherEntityName;
+            const relationshipColumnType = otherEntityName === 'user' && authenticationType === 'oauth2' ? 'varchar(100)' : 'bigint';
             if (relationshipType === 'many-to-many' && ownerSide) {
                 const joinTableName = getJoinTableName(entityTableName, relationshipName, prodDatabaseType);
                 const joinedPkData = [
@@ -217,9 +218,9 @@ _%>
             <%_ for (idx in fields) {
                 let loadColumnType = fieldToLoadColumnType(fields[idx]);
                 _%>
-            <column name="<%=fields[idx].fieldNameAsDatabaseColumn%>" type="<%=loadColumnType%>"/>
+            <column name="<%= fields[idx].fieldNameAsDatabaseColumn %>" type="<%= loadColumnType %>"/>
                 <%_ if (fields[idx].fieldType === 'byte[]' && fields[idx].fieldTypeBlobContent !== 'text') { _%>
-            <column name="<%=fields[idx].fieldNameAsDatabaseColumn%>_content_type" type="string"/>
+            <column name="<%= fields[idx].fieldNameAsDatabaseColumn %>_content_type" type="string"/>
                 <%_ } _%>
             <%_ } _%>
             <%_ for (idx in relationships) {
@@ -236,7 +237,7 @@ _%>
                         } else {
                             loadColumnType = fieldToLoadColumnType(pk.field);
                         }_%>
-            <column name="<%=baseColumnName%>" type="<%=loadColumnType%>"/>
+            <column name="<%= baseColumnName %>" type="<%= loadColumnType %>"/>
                     <%_ }); _%>
                 <%_ } _%>
             <%_  } _%>

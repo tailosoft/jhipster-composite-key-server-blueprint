@@ -32,10 +32,10 @@ public class CertificateTypeCriteria implements Serializable, Criteria {
 
     private StringFilter employeeSkillCertificateSkillEmployeeUsername;
 
-    public CertificateTypeCriteria(){
+    public CertificateTypeCriteria() {
     }
 
-    public CertificateTypeCriteria(CertificateTypeCriteria other){
+    public CertificateTypeCriteria(CertificateTypeCriteria other) {
         this.id = other.id == null ? null : other.id.copy();
         this.name = other.name == null ? null : other.name.copy();
         this.employeeSkillCertificateSkillName = other.employeeSkillCertificateSkillName == null ? null : other.employeeSkillCertificateSkillName.copy();

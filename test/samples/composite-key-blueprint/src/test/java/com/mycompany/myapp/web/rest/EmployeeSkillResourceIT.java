@@ -10,31 +10,27 @@ import com.mycompany.myapp.repository.EmployeeSkillRepository;
 import com.mycompany.myapp.service.EmployeeSkillService;
 import com.mycompany.myapp.service.dto.EmployeeSkillDTO;
 import com.mycompany.myapp.service.mapper.EmployeeSkillMapper;
-import com.mycompany.myapp.web.rest.errors.ExceptionTranslator;
 import com.mycompany.myapp.service.dto.EmployeeSkillCriteria;
 import com.mycompany.myapp.service.EmployeeSkillQueryService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.mycompany.myapp.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.*;
@@ -45,6 +41,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for the {@link EmployeeSkillResource} REST controller.
  */
 @SpringBootTest(classes = CompositekeyApp.class)
+@ExtendWith(MockitoExtension.class)
+@AutoConfigureMockMvc
+@WithMockUser
 public class EmployeeSkillResourceIT {
 
     public static final String DEFAULT_NAME = "AAAAAAAAAA";
@@ -73,36 +72,12 @@ public class EmployeeSkillResourceIT {
     private EmployeeSkillQueryService employeeSkillQueryService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restEmployeeSkillMockMvc;
 
     private EmployeeSkill employeeSkill;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final EmployeeSkillResource employeeSkillResource = new EmployeeSkillResource(employeeSkillService, employeeSkillQueryService);
-        this.restEmployeeSkillMockMvc = MockMvcBuilders.standaloneSetup(employeeSkillResource)
-            .setRemoveSemicolonContent(false)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -170,7 +145,7 @@ public class EmployeeSkillResourceIT {
         // Create the EmployeeSkill
         EmployeeSkillDTO employeeSkillDTO = employeeSkillMapper.toDto(employeeSkill);
         restEmployeeSkillMockMvc.perform(post("/api/employee-skills")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(employeeSkillDTO)))
             .andExpect(status().isCreated());
 
@@ -194,7 +169,7 @@ public class EmployeeSkillResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restEmployeeSkillMockMvc.perform(post("/api/employee-skills")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(employeeSkillDTO)))
             .andExpect(status().isBadRequest());
 
@@ -215,7 +190,7 @@ public class EmployeeSkillResourceIT {
         EmployeeSkillDTO employeeSkillDTO = employeeSkillMapper.toDto(employeeSkill);
 
         restEmployeeSkillMockMvc.perform(post("/api/employee-skills")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(employeeSkillDTO)))
             .andExpect(status().isBadRequest());
 
@@ -234,7 +209,7 @@ public class EmployeeSkillResourceIT {
         EmployeeSkillDTO employeeSkillDTO = employeeSkillMapper.toDto(employeeSkill);
 
         restEmployeeSkillMockMvc.perform(post("/api/employee-skills")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(employeeSkillDTO)))
             .andExpect(status().isBadRequest());
 
@@ -251,22 +226,14 @@ public class EmployeeSkillResourceIT {
         // Get all the employeeSkillList
         restEmployeeSkillMockMvc.perform(get("/api/employee-skills"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].level").value(hasItem(DEFAULT_LEVEL)));
     }
 
     @SuppressWarnings({"unchecked"})
     public void getAllEmployeeSkillsWithEagerRelationshipsIsEnabled() throws Exception {
-        EmployeeSkillResource employeeSkillResource = new EmployeeSkillResource(employeeSkillServiceMock, employeeSkillQueryService);
         when(employeeSkillServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        MockMvc restEmployeeSkillMockMvc = MockMvcBuilders.standaloneSetup(employeeSkillResource)
-            .setRemoveSemicolonContent(false)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter).build();
 
         restEmployeeSkillMockMvc.perform(get("/api/employee-skills?eagerload=true"))
             .andExpect(status().isOk());
@@ -276,14 +243,8 @@ public class EmployeeSkillResourceIT {
 
     @SuppressWarnings({"unchecked"})
     public void getAllEmployeeSkillsWithEagerRelationshipsIsNotEnabled() throws Exception {
-        EmployeeSkillResource employeeSkillResource = new EmployeeSkillResource(employeeSkillServiceMock, employeeSkillQueryService);
+
         when(employeeSkillServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-        MockMvc restEmployeeSkillMockMvc = MockMvcBuilders.standaloneSetup(employeeSkillResource)
-            .setRemoveSemicolonContent(false)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter).build();
 
         restEmployeeSkillMockMvc.perform(get("/api/employee-skills?eagerload=true"))
             .andExpect(status().isOk());
@@ -300,7 +261,7 @@ public class EmployeeSkillResourceIT {
         // Get the employeeSkill
         restEmployeeSkillMockMvc.perform(get("/api/employee-skills/{id}", "name=" + employeeSkill.getId().getName() + ";" + "employeeUsername=" + employeeSkill.getId().getEmployeeUsername()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.level").value(DEFAULT_LEVEL));
     }
@@ -560,14 +521,14 @@ public class EmployeeSkillResourceIT {
     private void defaultEmployeeSkillShouldBeFound(String filter) throws Exception {
         restEmployeeSkillMockMvc.perform(get("/api/employee-skills?" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].level").value(hasItem(DEFAULT_LEVEL)));
 
         // Check, that the count call also returns 1
         restEmployeeSkillMockMvc.perform(get("/api/employee-skills/count?" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(content().string("1"));
     }
 
@@ -577,14 +538,14 @@ public class EmployeeSkillResourceIT {
     private void defaultEmployeeSkillShouldNotBeFound(String filter) throws Exception {
         restEmployeeSkillMockMvc.perform(get("/api/employee-skills?" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$").isEmpty());
 
         // Check, that the count call also returns 0
         restEmployeeSkillMockMvc.perform(get("/api/employee-skills/count?" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(content().string("0"));
     }
 
@@ -614,7 +575,7 @@ public class EmployeeSkillResourceIT {
         EmployeeSkillDTO employeeSkillDTO = employeeSkillMapper.toDto(updatedEmployeeSkill);
 
         restEmployeeSkillMockMvc.perform(put("/api/employee-skills")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(employeeSkillDTO)))
             .andExpect(status().isOk());
 
@@ -635,7 +596,7 @@ public class EmployeeSkillResourceIT {
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restEmployeeSkillMockMvc.perform(put("/api/employee-skills")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(employeeSkillDTO)))
             .andExpect(status().isBadRequest());
 
@@ -654,7 +615,7 @@ public class EmployeeSkillResourceIT {
 
         // Delete the employeeSkill
         restEmployeeSkillMockMvc.perform(delete("/api/employee-skills/{id}", "name=" + employeeSkill.getId().getName() + ";" + "employeeUsername=" + employeeSkill.getId().getEmployeeUsername())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

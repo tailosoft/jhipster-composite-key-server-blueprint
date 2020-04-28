@@ -2,7 +2,7 @@
 <databaseChangeLog
     xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <property name="now" value="now()" dbms="h2"/>
     <property name="now" value="now()" dbms="mysql"/>
@@ -14,16 +14,16 @@
     <property name="uuidType" value="varchar(36)" dbms="h2, mysql, mariadb"/>
 
     <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190803194127_added_entity_Employee.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190803194128_added_entity_EmployeeSkill.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190803194129_added_entity_CertificateType.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190803194130_added_entity_EmployeeSkillCertificate.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190803194131_added_entity_Task.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190803194132_added_entity_TaskComment.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190916222324_added_entity_PriceFormula.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200428145100_added_entity_Employee.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200428145200_added_entity_EmployeeSkill.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200428145300_added_entity_CertificateType.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200428145400_added_entity_EmployeeSkillCertificate.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200428145500_added_entity_Task.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200428145600_added_entity_TaskComment.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200428145700_added_entity_PriceFormula.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
-    <include file="config/liquibase/changelog/20190803194128_added_entity_constraints_EmployeeSkill.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190803194130_added_entity_constraints_EmployeeSkillCertificate.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20190803194132_added_entity_constraints_TaskComment.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200428145200_added_entity_constraints_EmployeeSkill.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200428145400_added_entity_constraints_EmployeeSkillCertificate.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200428145600_added_entity_constraints_TaskComment.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
 </databaseChangeLog>

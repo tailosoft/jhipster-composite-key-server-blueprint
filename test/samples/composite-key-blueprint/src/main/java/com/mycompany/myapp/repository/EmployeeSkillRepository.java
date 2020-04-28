@@ -26,5 +26,4 @@ public interface EmployeeSkillRepository extends JpaRepository<EmployeeSkill, Em
 
     @Query("select employeeSkill from EmployeeSkill employeeSkill left join fetch employeeSkill.tasks where employeeSkill.id =:id")
     Optional<EmployeeSkill> findOneWithEagerRelationships(@Param("id") EmployeeSkillId id);
-
 }

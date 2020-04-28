@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -87,7 +86,6 @@ public class PriceFormulaResource {
     /**
      * {@code GET  /price-formulas} : get all the priceFormulas.
      *
-
      * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of priceFormulas in body.
      */

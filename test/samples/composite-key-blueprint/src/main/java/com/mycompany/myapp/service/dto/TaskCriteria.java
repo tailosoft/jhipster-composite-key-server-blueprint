@@ -60,16 +60,14 @@ public class TaskCriteria implements Serializable, Criteria {
 
     private BooleanFilter done;
 
-    private LongFilter commentId;
-
     private StringFilter employeeSkillName;
 
     private StringFilter employeeSkillEmployeeUsername;
 
-    public TaskCriteria(){
+    public TaskCriteria() {
     }
 
-    public TaskCriteria(TaskCriteria other){
+    public TaskCriteria(TaskCriteria other) {
         this.id = other.id == null ? null : other.id.copy();
         this.name = other.name == null ? null : other.name.copy();
         this.type = other.type == null ? null : other.type.copy();
@@ -77,7 +75,6 @@ public class TaskCriteria implements Serializable, Criteria {
         this.createdAt = other.createdAt == null ? null : other.createdAt.copy();
         this.modifiedAt = other.modifiedAt == null ? null : other.modifiedAt.copy();
         this.done = other.done == null ? null : other.done.copy();
-        this.commentId = other.commentId == null ? null : other.commentId.copy();
         this.employeeSkillName = other.employeeSkillName == null ? null : other.employeeSkillName.copy();
         this.employeeSkillEmployeeUsername = other.employeeSkillEmployeeUsername == null ? null : other.employeeSkillEmployeeUsername.copy();
     }
@@ -143,14 +140,6 @@ public class TaskCriteria implements Serializable, Criteria {
         this.done = done;
     }
 
-    public LongFilter getCommentId() {
-        return commentId;
-    }
-
-    public void setCommentId(LongFilter commentId) {
-        this.commentId = commentId;
-    }
-
     public StringFilter getEmployeeSkillName() {
         return employeeSkillName;
     }
@@ -184,7 +173,6 @@ public class TaskCriteria implements Serializable, Criteria {
             Objects.equals(createdAt, that.createdAt) &&
             Objects.equals(modifiedAt, that.modifiedAt) &&
             Objects.equals(done, that.done) &&
-            Objects.equals(commentId, that.commentId) &&
             Objects.equals(employeeSkillName, that.employeeSkillName) &&
             Objects.equals(employeeSkillEmployeeUsername, that.employeeSkillEmployeeUsername);
     }
@@ -199,7 +187,6 @@ public class TaskCriteria implements Serializable, Criteria {
             createdAt,
             modifiedAt,
             done,
-            commentId,
             employeeSkillName,
             employeeSkillEmployeeUsername
         );
@@ -215,7 +202,6 @@ public class TaskCriteria implements Serializable, Criteria {
             (createdAt != null ? "createdAt=" + createdAt + ", " : "") +
             (modifiedAt != null ? "modifiedAt=" + modifiedAt + ", " : "") +
             (done != null ? "done=" + done + ", " : "") +
-            (commentId != null ? "commentId=" + commentId + ", " : "") +
             (employeeSkillName != null ? "employeeSkillName=" + employeeSkillName + ", " : "") +
             (employeeSkillEmployeeUsername != null ? "employeeSkillEmployeeUsername=" + employeeSkillEmployeeUsername + ", " : "") +
             "}";

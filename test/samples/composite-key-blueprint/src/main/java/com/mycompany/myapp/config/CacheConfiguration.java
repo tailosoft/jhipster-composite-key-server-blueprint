@@ -20,8 +20,7 @@ public class CacheConfiguration {
     private final javax.cache.configuration.Configuration<Object, Object> jcacheConfiguration;
 
     public CacheConfiguration(JHipsterProperties jHipsterProperties) {
-        JHipsterProperties.Cache.Ehcache ehcache =
-            jHipsterProperties.getCache().getEhcache();
+        JHipsterProperties.Cache.Ehcache ehcache = jHipsterProperties.getCache().getEhcache();
 
         jcacheConfiguration = Eh107Configuration.fromEhcacheCacheConfiguration(
             CacheConfigurationBuilder.newCacheConfigurationBuilder(Object.class, Object.class,
@@ -45,6 +44,7 @@ public class CacheConfiguration {
             createCache(cm, com.mycompany.myapp.domain.User.class.getName() + ".authorities");
             createCache(cm, com.mycompany.myapp.domain.Employee.class.getName());
             createCache(cm, com.mycompany.myapp.domain.Employee.class.getName() + ".skills");
+            createCache(cm, com.mycompany.myapp.domain.Employee.class.getName() + ".taughtSkills");
             createCache(cm, com.mycompany.myapp.domain.EmployeeSkill.class.getName());
             createCache(cm, com.mycompany.myapp.domain.EmployeeSkill.class.getName() + ".employeeSkillCertificates");
             createCache(cm, com.mycompany.myapp.domain.EmployeeSkill.class.getName() + ".tasks");
@@ -52,18 +52,18 @@ public class CacheConfiguration {
             createCache(cm, com.mycompany.myapp.domain.CertificateType.class.getName() + ".employeeSkillCertificates");
             createCache(cm, com.mycompany.myapp.domain.EmployeeSkillCertificate.class.getName());
             createCache(cm, com.mycompany.myapp.domain.Task.class.getName());
-            createCache(cm, com.mycompany.myapp.domain.Task.class.getName() + ".comments");
             createCache(cm, com.mycompany.myapp.domain.Task.class.getName() + ".employeeSkills");
             createCache(cm, com.mycompany.myapp.domain.TaskComment.class.getName());
+            createCache(cm, com.mycompany.myapp.domain.PriceFormula.class.getName());
             // jhipster-needle-ehcache-add-entry
         };
     }
 
     private void createCache(javax.cache.CacheManager cm, String cacheName) {
         javax.cache.Cache<Object, Object> cache = cm.getCache(cacheName);
-        if (cache != null) {
-            cm.destroyCache(cacheName);
+        if (cache == null) {
+            cm.createCache(cacheName, jcacheConfiguration);
         }
-        cm.createCache(cacheName, jcacheConfiguration);
     }
+
 }

@@ -104,7 +104,7 @@ Apache-2.0 © [Youssef El Houti](https://elhouti.com)
 ## testing
 to test your changes, just run `npm test`, this will check that generated code matches matches the in `test/samples/`
 
-If you change the sample project code, in that folder run: `./gradlew test -x webpack` to make sure your changes don't break generated code.
+If you change the sample project code, in that folder run: `./gradlew -x webpack clean test integrationTest` to make sure your changes don't break generated code.
 
 You can also run e2e tests using the project: https://github.com/elhoutico/jhipster-primeng-blueprint which support composite keys (change protractor config to use server on localhost:8080 instead of localhost:9000)
 first start the sample project: `./gradlew -x webpack`

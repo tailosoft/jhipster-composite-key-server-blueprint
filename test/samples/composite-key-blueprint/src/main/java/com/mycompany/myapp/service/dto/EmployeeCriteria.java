@@ -32,10 +32,10 @@ public class EmployeeCriteria implements Serializable, Criteria {
 
     private StringFilter taughtSkillName;
 
-    public EmployeeCriteria(){
+    public EmployeeCriteria() {
     }
 
-    public EmployeeCriteria(EmployeeCriteria other){
+    public EmployeeCriteria(EmployeeCriteria other) {
         this.username = other.username == null ? null : other.username.copy();
         this.fullname = other.fullname == null ? null : other.fullname.copy();
         this.skillName = other.skillName == null ? null : other.skillName.copy();

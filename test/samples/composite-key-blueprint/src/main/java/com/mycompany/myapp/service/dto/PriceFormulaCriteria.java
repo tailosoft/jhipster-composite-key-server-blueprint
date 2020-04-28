@@ -28,10 +28,10 @@ public class PriceFormulaCriteria implements Serializable, Criteria {
 
     private StringFilter formula;
 
-    public PriceFormulaCriteria(){
+    public PriceFormulaCriteria() {
     }
 
-    public PriceFormulaCriteria(PriceFormulaCriteria other){
+    public PriceFormulaCriteria(PriceFormulaCriteria other) {
         this.max = other.max == null ? null : other.max.copy();
         this.formula = other.formula == null ? null : other.formula.copy();
     }
