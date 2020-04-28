@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2019 the original author or authors from the JHipster project.
+ * Copyright 2013-2020 the original author or authors from the JHipster project.
  *
  * This file is part of the JHipster project, see https://www.jhipster.tech/
  * for more information.
@@ -156,7 +156,13 @@ const serverFiles = {
                 {
                     file: 'package/domain/Entity.java',
                     renameTo: generator => `${generator.packageFolder}/domain/${generator.asEntity(generator.entityClass)}.java`
-                },
+                }
+            ]
+        },
+        {
+            condition: generator => !generator.embedded,
+            path: SERVER_MAIN_SRC_DIR,
+            templates: [
                 {
                     file: 'package/repository/EntityRepository.java',
                     renameTo: generator => `${generator.packageFolder}/repository/${generator.entityClass}Repository.java`
@@ -192,7 +198,8 @@ const serverFiles = {
             ]
         },
         {
-            condition: generator => generator.reactive && ['mongodb', 'cassandra', 'couchbase'].includes(generator.databaseType),
+            condition: generator =>
+                generator.reactive && ['mongodb', 'cassandra', 'couchbase'].includes(generator.databaseType) && !generator.embedded,
             path: SERVER_MAIN_SRC_DIR,
             templates: [
                 {
@@ -202,7 +209,7 @@ const serverFiles = {
             ]
         },
         {
-            condition: generator => generator.service === 'serviceImpl',
+            condition: generator => generator.service === 'serviceImpl' && !generator.embedded,
             path: SERVER_MAIN_SRC_DIR,
             templates: [
                 {
@@ -216,7 +223,7 @@ const serverFiles = {
             ]
         },
         {
-            condition: generator => generator.service === 'serviceClass',
+            condition: generator => generator.service === 'serviceClass' && !generator.embedded,
             path: SERVER_MAIN_SRC_DIR,
             templates: [
                 {
@@ -247,7 +254,7 @@ const serverFiles = {
     test: [
         {
             // TODO: add test for reactive
-            condition: generator => !generator.reactive,
+            condition: generator => !generator.reactive && !generator.embedded,
             path: SERVER_TEST_SRC_DIR,
             templates: [
                 {
