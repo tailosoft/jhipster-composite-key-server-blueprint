@@ -1,0 +1,56 @@
+{
+    "name": "EmployeeSkillCertificate",
+    "fields": [
+        {
+            "fieldName": "grade",
+            "fieldType": "Integer",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "date",
+            "fieldType": "LocalDate",
+            "fieldValidateRules": [
+                "required"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "certificateType",
+            "otherEntityRelationshipName": "employeeSkillCertificate",
+            "relationshipValidateRules": "required",
+            "relationshipName": "type",
+            "otherEntityField": "name",
+            "options": {
+                "id": true
+            }
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "employeeSkill",
+            "otherEntityRelationshipName": "employeeSkillCertificate",
+            "relationshipValidateRules": "required",
+            "relationshipName": "skill",
+            "otherEntityField": "id",
+            "options": {
+                "id": true
+            }
+        }
+    ],
+    "changelogDate": "20200428145400",
+    "entityTableName": "employee_skill_certificate",
+    "dto": "mapstruct",
+    "pagination": "pagination",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": true,
+    "fluentMethods": true,
+    "readOnly": false,
+    "embedded": false,
+    "clientRootFolder": "",
+    "applications": [
+        "compositekey"
+    ]
+}

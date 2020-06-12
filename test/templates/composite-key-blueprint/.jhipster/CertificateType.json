@@ -1,0 +1,36 @@
+{
+    "name": "CertificateType",
+    "fields": [
+        {
+            "fieldName": "name",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "relationshipType": "one-to-many",
+            "otherEntityName": "employeeSkillCertificate",
+            "otherEntityRelationshipName": "type",
+            "relationshipName": "employeeSkillCertificate",
+            "options": {
+                "id": true
+            }
+        }
+    ],
+    "changelogDate": "20200428145300",
+    "entityTableName": "certificate_type",
+    "dto": "mapstruct",
+    "pagination": "no",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": true,
+    "fluentMethods": true,
+    "readOnly": false,
+    "embedded": false,
+    "clientRootFolder": "",
+    "applications": [
+        "compositekey"
+    ]
+}

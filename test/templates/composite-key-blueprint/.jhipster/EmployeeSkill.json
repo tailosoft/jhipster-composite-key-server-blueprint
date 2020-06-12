@@ -1,0 +1,73 @@
+{
+    "name": "EmployeeSkill",
+    "fields": [
+        {
+            "fieldName": "name",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ],
+            "options": {
+                "id": true
+            }
+        },
+        {
+            "fieldName": "level",
+            "fieldType": "Integer",
+            "fieldValidateRules": [
+                "required"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "relationshipType": "one-to-many",
+            "otherEntityName": "employeeSkillCertificate",
+            "otherEntityRelationshipName": "skill",
+            "relationshipName": "employeeSkillCertificate",
+            "options": {
+                "id": true
+            }
+        },
+        {
+            "relationshipType": "many-to-many",
+            "otherEntityName": "task",
+            "otherEntityRelationshipName": "employeeSkill",
+            "relationshipName": "task",
+            "otherEntityField": "name",
+            "ownerSide": true
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "employee",
+            "otherEntityRelationshipName": "skill",
+            "relationshipValidateRules": "required",
+            "relationshipName": "employee",
+            "otherEntityField": "fullname",
+            "options": {
+                "id": true
+            }
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "employee",
+            "otherEntityRelationshipName": "taughtSkill",
+            "relationshipValidateRules": "required",
+            "relationshipName": "teacher",
+            "otherEntityField": "fullname"
+        }
+    ],
+    "changelogDate": "20200428145200",
+    "entityTableName": "employee_skill",
+    "dto": "mapstruct",
+    "pagination": "pagination",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": true,
+    "fluentMethods": true,
+    "readOnly": false,
+    "embedded": false,
+    "clientRootFolder": "",
+    "applications": [
+        "compositekey"
+    ]
+}
