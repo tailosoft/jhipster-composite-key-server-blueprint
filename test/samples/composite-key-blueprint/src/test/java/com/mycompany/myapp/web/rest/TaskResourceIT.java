@@ -2,6 +2,7 @@ package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.CompositekeyApp;
 import com.mycompany.myapp.domain.Task;
+import com.mycompany.myapp.domain.User;
 import com.mycompany.myapp.domain.EmployeeSkill;
 import com.mycompany.myapp.repository.TaskRepository;
 import com.mycompany.myapp.service.TaskService;
@@ -117,6 +118,11 @@ public class TaskResourceIT {
             .attachmentContentType(DEFAULT_ATTACHMENT_CONTENT_TYPE)
             .picture(DEFAULT_PICTURE)
             .pictureContentType(DEFAULT_PICTURE_CONTENT_TYPE);
+        // Add required entity
+        User user = UserResourceIT.createEntity(em);
+        em.persist(user);
+        em.flush();
+        task.setUser(user);
         return task;
     }
     /**
@@ -138,6 +144,11 @@ public class TaskResourceIT {
             .attachmentContentType(UPDATED_ATTACHMENT_CONTENT_TYPE)
             .picture(UPDATED_PICTURE)
             .pictureContentType(UPDATED_PICTURE_CONTENT_TYPE);
+        // Add required entity
+        User user = UserResourceIT.createEntity(em);
+        em.persist(user);
+        em.flush();
+        task.setUser(user);
         return task;
     }
 
@@ -797,6 +808,21 @@ public class TaskResourceIT {
 
         // Get all the taskList where done is null
         defaultTaskShouldNotBeFound("done.specified=false");
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByUserIdIsEqualToSomething() throws Exception {
+        // Get already existing entity
+        User user = task.getUser();
+        taskRepository.saveAndFlush(task);
+        Long userId = user.getId();
+
+        // Get all the taskList where userId equals to userId
+        defaultTaskShouldBeFound("userId.equals=" + userId);
+
+        // Get all the taskList where userId equals to userId + 1
+        defaultTaskShouldNotBeFound("userId.equals=" + (userId + 1));
     }
 
     @Test

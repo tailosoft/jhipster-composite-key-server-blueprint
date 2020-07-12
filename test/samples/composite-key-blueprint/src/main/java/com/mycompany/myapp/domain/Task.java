@@ -1,6 +1,7 @@
 package com.mycompany.myapp.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -75,6 +76,11 @@ public class Task implements Serializable {
 
     @Column(name = "picture_content_type", nullable = false)
     private String pictureContentType;
+
+    @ManyToOne(optional = false)
+    @NotNull
+    @JsonIgnoreProperties("tasks")
+    private User user;
 
     @ManyToMany(mappedBy = "tasks")
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
@@ -237,6 +243,19 @@ public class Task implements Serializable {
 
     public void setPictureContentType(String pictureContentType) {
         this.pictureContentType = pictureContentType;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public Task user(User user) {
+        this.user = user;
+        return this;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Set<EmployeeSkill> getEmployeeSkills() {

@@ -74,8 +74,16 @@ module.exports = class extends EntityServerGenerator {
             // making sure name is unique to not override any step
             compositeKeyServerConfiguration() {
                 const context = this;
-                if (!context.allContexts) {
-                    context.allContexts = {};
+                if (!this.allContexts) {
+                    const userContext = {
+                        name: 'User',
+                        fields: [],
+                        relationships: []
+                    };
+                    this._computePkData(userContext)
+                    this.allContexts = {
+                        user: userContext
+                    };
                 }
                 this._computePkData(context);
                 // compute relationships pkData
@@ -99,7 +107,7 @@ module.exports = class extends EntityServerGenerator {
 
             compositeKeyServerLoadFieldsInrelationship() {
                 this.relationships.forEach(r => {
-                    const otherContext = this._getEntityJson(r.otherEntityNameCapitalized);
+                    const otherContext = this._getEntityJson(r.otherEntityName);
                     r.fields = otherContext.fields;
                     if (r.pkData.length === 1 && r.pkData[0].name === 'id' && r.pkData[0].type === 'Long') {
                         r.fields.unshift(defaultIdField);

@@ -71,7 +71,7 @@ public class TaskCommentResourceIT {
         // Add required entity
         Task newTask = TaskResourceIT.createEntity(em);
         Task task = TestUtil.findAll(em, Task.class).stream()
-            .filter(x -> x.getName().equals(newTask.getName()))
+            .filter(x -> x.getId().equals(newTask.getId()))
             .findAny().orElse(null);
         if (task == null) {
             task = newTask;
@@ -93,7 +93,7 @@ public class TaskCommentResourceIT {
         // Add required entity
         Task newTask = TaskResourceIT.createUpdatedEntity(em);
         Task task = TestUtil.findAll(em, Task.class).stream()
-            .filter(x -> x.getName().equals(newTask.getName()))
+            .filter(x -> x.getId().equals(newTask.getId()))
             .findAny().orElse(null);
         if (task == null) {
             task = newTask;

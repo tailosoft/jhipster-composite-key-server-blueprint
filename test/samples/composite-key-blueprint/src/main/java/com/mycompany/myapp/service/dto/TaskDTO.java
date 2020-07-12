@@ -49,6 +49,10 @@ public class TaskDTO implements Serializable {
 
     private String pictureContentType;
 
+    private Long userId;
+
+    private String userLogin;
+
     public Long getId(){
         return this.id;
     }
@@ -145,6 +149,22 @@ public class TaskDTO implements Serializable {
         this.pictureContentType = pictureContentType;
     }
 
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public String getUserLogin() {
+        return userLogin;
+    }
+
+    public void setUserLogin(String userLogin) {
+        this.userLogin = userLogin;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -179,6 +199,8 @@ public class TaskDTO implements Serializable {
             ", description='" + getDescription() + "'" +
             ", attachment='" + getAttachment() + "'" +
             ", picture='" + getPicture() + "'" +
+            ", userId='" + getUserId() + "'" +
+            ", userLogin='" + getUserLogin() + "'" +
             "}";
     }
 }

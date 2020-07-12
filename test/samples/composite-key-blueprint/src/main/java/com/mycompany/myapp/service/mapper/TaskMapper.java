@@ -8,9 +8,14 @@ import org.mapstruct.*;
 /**
  * Mapper for the entity {@link Task} and its DTO {@link TaskDTO}.
  */
-@Mapper(componentModel = "spring", uses = {})
+@Mapper(componentModel = "spring", uses = {UserMapper.class})
 public interface TaskMapper extends EntityMapper<TaskDTO, Task> {
 
+    @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "user.login", target = "userLogin")
+    TaskDTO toDto(Task task);
+
+    @Mapping(source = "userId", target = "user")
     @Mapping(target = "employeeSkills", ignore = true)
     @Mapping(target = "removeEmployeeSkill", ignore = true)
     Task toEntity(TaskDTO taskDTO);

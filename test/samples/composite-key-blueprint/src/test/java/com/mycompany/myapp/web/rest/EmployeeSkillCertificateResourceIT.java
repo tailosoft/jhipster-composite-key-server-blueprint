@@ -81,7 +81,7 @@ public class EmployeeSkillCertificateResourceIT {
         // Add required entity
         CertificateType newCertificateType = CertificateTypeResourceIT.createEntity(em);
         CertificateType certificateType = TestUtil.findAll(em, CertificateType.class).stream()
-            .filter(x -> x.getName().equals(newCertificateType.getName()))
+            .filter(x -> x.getId().equals(newCertificateType.getId()))
             .findAny().orElse(null);
         if (certificateType == null) {
             certificateType = newCertificateType;
@@ -116,7 +116,7 @@ public class EmployeeSkillCertificateResourceIT {
         // Add required entity
         CertificateType newCertificateType = CertificateTypeResourceIT.createUpdatedEntity(em);
         CertificateType certificateType = TestUtil.findAll(em, CertificateType.class).stream()
-            .filter(x -> x.getName().equals(newCertificateType.getName()))
+            .filter(x -> x.getId().equals(newCertificateType.getId()))
             .findAny().orElse(null);
         if (certificateType == null) {
             certificateType = newCertificateType;

@@ -1005,11 +1005,13 @@ _%>
         em.flush();
 <%_ if(relationship.pkData.some(pk => pk.entityName === name)) { _%>
     <%_ if(isAutoIncrement) { _%>
+        em.detach(<%= asEntity(entityInstance) %>);
         <%= asEntity(entityInstance) %>.setId(<%= relationship.relationshipFieldName %><% if (relationship.pkData.length > 1) { %>.getId()<% } %>.get<%= relationship.pkData.filter(pk => pk.entityName === name)[0].nameCapitalized %>());
     <%_ } _%>
 <%_ } else if (relationship.relationshipType === 'many-to-many' || relationship.relationshipType === 'one-to-many') { _%>
         <%= asEntity(entityInstance) %>.add<%= relationship.relationshipNameCapitalized %>(<%= relationship.relationshipFieldName %>);
 <%_ } else { _%>
+        em.detach(<%= asEntity(entityInstance) %>);
         <%= asEntity(entityInstance) %>.set<%= relationship.relationshipNameCapitalized %>(<%= relationship.relationshipFieldName %>);
 <%_     if (relationship.ownerSide === false) { _%>
         <%= relationship.relationshipFieldName %>.set<%= relationship.otherEntityRelationshipNameCapitalized %>(<%= asEntity(entityInstance) %>);

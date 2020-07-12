@@ -60,6 +60,8 @@ public class TaskCriteria implements Serializable, Criteria {
 
     private BooleanFilter done;
 
+    private LongFilter userId;
+
     private StringFilter employeeSkillName;
 
     private StringFilter employeeSkillEmployeeUsername;
@@ -75,6 +77,7 @@ public class TaskCriteria implements Serializable, Criteria {
         this.createdAt = other.createdAt == null ? null : other.createdAt.copy();
         this.modifiedAt = other.modifiedAt == null ? null : other.modifiedAt.copy();
         this.done = other.done == null ? null : other.done.copy();
+        this.userId = other.userId == null ? null : other.userId.copy();
         this.employeeSkillName = other.employeeSkillName == null ? null : other.employeeSkillName.copy();
         this.employeeSkillEmployeeUsername = other.employeeSkillEmployeeUsername == null ? null : other.employeeSkillEmployeeUsername.copy();
     }
@@ -140,6 +143,14 @@ public class TaskCriteria implements Serializable, Criteria {
         this.done = done;
     }
 
+    public LongFilter getUserId() {
+        return userId;
+    }
+
+    public void setUserId(LongFilter userId) {
+        this.userId = userId;
+    }
+
     public StringFilter getEmployeeSkillName() {
         return employeeSkillName;
     }
@@ -173,6 +184,7 @@ public class TaskCriteria implements Serializable, Criteria {
             Objects.equals(createdAt, that.createdAt) &&
             Objects.equals(modifiedAt, that.modifiedAt) &&
             Objects.equals(done, that.done) &&
+            Objects.equals(userId, that.userId) &&
             Objects.equals(employeeSkillName, that.employeeSkillName) &&
             Objects.equals(employeeSkillEmployeeUsername, that.employeeSkillEmployeeUsername);
     }
@@ -187,6 +199,7 @@ public class TaskCriteria implements Serializable, Criteria {
             createdAt,
             modifiedAt,
             done,
+            userId,
             employeeSkillName,
             employeeSkillEmployeeUsername
         );
@@ -202,6 +215,7 @@ public class TaskCriteria implements Serializable, Criteria {
             (createdAt != null ? "createdAt=" + createdAt + ", " : "") +
             (modifiedAt != null ? "modifiedAt=" + modifiedAt + ", " : "") +
             (done != null ? "done=" + done + ", " : "") +
+            (userId != null ? "userId=" + userId + ", " : "") +
             (employeeSkillName != null ? "employeeSkillName=" + employeeSkillName + ", " : "") +
             (employeeSkillEmployeeUsername != null ? "employeeSkillEmployeeUsername=" + employeeSkillEmployeeUsername + ", " : "") +
             "}";

@@ -1,11 +1,11 @@
-id;name;type;end_date;created_at;modified_at;done;description;attachment;attachment_content_type;picture;picture_content_type
-38024;Inlet;TYPE2;2020-04-27;2020-04-27T19:27:03;2020-04-28T05:27:15;true;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.png;image/png;../fake-data/blob/hipster.png;image/png
-65647;expedite Rustic;TYPE1;2020-04-28;2020-04-27T22:20:34;2020-04-28T12:22:49;true;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.png;image/png;../fake-data/blob/hipster.png;image/png
-56202;GB Turnpike;TYPE2;2020-04-28;2020-04-27T21:04:07;2020-04-28T14:11:47;true;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.png;image/png;../fake-data/blob/hipster.png;image/png
-69516;deposit;TYPE3;2020-04-28;2020-04-28T13:45:24;2020-04-28T09:13:57;false;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.png;image/png;../fake-data/blob/hipster.png;image/png
-32228;Samoa;TYPE3;2020-04-28;2020-04-28T14:22:13;2020-04-27T15:15:18;false;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.png;image/png;../fake-data/blob/hipster.png;image/png
-3536;Kentucky XSS killer;TYPE1;2020-04-27;2020-04-27T16:48:07;2020-04-28T02:22:39;false;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.png;image/png;../fake-data/blob/hipster.png;image/png
-50569;Checking Account programming;TYPE2;2020-04-27;2020-04-27T17:38:56;2020-04-27T17:42:19;false;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.png;image/png;../fake-data/blob/hipster.png;image/png
-31859;Keyboard encoding Investment Account;TYPE3;2020-04-27;2020-04-28T04:16:40;2020-04-27T18:50:05;false;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.png;image/png;../fake-data/blob/hipster.png;image/png
-55904;lavender;TYPE3;2020-04-27;2020-04-28T10:41:45;2020-04-27T16:45:13;true;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.png;image/png;../fake-data/blob/hipster.png;image/png
-62329;Mews;TYPE1;2020-04-27;2020-04-28T13:27:55;2020-04-27T16:31:18;false;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.png;image/png;../fake-data/blob/hipster.png;image/png
+id;name;type;end_date;created_at;modified_at;done;description;attachment;attachment_content_type;picture;picture_content_type;user_id
+38024;Inlet;TYPE2;2020-04-27;2020-04-27T19:27:03;2020-04-28T05:27:15;true;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.png;image/png;../fake-data/blob/hipster.png;image/png;2
+65647;expedite Rustic;TYPE1;2020-04-28;2020-04-27T22:20:34;2020-04-28T12:22:49;true;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.png;image/png;../fake-data/blob/hipster.png;image/png;2
+56202;GB Turnpike;TYPE2;2020-04-28;2020-04-27T21:04:07;2020-04-28T14:11:47;true;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.png;image/png;../fake-data/blob/hipster.png;image/png;2
+69516;deposit;TYPE3;2020-04-28;2020-04-28T13:45:24;2020-04-28T09:13:57;false;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.png;image/png;../fake-data/blob/hipster.png;image/png;1
+32228;Samoa;TYPE3;2020-04-28;2020-04-28T14:22:13;2020-04-27T15:15:18;false;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.png;image/png;../fake-data/blob/hipster.png;image/png;1
+3536;Kentucky XSS killer;TYPE1;2020-04-27;2020-04-27T16:48:07;2020-04-28T02:22:39;false;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.png;image/png;../fake-data/blob/hipster.png;image/png;1
+50569;Checking Account programming;TYPE2;2020-04-27;2020-04-27T17:38:56;2020-04-27T17:42:19;false;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.png;image/png;../fake-data/blob/hipster.png;image/png;1
+31859;Keyboard encoding Investment Account;TYPE3;2020-04-27;2020-04-28T04:16:40;2020-04-27T18:50:05;false;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.png;image/png;../fake-data/blob/hipster.png;image/png;2
+55904;lavender;TYPE3;2020-04-27;2020-04-28T10:41:45;2020-04-27T16:45:13;true;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.png;image/png;../fake-data/blob/hipster.png;image/png;2
+62329;Mews;TYPE1;2020-04-27;2020-04-28T13:27:55;2020-04-27T16:31:18;false;../fake-data/blob/hipster.txt;../fake-data/blob/hipster.png;image/png;../fake-data/blob/hipster.png;image/png;1

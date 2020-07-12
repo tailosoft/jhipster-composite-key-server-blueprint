@@ -278,6 +278,7 @@ public class CertificateTypeResourceIT {
         EmployeeSkillCertificate employeeSkillCertificate = EmployeeSkillCertificateResourceIT.createEntity(em);
         em.persist(employeeSkillCertificate);
         em.flush();
+        em.detach(certificateType);
         certificateType.setId(employeeSkillCertificate.getId().getTypeId());
         certificateTypeRepository.saveAndFlush(certificateType);
         String employeeSkillCertificateSkillName = employeeSkillCertificate.getId().getSkillName();
@@ -297,6 +298,7 @@ public class CertificateTypeResourceIT {
         EmployeeSkillCertificate employeeSkillCertificate = EmployeeSkillCertificateResourceIT.createEntity(em);
         em.persist(employeeSkillCertificate);
         em.flush();
+        em.detach(certificateType);
         certificateType.setId(employeeSkillCertificate.getId().getTypeId());
         certificateTypeRepository.saveAndFlush(certificateType);
         String employeeSkillCertificateSkillEmployeeUsername = employeeSkillCertificate.getId().getSkillEmployeeUsername();
