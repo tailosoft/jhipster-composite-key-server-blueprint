@@ -1,16 +1,16 @@
 {
   "name": "generator-jhipster-composite-key-server",
-  "version": "6.8.1",
-  "description": "this jhipster blueprint allows to generate server code with composte key using custom annotations",
+  "version": "7.0.0",
+  "description": "this jhipster blueprint allows to generate server code with composite key using the @id annotation",
   "keywords": [
     "yeoman-generator",
     "jhipster-blueprint",
-    "jhipster-5"
+    "jhipster-7"
   ],
   "homepage": "https://github.com/elhoutico/jhipster-composite-key-server-blueprint",
   "author": {
     "name": "Youssef El Houti",
-    "email": "elhouti@elhouti.com",
+    "email": "youssef.elhouti@elhouti.com",
     "url": "https://elhouti.com"
   },
   "files": [
@@ -23,9 +23,7 @@
   },
   "dependencies": {
     "chalk": "2.4.1",
-    "faker": "4.1.0",
-    "generator-jhipster": "6.8.0",
-    "lodash": "4.17.10"
+    "generator-jhipster": "7.0.0"
   },
   "devDependencies": {
     "chai": "4.1.2",
@@ -35,14 +33,18 @@
     "eslint-config-prettier": "3.1.0",
     "eslint-plugin-import": "2.12.0",
     "eslint-plugin-prettier": "3.0.0",
+    "faker": "5.4.0",
     "fs-extra": "6.0.1",
     "jsdoc": "3.5.5",
     "mocha": "5.2.0",
     "prettier": "1.14.3",
     "rimraf": "^3.0.0",
+    "randexp": "0.5.3",
+    "semver": "7.3.4",
     "sinon": "6.0.0",
     "yeoman-assert": "3.1.1",
-    "yeoman-test": "2.4.1"
+    "yeoman-environment": "3.2.0",
+    "yeoman-test": "5.1.0"
   },
   "scripts": {
     "lint": "eslint .",

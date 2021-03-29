@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2020 the original author or authors.
+ Copyright 2013-2021 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -8,7 +8,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+      https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,8 +20,8 @@ package <%= packageName %>.service;
 
 <%_
 const serviceClassName = entityClass + 'QueryService';
-const instanceType = (dto === 'mapstruct') ? asDto(entityClass) : asEntity(entityClass);
-const instanceName = (dto === 'mapstruct') ? asDto(entityInstance) : asEntity(entityInstance);
+const instanceType = restClass;
+const instanceName = restInstance;
 const mapper = entityInstance  + 'Mapper';
 const dtoToEntity = mapper + '.'+ 'toEntity';
 const entityToDto = mapper + '.'+ 'toDto';
@@ -29,44 +29,48 @@ const entityListToDto = mapper + '.' + 'toDto';
 const entityToDtoReference = mapper + '::'+ 'toDto';
 const repository = entityInstance  + 'Repository';
 const criteria = entityClass + 'Criteria';
-const primaryKeyType = pkType;
 _%>
 import java.util.List;
 
-import javax.persistence.criteria.JoinType;
+<%_ if (relationships.length) { _%>
+import javax.persistence.criteria.Root;
+<%_ } _%>
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+<%_ if (relationships.length) { _%>
+import org.springframework.context.annotation.Lazy;
+<%_ } _%>
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.github.jhipster.service.QueryService;
+import tech.jhipster.service.QueryService;
 
-import <%= packageName %>.domain.<%= asEntity(entityClass) %>;
+import <%= packageName %>.domain.<%= persistClass %>;
 import <%= packageName %>.domain.*; // for static metamodels
 import <%= packageName %>.repository.<%= entityClass %>Repository;<% if (searchEngine === 'elasticsearch') { %>
 import <%= packageName %>.repository.search.<%= entityClass %>SearchRepository;<% } %>
-import <%= packageName %>.service.dto.<%= entityClass %>Criteria;
+import <%= packageName %>.service.criteria.<%= entityClass %>Criteria;
 <%_ if (dto === 'mapstruct') { _%>
-import <%= packageName %>.service.dto.<%= asDto(entityClass) %>;
+import <%= packageName %>.service.dto.<%= dtoClass %>;
 import <%= packageName %>.service.mapper.<%= entityClass %>Mapper;
 <%_ } _%>
 
 /**
- * Service for executing complex queries for {@link <%= asEntity(entityClass) %>} entities in the database.
+ * Service for executing complex queries for {@link <%= persistClass %>} entities in the database.
  * The main input is a {@link <%= entityClass %>Criteria} which gets converted to {@link Specification},
  * in a way that all the filters must apply.
  * It returns a {@link List} of {@link <%= instanceType %>} or a {@link Page} of {@link <%= instanceType %>} which fulfills the criteria.
  */
 @Service<% if (databaseType === 'sql') { %>
 @Transactional(readOnly = true)<% } %>
-public class <%= serviceClassName %> extends QueryService<<%= asEntity(entityClass) %>> {
+public class <%= serviceClassName %> extends QueryService<<%= persistClass %>> {
 
     private final Logger log = LoggerFactory.getLogger(<%= serviceClassName %>.class);
-<%- include('../common/inject_template', {viaService: false, constructorName: serviceClassName, queryService: false, isUsingMapsId: false, mapsIdAssoc: null, isController: false}); -%>
+<%- include('../common/inject_template', {viaService: false, constructorName: serviceClassName, queryService: false, isUsingMapsId: false, mapsIdAssoc: null, isController: false, relQueryServices: true}); -%>
 
     /**
      * Return a {@link List} of {@link <%= instanceType %>} which matches the criteria from the database.
@@ -76,7 +80,7 @@ public class <%= serviceClassName %> extends QueryService<<%= asEntity(entityCla
     @Transactional(readOnly = true)
     public List<<%= instanceType %>> findByCriteria(<%= criteria %> criteria) {
         log.debug("find by criteria : {}", criteria);
-        final Specification<<%= asEntity(entityClass) %>> specification = createSpecification(criteria);
+        final Specification<<%= persistClass %>> specification = createSpecification(criteria);
     <%_ if (dto === 'mapstruct') { _%>
         return <%= entityListToDto %>(<%= repository %>.findAll(specification));
     <%_ } else { _%>
@@ -93,7 +97,7 @@ public class <%= serviceClassName %> extends QueryService<<%= asEntity(entityCla
     @Transactional(readOnly = true)
     public Page<<%= instanceType %>> findByCriteria(<%= criteria %> criteria, Pageable page) {
         log.debug("find by criteria : {}, page: {}", criteria, page);
-        final Specification<<%= asEntity(entityClass) %>> specification = createSpecification(criteria);
+        final Specification<<%= persistClass %>> specification = createSpecification(criteria);
     <%_ if (dto === 'mapstruct') { _%>
         return <%= repository %>.findAll(specification, page)
             .map(<%= entityToDtoReference %>);
@@ -110,7 +114,7 @@ public class <%= serviceClassName %> extends QueryService<<%= asEntity(entityCla
     @Transactional(readOnly = true)
     public long countByCriteria(<%= criteria %> criteria) {
         log.debug("count by criteria : {}", criteria);
-        final Specification<<%= asEntity(entityClass) %>> specification = createSpecification(criteria);
+        final Specification<<%= persistClass %>> specification = createSpecification(criteria);
         return <%= repository %>.count(specification);
     }
 
@@ -119,47 +123,43 @@ public class <%= serviceClassName %> extends QueryService<<%= asEntity(entityCla
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the matching {@link Specification} of the entity.
      */
-    protected Specification<<%= asEntity(entityClass) %>> createSpecification(<%= criteria %> criteria) {
-        Specification<<%= asEntity(entityClass) %>> specification = Specification.where(null);
+    public Specification<<%= persistClass %>> createSpecification(<%= criteria %> criteria) {
+        Specification<<%= persistClass %>> specification = Specification.where(null);
         if (criteria != null) {
-            <%_
-            if(pkData.length > 1) {
-                pkData.forEach((pk) => { _%>
-            if (criteria.get<%= _.upperFirst(pk.name) %>() != null) {
-                specification = specification.and(<%= getSpecificationBuilder(primaryKeyType) %>(criteria.get<%= _.upperFirst(pk.name) %>(),
-                    root -> root.join(<%= asEntity(entityClass) %>_.id, JoinType.LEFT).get(<%= asEntity(entityClass) %>Id_.<%= pk.name %>)));
-            }
-            <%_
-                });
-            }
-            fields.forEach((field) => {
-                if ((pkData.length === 1 || !field.partOfId) && isFilterableType(field.fieldType)) { _%>
+            <%_ fields.forEach((field) => {
+                if (isFilterableType(field.fieldType)) { _%>
             if (criteria.get<%= field.fieldInJavaBeanMethod %>() != null) {
-                specification = specification.and(<%= getSpecificationBuilder(field.fieldType) %>(criteria.get<%= field.fieldInJavaBeanMethod %>(), <%= asEntity(entityClass) %>_.<%= field.fieldName %>));
+                specification = specification.and(<%= getSpecificationBuilder(field.fieldType) %>(criteria.get<%= field.fieldInJavaBeanMethod %>(), <%= persistClass %>_.<%= field.fieldName %>));
             }
             <%_ }
-            });
+            }); _%>
 
-            relationships.forEach((relationship) => {
-                if(pkData.length === 1 || !relationship.partOfId) {
-                    const metamodelFieldName = (relationship.relationshipType === 'many-to-many' || relationship.relationshipType === 'one-to-many') ? relationship.relationshipFieldNamePlural : relationship.relationshipFieldName;
-                    if(relationship.pkData.length === 1) {
-                        if(!relationship.pkData[0].selfReference) { _%>
-            if (criteria.get<%= relationship.relationshipNameCapitalized + _.upperFirst(relationship.pkData[0].name)%>() != null) {
-                specification = specification.and(buildSpecification(criteria.get<%= relationship.relationshipNameCapitalized + _.upperFirst(relationship.pkData[0].name) %>(),
-                    root -> root.join(<%= asEntity(entityClass) %>_.<%= metamodelFieldName %>, JoinType.LEFT).get(<%= asEntity(relationship.otherEntityNameCapitalized) %>_.<%= relationship.pkData[0].name %>)));
+            <%_ relationships
+                    // TRACK-1 remove this filter once all entities have criteria and can convert from criteria to specification without queryService
+                    .filter(r =>r.otherEntity.jpaMetamodelFiltering)
+                    .forEach((relationship) => { _%>
+            if (criteria.get<%= relationship.relationshipNameCapitalized %>() != null) {
+                Specification<<%= asEntity(relationship.otherEntityNameCapitalized) %>> <%= relationship.otherEntityName %>Specification = this.<%= relationship.otherEntityName %>QueryService.createSpecification(criteria.get<%= relationship.relationshipNameCapitalized %>());
+                specification = specification.and((root, query, criteriaBuilder) -> {
+                    Root<<%= asEntity(relationship.otherEntityNameCapitalized) %>> <%= relationship.otherEntityName %>Root = query.from(<%= asEntity(relationship.otherEntityNameCapitalized) %>.class);
+                    return criteriaBuilder.and(
+                <%_ if (['one-to-one'].includes(relationship.relationshipType)) { _%>
+                    <%_ // this should work, without looking through pk and use pkGetter, the same way it does for manyToMany just by comparing entities, for some reason it doesn't _%>
+                    <%_ // issue: https://hibernate.atlassian.net/browse/HHH-14341 _%>
+                    <%_ relationship.otherEntity.primaryKey.ids.forEach(pk => {
+                        const pkGetter = `get(${asEntity(relationship.otherEntity.entityClass)}_.${pk.name})` _%>
+                            criteriaBuilder.equal(<%= relationship.otherEntityName %>Root.<%= pkGetter %>, root.get(<%= asEntity(entityClass) %>_.<%= relationship.relationshipName %>).<%= pkGetter %>),
+                    <%_ }) _%>
+                <%_ } else if (['many-to-one'].includes(relationship.relationshipType)) { _%>
+                            criteriaBuilder.equal(<%= relationship.otherEntityName %>Root, root.get(<%= persistClass %>_.<%= relationship.relationshipName %>)),
+                <%_ } else { _%>
+                            criteriaBuilder.isMember(<%= relationship.otherEntityName %>Root, root.get(<%= asEntity(entityClass) %>_.<%= relationship.relationshipNamePlural %>)),
+                <%_ } _%>
+                            <%= relationship.otherEntityName %>Specification.toPredicate(<%= relationship.otherEntityName %>Root, query, criteriaBuilder)
+                    );
+                });
             }
-                        <%_ }
-                    } else {
-                        relationship.pkData.filter(pk => !pk.selfReference).forEach(pk => {  _%>
-            if (criteria.get<%= relationship.relationshipNameCapitalized + _.upperFirst(pk.name)%>() != null) {
-                specification = specification.and(buildSpecification(criteria.get<%= relationship.relationshipNameCapitalized + _.upperFirst(pk.name) %>(),
-                    root -> root.join(<%= asEntity(entityClass) %>_.<%= metamodelFieldName %>, JoinType.LEFT).get(<%= asEntity(relationship.otherEntityNameCapitalized) %>_.id).get(<%= relationship.otherEntityNameCapitalized %>Id_.<%= pk.name %>)));
-            }
-                        <%_ })
-                    }
-                }
-            }); // forEach
+            <%_ }); // forEach
         _%>
         }
         return specification;

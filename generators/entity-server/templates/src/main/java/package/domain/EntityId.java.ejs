@@ -23,54 +23,50 @@ import javax.persistence.Embeddable;
 import javax.validation.constraints.*;
 <%_ } _%>
 import java.util.Objects;
+<%_ if (primaryKey.ids.some(id => id.field.fieldType === 'UUID')) { _%>
+import java.util.UUID;
+<%_ } _%>
 
 @Embeddable
 public class <%= entityClass %>Id implements java.io.Serializable {
 <%_
 // here we lie to the field_validators code because it was coded to expect fields[idx] to contain the validation info
 const realFields = fields;
-fields = pkData;
-for (idx in pkData) { _%>
+fields = primaryKey.ids.map(pk => pk.field);
+for (let idx=0; idx< primaryKey.ids.length; idx++) { _%>
 
-    <%_ if (pkData[idx].isEnum) { _%>
+    <%_ if (primaryKey.ids[idx].isEnum) { _%>
     @Enumerated(EnumType.STRING)
     <%_ }
     if (fields[idx].fieldValidateRules && fields[idx].fieldValidateRules.includes('required')) {
         required = true;
     }
     const fieldValidateRules = fields[idx].fieldValidateRules;
-    const fieldValidateRulesMinlength = fields[idx].fieldValidateRulesMinlength;
-    const fieldValidateRulesMaxlength = fields[idx].fieldValidateRulesMaxlength;
-    const fieldValidateRulesMinbytes = fields[idx].fieldValidateRulesMinbytes;
-    const fieldValidateRulesMaxbytes = fields[idx].fieldValidateRulesMaxbytes;
-    const fieldValidateRulesMin = fields[idx].fieldValidateRulesMin;
-    const fieldValidateRulesMax = fields[idx].fieldValidateRulesMax;
-    const fieldValidateRulesPatternJava = fields[idx].fieldValidateRulesPatternJava;
     _%>
     <%_ if (fieldValidateRules && fieldValidateRules.length > 0) { _%>
-    <%- include ../common/field_validators.ejs -%>
+    <%- include('../common/field_validators'); -%>
     <%_ } _%>
-    @Column(name = "<%= pkData[idx].columnName %>"<% if (pkData[idx].fieldValidate === true) { %><% if (pkData[idx].fieldValidateRules.includes('maxlength')) { %>, length = <%= pkData[idx].fieldValidateRulesMaxlength %><% } %><% if (pkData[idx].required) { %>, nullable = false<% } %><% if (pkData[idx].unique) { %>, unique = true<% } %><% } %>)
-    private <%= pkData[idx].type %> <%= pkData[idx].name %>;
+    @Column(name = "<%= primaryKey.fields[idx].columnName %>"<% if (primaryKey.fields[idx].fieldValidate === true) { %><% if (primaryKey.fields[idx].fieldValidateRules.includes('maxlength')) { %>, length = <%= primaryKey.fields[idx].fieldValidateRulesMaxlength %><% } %><% if (primaryKey.fields[idx].required) { %>, nullable = false<% } %><% if (primaryKey.fields[idx].unique) { %>, unique = true<% } %><% } %>)
+    private <%= primaryKey.fields[idx].fieldType %> <%= primaryKey.ids[idx].name %>;
 <%_ }
 // we put back the real value of fields
 fields = realFields; _%>
 
     public <%= entityClass %>Id(){}
 
-    public <%= entityClass %>Id(<%= pkData.map(pk => pk.type + ' ' + pk.name).join(', ') %>){
-<%_ for (idx in pkData) { _%>
-        this.<%= pkData[idx].name %> = <%= pkData[idx].name %>;
+    public <%= entityClass %>Id(<%= primaryKey.ids.map(pk => pk.field.fieldType + ' ' + pk.name).join(', ') %>){
+<%_ for (let idx=0; idx< primaryKey.ids.length; idx++) { _%>
+        this.<%= primaryKey.ids[idx].name %> = <%= primaryKey.ids[idx].name %>;
 <%_ }_%>
     }
-<%_ for (idx in pkData) { _%>
+<%_ for (let idx=0; idx< primaryKey.ids.length; idx++) { _%>
 
-    public <%= pkData[idx].type %> <%= pkData[idx].getter %>(){
-        return this.<%= pkData[idx].name %>;
+    public <%= primaryKey.ids[idx].field.fieldType %> <%= primaryKey.ids[idx].getter %>(){
+        return this.<%= primaryKey.ids[idx].name %>;
     }
 
-    public void <%= pkData[idx].setter %>(<%= pkData[idx].type %> <%= pkData[idx].name %>){
-        this.<%= pkData[idx].name %> = <%= pkData[idx].name %>;
+    public void <%= primaryKey.ids[idx].setter %>(<%= primaryKey.ids[idx].field.fieldType %> <%= primaryKey.ids[idx].name %>){
+        this.<%= primaryKey.ids[idx].name %> = <%= primaryKey.ids[idx].name %>;
     }
 <%_ }_%>
 
@@ -84,20 +80,21 @@ fields = realFields; _%>
         }
 
         <%= entityClass %>Id <%= entityInstance %>Id = (<%= entityClass %>Id) o;
-        return <%- pkData.map(f => `Objects.equals(${f.name}, ${entityInstance}Id.${f.name})`).join('\n            && ') %>;
+        return <%- primaryKey.ids.map(f => `Objects.equals(${f.name}, ${entityInstance}Id.${f.name})`).join('\n            && ') %>;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(<%= pkData.map(f => f.name).join(', ')%>);
+        return Objects.hash(<%= primaryKey.ids.map(f => f.name).join(', ')%>);
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "<%= entityClass %>Id{" +
-            <%_ for (idx in pkData) {
-                const isNumeric = ['integer', 'long', 'float', 'double', 'bigdecimal'].includes(pkData[idx].type.toLowerCase()); _%>
-            ", <%= pkData[idx].name %>=<% if (! isNumeric) {%>'<% } %>" + <%= pkData[idx].getter %>() <% if (! isNumeric) { %>+ "'" <% } %>+
+            <%_ for (let idx=0; idx< primaryKey.ids.length; idx++) {
+                const isNumeric = ['integer', 'long', 'float', 'double', 'bigdecimal'].includes(primaryKey.ids[idx].field.fieldType.toLowerCase()); _%>
+            ", <%= primaryKey.ids[idx].name %>=<% if (! isNumeric) {%>'<% } %>" + <%= primaryKey.ids[idx].getter %>() <% if (! isNumeric) { %>+ "'" <% } %>+
             <%_ } _%>
             "}";
     }

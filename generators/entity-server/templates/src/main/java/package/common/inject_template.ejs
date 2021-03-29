@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2020 the original author or authors from the JHipster project.
+ Copyright 2013-2021 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -8,7 +8,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+      https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@
 <%_ const beans = [];
     if (viaService) {
         beans.push({class: `${entityClass}Service`, instance: `${entityInstance}Service`});
+        beans.push({class: `${entityClass}Repository`, instance: `${entityInstance}Repository`});
         if (queryService) {
             beans.push({class: `${entityClass}QueryService`, instance: `${entityInstance}QueryService`});
         }
@@ -28,6 +29,9 @@
             const mapsIdRepoInstance = `${mapsIdEntityInstance}Repository`;
             beans.push({class: `${mapsIdEntity}Repository`, instance: mapsIdRepoInstance});
         }
+        if (primaryKey.ids.length > 1 && dto === 'mapstruct') {
+            beans.push({class: `${entityClass}Mapper`, instance: `${entityInstance}Mapper`});
+        }
     } else {
         beans.push({class: `${entityClass}Repository`, instance: `${entityInstance}Repository`});
         if (dto === 'mapstruct') {
@@ -36,14 +40,17 @@
         if (searchEngine === 'elasticsearch') {
             beans.push({class: `${entityClass}SearchRepository`, instance: `${entityInstance}SearchRepository`});
         }
-        if (reactiveRepositories) {
-            beans.push({class: `${entityClass}ReactiveRepository`, instance: `${entityInstance}ReactiveRepository`});
-        }
         if (isUsingMapsId === true) {
             const mapsIdEntity = mapsIdAssoc.otherEntityNameCapitalized;
             const mapsIdEntityInstance = mapsIdEntity.charAt(0).toLowerCase() + mapsIdEntity.slice(1);
             const mapsIdRepoInstance = `${mapsIdEntityInstance}Repository`;
             beans.push({class: `${mapsIdEntity}Repository`, instance: mapsIdRepoInstance});
+        }
+        if (relQueryServices === true) {
+            const distinctRelationships = new Set();
+            // TRACK-1 remove this filter once all entities have criteria and can convert from criteria to specification without queryService
+            relationships.filter(r =>r.otherEntity.jpaMetamodelFiltering).forEach(r => distinctRelationships.add(r.otherEntityName));
+            distinctRelationships.forEach(r => beans.push({class: `${_.upperFirst(r)}QueryService`, instance: `${r}QueryService`, lazy: true}))
         }
     }
     if (saveUserSnapshot && (viaService || constructorName.endsWith('Resource'))) {
@@ -53,6 +60,6 @@ _%>
 
     <%= beans.map(bean => `private final ${bean.class} ${bean.instance};`).join('\n\n    ') %>
 
-    public <%= constructorName %>(<%= beans.map(bean => `${bean.class} ${bean.instance}`).join(', ') %>) {
+    public <%= constructorName %>(<%= beans.map(bean => `${bean.lazy ? '@Lazy ' : ''}${bean.class} ${bean.instance}`).join(', ') %>) {
         <%= beans.map(bean => `this.${bean.instance} = ${bean.instance};`).join('\n        ') %>
     }

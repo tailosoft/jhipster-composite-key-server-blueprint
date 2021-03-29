@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2020 the original author or authors from the JHipster project.
+ Copyright 2013-2021 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -8,7 +8,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+      https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,59 +18,37 @@
 -%>
 package <%= packageName %>.domain;
 
-<%_
-const isAutoIncrement = pkData.length === 1 && pkData[0].name === 'id' && pkData[0].type === 'Long';
-const importedEntities = [];
-pkData.filter(pk => pk.type !== 'Long').map(pk => pk.entityName).forEach(entityName => {
-    if(!importedEntities.includes(entityName)){ _%>
-import <%=packageName%>.web.rest.<%= entityName %>ResourceIT;
-        <%_  importedEntities.push(entityName); _%>
-    <%_ } _%>
-<%_ }); _%>
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import <%= packageName %>.web.rest.TestUtil;
-<%_
-let hasOauthUser = false;
-for (idx in relationships) {
-    isUsingMapsId = relationships[idx].useJPADerivedIdentifier;
-    if (isUsingMapsId === true) {
-        hasOauthUser = relationships[idx].otherEntityName === 'user' && authenticationType === 'oauth2';
-        break;
-    }
-}
-_%>
-<%_ if (databaseType === 'cassandra' || (databaseType === 'sql' && hasOauthUser === true)) { _%>
+<%_ if (primaryKey && primaryKey.fields.some(f => f.fieldType === 'UUID')) { _%>
 import java.util.UUID;
 <%_ } _%>
 
-public class <%= entityClass %>Test {
+class <%= persistClass %>Test {
 
+<%_
+function computeValue(entityNbr = 1) {
+    if (primaryKey.composite) {
+        return `new ${entityClass}Id(${primaryKey.ids.map(pk => getPrimaryKeyValue(pk.field.fieldType, databaseType, entityNbr)).join(', ')})`;
+    } else {
+        return getPrimaryKeyValue(primaryKey.ids[0].field.fieldType, databaseType, entityNbr)
+    }
+}
+_%>
     @Test
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(<%= asEntity(entityClass) %>.class);
-<%_if (!embedded) { _%>
-        <%= asEntity(entityClass) %> <%= entityInstance %>1 = new <%= asEntity(entityClass) %>();
-    <%_ if (pkData.length === 1) {_%>
-        <%= entityInstance %>1.<%= pkData[0].setter %>(<%= pkData[0].type === 'Long' ? '1L' : `${pkData[0].entityName}ResourceIT.DEFAULT_${_.snakeCase(pkData[0].fieldName).toUpperCase()}` %>);
-    <%_ } else { _%>
-        <%= entityInstance %>1.setId(new <%= entityClass %>Id(<%= pkData.map(pk => pk.type === 'Long' ? '1L' : `${pk.entityName}ResourceIT.DEFAULT_${_.snakeCase(pk.fieldName).toUpperCase()}`).join(', ') %>));
-    <%_ } _%>
-        <%= asEntity(entityClass) %> <%= entityInstance %>2 = new <%= asEntity(entityClass) %>();
-    <%_ if (pkData.length === 1) {_%>
-        <%= entityInstance %>2.<%= pkData[0].setter %>(<%= pkData[0].type === 'Long' ? '1L' : `${pkData[0].entityName}ResourceIT.DEFAULT_${_.snakeCase(pkData[0].fieldName).toUpperCase()}` %>);
-    <%_ } else { _%>
-        <%= entityInstance %>2.setId(new <%= entityClass %>Id(<%= pkData.map(pk => pk.type === 'Long' ? '1L' : `${pk.entityName}ResourceIT.DEFAULT_${_.snakeCase(pk.fieldName).toUpperCase()}`).join(', ') %>));
-    <%_ } _%>
-        assertThat(<%= entityInstance %>1).isEqualTo(<%= entityInstance %>2);
-    <%_ if (pkData.length === 1) {_%>
-        <%= entityInstance %>2.<%= pkData[0].setter %>(<%= pkData[0].type === 'Long' ? '2L' : `${pkData[0].entityName}ResourceIT.UPDATED_${_.snakeCase(pkData[0].fieldName).toUpperCase()}` %>);
-    <%_ } else { _%>
-        <%= entityInstance %>2.setId(new <%= entityClass %>Id(<%= pkData.map(pk => pk.type === 'Long' ? '2L' : `${pk.entityName}ResourceIT.UPDATED_${_.snakeCase(pk.fieldName).toUpperCase()}`).join(', ') %>));
-    <%_ } _%>
-        assertThat(<%= entityInstance %>1).isNotEqualTo(<%= entityInstance %>2);
-        <%= entityInstance %>1.set<%= _.upperFirst(pkName) %>(null);
-        assertThat(<%= entityInstance %>1).isNotEqualTo(<%= entityInstance %>2);
-<%_ } _%>
+    void equalsVerifier() throws Exception {
+        TestUtil.equalsVerifier(<%= persistClass %>.class);
+    <%_if (!embedded) { _%>
+        <%= persistClass %> <%= persistInstance %>1 = new <%= persistClass %>();
+        <%= persistInstance %>1.set<%= primaryKey.nameCapitalized %>(<%- computeValue(1) %>);
+        <%= persistClass %> <%= persistInstance %>2 = new <%= persistClass %>();
+        <%= persistInstance %>2.set<%= primaryKey.nameCapitalized %>(<%= persistInstance %>1.get<%= primaryKey.nameCapitalized %>());
+        assertThat(<%= persistInstance %>1).isEqualTo(<%= persistInstance %>2);
+        <%= persistInstance %>2.set<%= primaryKey.nameCapitalized %>(<%- computeValue(2) %>);
+        assertThat(<%= persistInstance %>1).isNotEqualTo(<%= persistInstance %>2);
+        <%= persistInstance %>1.set<%= primaryKey.nameCapitalized %>(null);
+        assertThat(<%= persistInstance %>1).isNotEqualTo(<%= persistInstance %>2);
+    <%_} _%>
     }
 }

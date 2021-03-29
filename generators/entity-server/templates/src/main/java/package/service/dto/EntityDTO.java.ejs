@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2020 the original author or authors from the JHipster project.
+ Copyright 2013-2021 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -8,7 +8,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+      https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,15 +18,7 @@
 -%>
 package <%= packageName %>.service.dto;
 
-<%_
-let importApiModelProperty = false;
-let importJsonIgnore = false;
-let importJsonIgnoreProperties = false;
-let importSet = false;
-const uniqueEnums = {};
-const primaryKeyType = pkType;
-_%>
-<%- include ../../domain/imports -%>
+import java.util.Objects;
 <%_ if (typeof javadoc != 'undefined') { _%>
 import io.swagger.annotations.ApiModel;
 <%_ } if (importApiModelProperty === true) { _%>
@@ -54,12 +46,11 @@ import java.math.BigDecimal;
 <%_ if (fieldsContainBlob && databaseType === 'cassandra') { _%>
 import java.nio.ByteBuffer;
 <%_ } _%>
-<%_ if (fieldsContainOwnerManyToMany || fieldsContainEmbedded) { _%>
+<%_ if (dtoReferences.some(reference => reference.collection)) { _%>
 import java.util.HashSet;
 import java.util.Set;
 <%_ } _%>
-import java.util.Objects;
-<%_ if (databaseType === 'cassandra' || fieldsContainUUID === true) { _%>
+<%_ if (fieldsContainUUID === true) { _%>
 import java.util.UUID;
 <%_ } _%>
 <%_ if (fieldsContainBlob && databaseType === 'sql') { _%>
@@ -70,261 +61,101 @@ import <%= packageName %>.domain.enumeration.<%= element %>;
 <%_ }); _%>
 
 /**
- * A DTO for the {@link <%= packageName %>.domain.<%= asEntity(entityClass) %>} entity.
+ * A DTO for the {@link <%= packageName %>.domain.<%= persistClass %>} entity.
  */
 <%_ if (typeof javadoc !== 'undefined') { _%>
 @ApiModel(description = "<%- formatAsApiDescription(javadoc) %>")
 <%_ } _%>
-public class <%= asDto(entityClass) %> implements Serializable {
-<%_
-// here we lie to the field_validators code because it was coded to expect fields[idx] to contain the validation info
-const realFields = fields;
-fields = pkData;
-for (idx in fields) { _%>
+public class <%= dtoClass %> implements Serializable {
 
-    <%_ if (typeof fields[idx].javadoc !== 'undefined') { _%>
-<%- formatAsFieldJavadoc(fields[idx].javadoc) %>
+<%_ for (reference of dtoReferences) {
+        if (typeof reference.doc !== 'undefined') {
+_%>
+<%- formatAsFieldJavadoc(reference.doc) %>
     <%_ }
-    if (fields[idx].fieldValidateRules && fields[idx].fieldValidateRules.includes('required')) {
-        required = true;
-    }
-    const fieldValidateRules = fields[idx].fieldValidateRules;
-    const fieldValidateRulesMinlength = fields[idx].fieldValidateRulesMinlength;
-    const fieldValidateRulesMaxlength = fields[idx].fieldValidateRulesMaxlength;
-    const fieldValidateRulesMinbytes = fields[idx].fieldValidateRulesMinbytes;
-    const fieldValidateRulesMaxbytes = fields[idx].fieldValidateRulesMaxbytes;
-    const fieldValidateRulesMin = fields[idx].fieldValidateRulesMin;
-    const fieldValidateRulesMax = fields[idx].fieldValidateRulesMax;
-    const fieldValidateRulesPatternJava = fields[idx].fieldValidateRulesPatternJava;
+        const field = reference.field;
+        const required = field && field.fieldValidate && field.fieldValidateRules.includes('required');
+        if (field) {
+            if (field.fieldValidate === true) {
     _%>
-    <%_ if (fieldValidateRules && fieldValidateRules.length > 0) { _%>
-    <%- include ../../common/field_validators.ejs -%>
+    <%- include('../../common/field_validators', {field, reactive}); -%>
+    <%_     }
+        }
+    _%>
+    <%_ if (reference.doc) { _%>
+    @ApiModelProperty(value = "<%- formatAsApiDescription(reference.doc) %>"<% if (required) { %>, required = true<% } %>)
     <%_ } _%>
-    <%_ if (typeof fields[idx].javadoc != 'undefined') { _%>
-    @ApiModelProperty(value = "<%- formatAsApiDescription(fields[idx].javadoc) %>"<% if (required) { %>, required = true<% } %>)
-    <%_ } _%>
-    private <%= fields[idx].type %> <%= fields[idx].name %>;
-<%_
-}
-// we put back the real value of fields
-fields = realFields; _%>
-<%_ for (idx in fields) {
-    if (!fields[idx].partOfId) { _%>
-
-        <%_ if (typeof fields[idx].javadoc !== 'undefined') { _%>
-<%- formatAsFieldJavadoc(fields[idx].javadoc) %>
-        <%_ }
-        let required = false;
-        const fieldValidate = fields[idx].fieldValidate;
-        const fieldValidateRules = fields[idx].fieldValidateRules;
-        const fieldValidateRulesMinlength = fields[idx].fieldValidateRulesMinlength;
-        const fieldValidateRulesMaxlength = fields[idx].fieldValidateRulesMaxlength;
-        const fieldValidateRulesMinbytes = fields[idx].fieldValidateRulesMinbytes;
-        const fieldValidateRulesMaxbytes = fields[idx].fieldValidateRulesMaxbytes;
-        const fieldValidateRulesMin = fields[idx].fieldValidateRulesMin;
-        const fieldValidateRulesMax = fields[idx].fieldValidateRulesMax;
-        const fieldValidateRulesPatternJava = fields[idx].fieldValidateRulesPatternJava;
-        const fieldType = fields[idx].fieldType;
-        const fieldTypeBlobContent = fields[idx].fieldTypeBlobContent;
-        const fieldName = fields[idx].fieldName; _%>
-    <%_ if (fieldValidate === true) {
-            if (fieldValidateRules.includes('required')) {
-                required = true;
-            } _%>
-    <%- include ../../common/field_validators -%>
-    <%_ } _%>
-    <%_ if (typeof fields[idx].javadoc != 'undefined') { _%>
-    @ApiModelProperty(value = "<%- formatAsApiDescription(fields[idx].javadoc) %>"<% if (required) { %>, required = true<% } %>)
-    <%_ } _%>
-    <%_ if (fieldType === 'byte[]' && databaseType === 'sql') { _%>
+    <%_ if (reference.type === 'byte[]' && databaseType === 'sql') { _%>
     @Lob
     <%_ } _%>
-    <%_ if (fieldTypeBlobContent !== 'text') { _%>
-    private <%= fieldType %> <%= fieldName %>;
+    <%_ if (reference.field && reference.field.fieldTypeBlobContent === 'text') { _%>
+    private String <%= reference.name %>;
+    <%_ } else if (reference.collection && reference.relationship) { _%>
+    private Set<<%= asDto(reference.relationship.otherEntity.entityNameCapitalized) %>> <%= reference.name %> = new HashSet<>();
+    <%_ } else if (reference.relationship) { _%>
+    private <%= asDto(reference.relationship.otherEntity.entityNameCapitalized) %> <%= reference.name %>;
     <%_ } else { _%>
-    private String <%= fieldName %>;
+    private <%= reference.type %> <%= reference.name %>;
     <%_ } _%>
-    <%_ if ((fieldType === 'byte[]' || fieldType === 'ByteBuffer') && fieldTypeBlobContent !== 'text') { _%>
 
-    private String <%= fieldName %>ContentType;
-        <%_ } _%>
+    <%_ if (reference.field && reference.field.fieldWithContentType) { _%>
+    private String <%= reference.name %>ContentType;
+<%_     }
+    }
+_%>
+
+<%_ for (reference of dtoReferences) { _%>
+    <%_ if (reference.field && reference.field.fieldTypeBlobContent === 'text') { _%>
+    public <%= buildJavaGetter(reference, 'String') %> {
+    <%_ } else if (reference.collection && reference.relationship) { _%>
+    public <%- buildJavaGetter(reference, `Set<${ asDto(reference.relationship.otherEntity.entityNameCapitalized) }>` ) %> {
+    <%_ } else if (reference.relationship) { _%>
+    public <%= buildJavaGetter(reference, asDto(reference.relationship.otherEntity.entityNameCapitalized)) %> {
+    <%_ } else { _%>
+    public <%= buildJavaGetter(reference) %> {
     <%_ } _%>
-<%_ } _%>
-<%_ for (idx in relationships) {
-        const otherEntityRelationshipName = relationships[idx].otherEntityRelationshipName;
-        const relationshipFieldName = relationships[idx].relationshipFieldName;
-        const relationshipFieldNamePlural = relationships[idx].relationshipFieldNamePlural;
-        const relationshipType = relationships[idx].relationshipType;
-        const otherEntityName = relationships[idx].otherEntityName;
-        const otherEntityNameCapitalized = relationships[idx].otherEntityNameCapitalized;
-        const otherEntityFieldCapitalized = relationships[idx].otherEntityFieldCapitalized;
-        const otherEntityIsEmbedded = relationships[idx].otherEntityIsEmbedded;
-        const ownerSide = relationships[idx].ownerSide;
-        if (typeof relationships[idx].javadoc != 'undefined') { _%>
-<%- formatAsFieldJavadoc(relationships[idx].javadoc) %>
-    @ApiModelProperty(value = "<%- formatAsApiDescription(relationships[idx].javadoc) %>")
-    <%_ }
-        if ((relationshipType === 'many-to-many' && ownerSide === true)
-            || (relationshipType === 'one-to-many' && otherEntityIsEmbedded)) { _%>
-    private Set<<%= asDto(otherEntityNameCapitalized) %>> <%= relationshipFieldNamePlural %> = new HashSet<>();
-    <%_ } else if (relationshipType === 'one-to-one' && ownerSide === true && otherEntityIsEmbedded) { _%>
-    private <%= asDto(otherEntityNameCapitalized) %> <%= relationshipFieldName %>;
-    <%_ } else if (relationshipType === 'many-to-one' || (relationshipType === 'one-to-one' && ownerSide === true)) { _%>
-        <%_ if (relationshipFieldName === 'user' && authenticationType === 'oauth2') { _%>
+        return <%= reference.name %>;
+    }
 
-    private String userId;
-        <%_ } else { _%>
-            <%_ relationships[idx].pkData.forEach(pk => { _%>
-                <%_ if (!relationships[idx].partOfId) { _%>
-
-    private <%= pk.type %> <%= relationships[idx].relationshipName %><%=pk.nameCapitalized %>;
-                <%_ } _%>
-                <%_ if (pk.otherEntityField && !relationships[idx].pkData.some( x => x.name === pk.otherEntityField)) { _%>
-
-    private String <%= pk.formName %><%= _.upperFirst(pk.otherEntityField) %>;
-                <%_ } _%>
-            <%_ });_%>
+    <%_ if (reference.field && reference.field.fieldTypeBlobContent === 'text') { _%>
+    public void <%= buildJavaSetter(reference, `String ${reference.name}`) %> {
+    <%_ } else if (reference.collection && reference.relationship) { _%>
+    public void <%- buildJavaSetter(reference, `Set<${ asDto(reference.relationship.otherEntity.entityNameCapitalized) }> ${reference.name}`) %> {
+    <%_ } else if (reference.relationship) { _%>
+    public void <%= buildJavaSetter(reference, `${ asDto(reference.relationship.otherEntity.entityNameCapitalized) } ${reference.name}`) %> {
+    <%_ } else { _%>
+    public void <%= buildJavaSetter(reference) %> {
         <%_ } _%>
-    <%_ } _%>
-<%_ } _%>
-<%_ pkData.forEach(pk => { _%>
+        this.<%= reference.name %> = <%= reference.name %>;
+    }
+        <%_ if (reference.field && reference.field.fieldWithContentType) { _%>
 
-    public <%= pk.type %> <%= pk.getter %>(){
-        return this.<%= pk.name %>;
+    public String get<%= javaBeanCase(reference.name) %>ContentType() {
+        return <%= reference.name %>ContentType;
     }
 
-    public void <%= pk.setter %>(<%= pk.type %> <%= pk.name %>){
-        this.<%= pk.name %> = <%= pk.name %>;
+    public void set<%= javaBeanCase(reference.name) %>ContentType(String <%= reference.name %>ContentType) {
+        this.<%= reference.name %>ContentType = <%= reference.name %>ContentType;
     }
-<%_ });_%>
-<%_ for (idx in fields) {
-    if (!fields[idx].partOfId) {
-        const fieldType = fields[idx].fieldType;
-        const fieldTypeBlobContent = fields[idx].fieldTypeBlobContent;
-        const fieldInJavaBeanMethod = fields[idx].fieldInJavaBeanMethod;
-        const fieldName = fields[idx].fieldName; _%>
-        <%_ if (fieldTypeBlobContent !== 'text') { _%>
-
-    public <%= fieldType %> <% if (fieldType.toLowerCase() === 'boolean') { %>is<% } else { %>get<%_ } _%><%= fieldInJavaBeanMethod %>() {
-        <%_ } else { _%>
-
-    public String get<%= fieldInJavaBeanMethod %>() {
-        <%_ } _%>
-        return <%= fieldName %>;
-    }
-        <%_ if (fieldTypeBlobContent !== 'text') { _%>
-
-    public void set<%= fieldInJavaBeanMethod %>(<%= fieldType %> <%= fieldName %>) {
-        <%_ } else { _%>
-
-    public void set<%= fieldInJavaBeanMethod %>(String <%= fieldName %>) {
-        <%_ } _%>
-        this.<%= fieldName %> = <%= fieldName %>;
-    }
-        <%_ if ((fieldType === 'byte[]' || fieldType === 'ByteBuffer') && fieldTypeBlobContent !== 'text') { _%>
-
-    public String get<%= fieldInJavaBeanMethod %>ContentType() {
-        return <%= fieldName %>ContentType;
-    }
-
-    public void set<%= fieldInJavaBeanMethod %>ContentType(String <%= fieldName %>ContentType) {
-        this.<%= fieldName %>ContentType = <%= fieldName %>ContentType;
-    }
-        <%_ } _%>
     <%_ } _%>
 <%_ } _%>
-<%_ for (idx in relationships) {
-        relationshipFieldName = relationships[idx].relationshipFieldName,
-        relationshipFieldNamePlural = relationships[idx].relationshipFieldNamePlural,
-        otherEntityName = relationships[idx].otherEntityName,
-        otherEntityNamePlural = relationships[idx].otherEntityNamePlural,
-        otherEntityIsEmbedded = relationships[idx].otherEntityIsEmbedded,
-        relationshipType = relationships[idx].relationshipType,
-        otherEntityNameCapitalized = relationships[idx].otherEntityNameCapitalized,
-        otherEntityFieldCapitalized = relationships[idx].otherEntityFieldCapitalized,
-        relationshipNameCapitalized = relationships[idx].relationshipNameCapitalized,
-        relationshipNameCapitalizedPlural = relationships[idx].relationshipNameCapitalizedPlural,
-        ownerSide = relationships[idx].ownerSide;
-        if ((relationshipType === 'many-to-many' && ownerSide === true)
-                || (relationshipType === 'one-to-many' && otherEntityIsEmbedded)) { _%>
 
-    public Set<<%= asDto(otherEntityNameCapitalized) %>> get<%= relationshipNameCapitalizedPlural %>() {
-        return <%= relationshipFieldNamePlural %>;
-    }
-
-    public void set<%= relationshipNameCapitalizedPlural %>(Set<<%= asDto(otherEntityNameCapitalized) %>> <%= otherEntityNamePlural %>) {
-        this.<%= relationshipFieldNamePlural %> = <%= otherEntityNamePlural %>;
-    }
-    <%_ } else if (relationshipType === 'one-to-one' && ownerSide === true && otherEntityIsEmbedded) { _%>
-
-    public <%= asDto(otherEntityNameCapitalized) %> get<%= relationshipNameCapitalized %>() {
-        return <%= relationshipFieldName %>;
-    }
-
-    public void set<%= relationshipNameCapitalized %>(<%= asDto(otherEntityNameCapitalized) %> <%= otherEntityName %>) {
-        this.<%= relationshipFieldName %> = <%= otherEntityName %>;
-    }
-    <%_ } else if (relationshipType === 'many-to-one' || (relationshipType === 'one-to-one' && ownerSide === true)) { _%>
-    <%_ if (relationshipNameCapitalized.length > 1) { _%>
-        <%_ if (otherEntityName === 'user' && authenticationType === 'oauth2') { _%>
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void set<%= relationshipNameCapitalized %>Id(<% if (otherEntityName === 'user' && authenticationType === 'oauth2') { %>String<% } else { %><%= primaryKeyType %><% } %> <%= otherEntityName %>Id) {
-        this.<%= relationshipFieldName %>Id = <%= otherEntityName %>Id;
-    }
-        <%_ } else { _%>
-            <%_ relationships[idx].pkData.forEach(pk => { _%>
-                <%_ if (!relationships[idx].partOfId) { _%>
-
-    public <%= pk.type %> get<%= relationshipNameCapitalized %><%= pk.nameCapitalized %>() {
-        return <%= relationshipFieldName %><%= pk.nameCapitalized %>;
-    }
-
-    public void set<%= relationshipNameCapitalized %><%= pk.nameCapitalized %>(<%= pk.type %> <%= relationshipFieldName %><%= pk.nameCapitalized %>) {
-        this.<%= relationshipFieldName %><%= pk.nameCapitalized %> = <%= relationshipFieldName %><%= pk.nameCapitalized %>;
-    }
-                <%_ } _%>
-                <%_ if (pk.otherEntityField && !relationships[idx].pkData.some( x => x.name === pk.otherEntityField)) { _%>
-
-    public String get<%= _.upperFirst(pk.formName) %><%= _.upperFirst(pk.otherEntityField) %>() {
-        return <%= pk.formName %><%= _.upperFirst(pk.otherEntityField) %>;
-    }
-
-    public void set<%= _.upperFirst(pk.formName) %><%= _.upperFirst(pk.otherEntityField) %>(String <%= pk.formName %><%= _.upperFirst(pk.otherEntityField) %>) {
-        this.<%= pk.formName %><%= _.upperFirst(pk.otherEntityField) %> = <%= pk.formName %><%= _.upperFirst(pk.otherEntityField) %>;
-    }
-                <%_ } _%>
-            <%_ }); _%>
-        <%_ } _%>
-    <%_ } else { // special case when the entity name has one character _%>
-    public <%= primaryKeyType %> get<%= relationshipNameCapitalized.toLowerCase() %>Id() {
-        return <%= relationshipFieldName %>Id;
-    }
-
-    public void set<%= relationshipNameCapitalized.toLowerCase() %>Id(<%= primaryKeyType %> <%= otherEntityName %>Id) {
-        this.<%= relationshipFieldName %>Id = <%= otherEntityName %>Id;
-    }
-    <%_ } _%>
-    <%_ } } _%>
-
+<%_ const idNames = primaryKey ? (primaryKey.composite ? Array.from(new Set(primaryKey.fields.map(f => f.path[0]))) : [primaryKey.name]) : [] _%>
     @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof <%= dtoClass %>)) {
             return false;
         }
 
         <%_ if (!embedded) { _%>
-        <%= asDto(entityClass) %> <%= asDto(entityInstance) %> = (<%= asDto(entityClass) %>) o;
-        if (<%- pkData.map(f => `${asDto(entityInstance)}.${f.getter}() == null && ${f.getter}() == null`).join(' &&\n            ') %>){
+        <%= dtoClass %> <%= dtoInstance %> = (<%= dtoClass %>) o;
+        if (<%- idNames.map(n => `this.${n} == null`).join(' && ') %>){
             return false;
         }
-        return <%- pkData.map(f => `Objects.equals(${f.getter}(), ${asDto(entityInstance)}.${f.getter}())`).join(' &&\n            ') %>;
+        return <%- idNames.map(n => `Objects.equals(this.${n}, ${dtoInstance}.${n})`).join(' &&\n            ') %>;
         <%_ } else { _%>
         return false;
         <%_ } _%>
@@ -333,51 +164,19 @@ fields = realFields; _%>
     @Override
     public int hashCode() {
     <%_ if (!embedded) { _%>
-        return Objects.hash(<%- pkData.map(f => f.name).join(', ') %>);
+        return Objects.hash(<%- idNames.map(n => `this.${n}`).join(', ') %>);
     <%_ } else { _%>
-        return 31;
+        return getClass().hashCode();
     <%_ } _%>
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
-        return "<%= asDto(entityClass) %>{" +
-            <%_ pkData.forEach(pk => {
-                const isNumeric = ['integer', 'long', 'float', 'double', 'bigdecimal'].includes(pk.type.toLowerCase()); _%>
-            ", <%= pk.name %>=<% if (! isNumeric) {%>'<% } %>" + <%= pk.getter %>() <% if (! isNumeric) { %>+ "'" <% } %>+
-            <%_ }); _%>
-            <%_ for (idx in fields) {
-                const fieldName = fields[idx].fieldName;
-                const fieldType = fields[idx].fieldType;
-                const isNumeric = ['integer', 'long', 'float', 'double', 'bigdecimal'].includes(fieldType.toLowerCase());
-                if(!fields[idx].partOfId) {_%>
-            ", <%= fieldName %>=<% if (! isNumeric) { %>'<% } %>" + <% if (fieldType.toLowerCase() === 'boolean') { %>is<% } else { %>get<% } %><%= fields[idx].fieldInJavaBeanMethod %>() <% if (! isNumeric) { %>+ "'" <% } %>+
-            <%_ }
-            }_%>
-            <%_ for (idx in relationships) {
-                const relationshipFieldName = relationships[idx].relationshipFieldName;
-                const relationshipType = relationships[idx].relationshipType;
-                const relationshipNameCapitalized = relationships[idx].relationshipNameCapitalized;
-                const relationshipFieldNamePlural = relationships[idx].relationshipFieldNamePlural;
-                const relationshipNameCapitalizedPlural = relationships[idx].relationshipNameCapitalizedPlural;
-                const otherEntityName = relationships[idx].otherEntityName;
-                const otherEntityFieldCapitalized = relationships[idx].otherEntityFieldCapitalized;
-                const otherEntityIsEmbedded = relationships[idx].otherEntityIsEmbedded;
-                const ownerSide = relationships[idx].ownerSide; _%>
-                <%_ if (relationshipType === 'many-to-one' || (relationshipType === 'one-to-one' && ownerSide === true)) { _%>
-                    <%_ if (relationshipFieldName === 'user' && authenticationType === 'oauth2') { _%>
-            ", userId='" + getUserId() + "'" +
-                    <%_ } else { _%>
-                        <%_ relationships[idx].pkData.forEach(pk => { _%>
-                            <%_ if (!relationships[idx].partOfId) { _%>
-            ", <%= relationshipFieldName + pk.nameCapitalized %>='" + get<%= relationshipNameCapitalized + pk.nameCapitalized %>() + "'" +
-                            <%_ } _%>
-                            <%_ if (pk.otherEntityField && !relationships[idx].pkData.some( x => x.name === pk.otherEntityField)) { _%>
-            ", <%= pk.formName %><%= _.upperFirst(pk.otherEntityField) %>='" + get<%= _.upperFirst(pk.formName) %><%= _.upperFirst(pk.otherEntityField) %>() + "'" +
-                            <%_ } _%>
-                        <%_ }); _%>
-                    <%_ } _%>
-                <%_ } _%>
+        return "<%= dtoClass %>{" +
+            <%_ for ([idx, reference] of dtoReferences.entries()) {
+                const isNumeric = reference.type && ['integer', 'long', 'float', 'double', 'bigdecimal'].includes(reference.type.toLowerCase()); _%>
+            "<%= idx === 0 ? '' : ', ' %><%= reference.name %>=<% if (! isNumeric) { %>'<% } %>" + <%= buildJavaGet(reference) %> <% if (! isNumeric) { %>+ "'" <% } %>+
             <%_ } _%>
             "}";
     }

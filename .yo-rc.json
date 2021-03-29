@@ -1,9 +1,9 @@
 {
   "generator-jhipster-blueprint": {
     "promptValues": {
-      "githubName": "yelhouti",
+      "githubName": "elhoutico",
       "authorName": "Youssef El Houti",
-      "authorEmail": "elhouti@elhouti.com",
+      "authorEmail": "youssef.elhouti@elhouti.com",
       "authorUrl": "https://elhouti.com"
     }
   }

@@ -20,6 +20,7 @@ const constants = require('generator-jhipster/generators/generator-constants');
 
 /* Constants use throughout */
 const SERVER_MAIN_SRC_DIR = constants.SERVER_MAIN_SRC_DIR;
+const SERVER_TEST_SRC_DIR = constants.SERVER_TEST_SRC_DIR;
 
 /**
  * The default is to use a file path string. It implies use of the template method.
@@ -45,7 +46,24 @@ module.exports = {
 
 function writeFiles() {
     return {
-        writeServerFiles() {
+        fixTestUtil() {
+            if (this.skipServer) return;
+            const fileName = `${SERVER_TEST_SRC_DIR}${this.packageFolder}/web/rest/TestUtil.java`;
+            const result = this.fs
+                .read(fileName)
+                .replace(
+                    'import com.fasterxml.jackson.annotation.JsonInclude;',
+                    `import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.MapperFeature;`
+                )
+                .replace(
+                    'mapper.configure(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS, false);',
+                    `mapper.configure(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS, false);
+        mapper.configure(MapperFeature.USE_ANNOTATIONS, false); // ignores JsonIgnoreProperties for nested composite keys`
+                );
+            this.fs.write(fileName, result);
+        },
+        writeExtraServerFiles() {
             if (this.skipServer) return;
 
             // write server side files

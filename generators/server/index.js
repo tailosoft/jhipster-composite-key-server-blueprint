@@ -14,11 +14,6 @@ module.exports = class extends ServerGenerator {
                 `This is a JHipster blueprint and should be used only like ${chalk.yellow('jhipster --blueprint composite-key-server')}`
             );
         }
-
-        this.configOptions = jhContext.configOptions || {};
-        if (jhContext.databaseType === 'cassandra') {
-            this.error("cassandra doesn't support composite keys");
-        }
     }
 
     get initializing() {
@@ -33,6 +28,18 @@ module.exports = class extends ServerGenerator {
         return this._configuring();
     }
 
+    get composing() {
+        return this._composing();
+    }
+
+    get loading() {
+        return this._loading();
+    }
+
+    get preparing() {
+        return this._preparing();
+    }
+
     get default() {
         return this._default();
     }
@@ -40,16 +47,13 @@ module.exports = class extends ServerGenerator {
     get writing() {
         const phaseFromJHipster = super._writing();
         const customPhaseSteps = {
-            writeServerFiles() {
-                // override the writeServerFiles method from the _writing phase of JHipster
-                writeFiles().writeServerFiles.call(this);
-            }
+            ...writeFiles()
         };
         return Object.assign(phaseFromJHipster, customPhaseSteps);
     }
 
-    get install() {
-        return this._install();
+    get postWriting() {
+        return this._postWriting();
     }
 
     get end() {
