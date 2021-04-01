@@ -301,6 +301,7 @@ function prepareFieldForTemplates(entityWithConfig, field, generator) {
   };
   field.path = [field.fieldName];
   field.derivedPath = [field.fieldName];
+  field.relationshipsPath = [];
   field.reference = fieldToReference(entityWithConfig, field);
 
   return field;
