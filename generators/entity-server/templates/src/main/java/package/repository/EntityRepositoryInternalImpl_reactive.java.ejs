@@ -130,8 +130,8 @@ _%>
 <%_ }); _%>
         SelectFromAndJoin<% if (reactiveEagerRelations.length > 0) { %>Condition<% } %> selectFrom = Select.builder().select(columns).from(entityTable)<%_ reactiveEagerRelations.forEach(function(rel) { %>
             .leftOuterJoin(<%= rel.relationshipName %>Table)
-        <%_ rel.otherEntity.primaryKey.ids.forEach(pk => { _%>
-            .on(Column.create("<%= rel.columnNamePrefix + pk.columnName  %>", entityTable)).equals(Column.create("<%= pk.columnName %>", <%= rel.relationshipName %>Table ))
+        <%_ rel.otherEntity.primaryKey.fields.forEach(field => { _%>
+            .on(Column.create("<%= rel.columnNamePrefix + field.columnName  %>", entityTable)).equals(Column.create("<%= field.columnName %>", <%= rel.relationshipName %>Table ))
         <%_ }); _%>
     <%_ }); _%>;
 

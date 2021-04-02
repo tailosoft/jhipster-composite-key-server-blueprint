@@ -42,23 +42,7 @@ module.exports = class extends EntityServerGenerator {
     }
 
     get default() {
-        return {
-          ...super._default(),
-          ...{
-            useMapsIdRelation() {
-              const jpaDerivedRelation = this.relationships.find(rel => rel.id === true && rel.relationshipType === 'one-to-one');
-              if (jpaDerivedRelation) {
-                this.isUsingMapsId = true;
-                this.mapsIdAssoc = jpaDerivedRelation;
-                this.hasOauthUser = this.mapsIdAssoc.otherEntityName === 'user' && this.authenticationType === 'oauth2';
-              } else {
-                this.isUsingMapsId = false;
-                this.mapsIdAssoc = null;
-                this.hasOauthUser = false;
-              }
-            },
-          }
-        };
+        return super._default();
     }
 
     get writing() {

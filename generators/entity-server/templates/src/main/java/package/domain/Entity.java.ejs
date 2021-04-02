@@ -471,7 +471,7 @@ relationships.forEach((relationship, idx) => {
             <%_ if (relationshipValidate) { _%>
     <%- include('relationship_validators', { relationship }); -%>
             <%_ } _%>
-            <%_ if (isUsingMapsId === true) { %>
+            <%_ if (isUsingMapsId) { %>
     @MapsId
             <%_ } else { _%>
     @JoinColumn(unique = true)
@@ -499,8 +499,12 @@ relationships.forEach((relationship, idx) => {
     @Relationship("<%= relationshipName %>")
         <%_ } _%>
     <%_ if (relationship.id && !reactive) { _%>
+        <% if (relationship.otherEntity.primaryKey.composite) { _%>
+
+        <%_ } else { _%>
+        <%_ } _%>
         <% if (relationship.otherEntity.primaryKey.composite) { %>@JoinColumns({<% } %>
-            <%- relationship.otherEntity.primaryKey.fields.map(field => '@JoinColumn(name = "' + relationship.columnNamePrefix + field.columnName + '", referencedColumnName = "' + field.columnName + '", insertable = false, updatable = false)').join(', ') %>
+            <%- relationship.otherEntity.primaryKey.fields.map(field => '@JoinColumn(name = "' + relationship.columnNamePrefix + field.columnName + '", referencedColumnName = "' + field.columnName + '"' + (relationship.otherEntity.primaryKey.composite ? '' : ', insertable = false, updatable = false') + ")").join(', ') %>
         <% if (relationship.otherEntity.primaryKey.composite) { %>})<% } %>
     <%_ } _%>
     private <%= asEntity(otherEntityNameCapitalized) %> <%= relationshipFieldName %>;

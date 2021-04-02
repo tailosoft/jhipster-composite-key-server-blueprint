@@ -143,14 +143,14 @@ public class <%= serviceClassName %> extends QueryService<<%= persistClass %>> {
                 specification = specification.and((root, query, criteriaBuilder) -> {
                     Root<<%= asEntity(relationship.otherEntityNameCapitalized) %>> <%= relationship.otherEntityName %>Root = query.from(<%= asEntity(relationship.otherEntityNameCapitalized) %>.class);
                     return criteriaBuilder.and(
-                <%_ if (['one-to-one'].includes(relationship.relationshipType)) { _%>
+                <%_ if (['one-to-one'].includes(relationship.relationshipType) && !relationship.otherEntity.primaryKey.composite) { _%>
                     <%_ // this should work, without looking through pk and use pkGetter, the same way it does for manyToMany just by comparing entities, for some reason it doesn't _%>
                     <%_ // issue: https://hibernate.atlassian.net/browse/HHH-14341 _%>
                     <%_ relationship.otherEntity.primaryKey.ids.forEach(pk => {
                         const pkGetter = `get(${asEntity(relationship.otherEntity.entityClass)}_.${pk.name})` _%>
                             criteriaBuilder.equal(<%= relationship.otherEntityName %>Root.<%= pkGetter %>, root.get(<%= asEntity(entityClass) %>_.<%= relationship.relationshipName %>).<%= pkGetter %>),
                     <%_ }) _%>
-                <%_ } else if (['many-to-one'].includes(relationship.relationshipType)) { _%>
+                <%_ } else if (['one-to-one', 'many-to-one'].includes(relationship.relationshipType)) { _%>
                             criteriaBuilder.equal(<%= relationship.otherEntityName %>Root, root.get(<%= persistClass %>_.<%= relationship.relationshipName %>)),
                 <%_ } else { _%>
                             criteriaBuilder.isMember(<%= relationship.otherEntityName %>Root, root.get(<%= asEntity(entityClass) %>_.<%= relationship.relationshipNamePlural %>)),
