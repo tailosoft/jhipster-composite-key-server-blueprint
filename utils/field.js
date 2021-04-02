@@ -115,10 +115,10 @@ const generateFakeDataForField = (field, faker, changelogDate, type = 'csv') => 
     data = '../fake-data/blob/hipster.png';
   } else if (field.fieldType === 'byte[]' && field.fieldTypeBlobContent === 'text') {
     data = '../fake-data/blob/hipster.txt';
+  } else if (field.fieldType === 'UUID' || (field.fieldType === 'String' && field.id)) {
+    data = faker.random.uuid();
   } else if (field.fieldType === 'String') {
     data = faker.fake(fakeStringTemplateForFieldName(field.columnName));
-  } else if (field.fieldType === 'UUID') {
-    data = faker.random.uuid();
   } else if (field.fieldType === 'Boolean') {
     data = faker.random.boolean();
   }
