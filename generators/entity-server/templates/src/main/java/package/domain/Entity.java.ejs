@@ -399,7 +399,7 @@ relationships.forEach((relationship, idx) => {
         if (relationship.otherEntity.primaryKey.ids.length === 1) { _%>
     @JoinColumn(insertable = false, updatable = false)
         <%_ } else { _%>
-    @JoinColumns({<%- relationship.otherEntity.primaryKey.fields.map(field => '@JoinColumn(name = "' + relationship.columnNamePrefix + field.columnName + '", insertable = false, updatable = false)').join(', ') %>})
+    @JoinColumns({<%- relationship.otherEntity.primaryKey.fields.map(field => '@JoinColumn(name = "' + relationship.columnNamePrefix + field.columnName + '", referencedColumnName = "' + field.columnName + '", insertable = false, updatable = false)').join(', ') %>})
         <%_ }
     } _%>
     private <%= asEntity(otherEntityNameCapitalized) %> <%= relationshipFieldName %>;
@@ -421,12 +421,12 @@ relationships.forEach((relationship, idx) => {
     @JoinTable(name = "<%= relationship.joinTable.name %>",
                joinColumns = <%= entity.primaryKey.fields.length > 1 ? '{' : '' %>
                    <%_ entity.primaryKey.fields.forEach((field, idx) => { _%>
-                   <%= idx === 0 ? '' : ',' %>@JoinColumn(name = "<%= `${entityTableName}_${field.columnName}` %>")
+                   <%= idx === 0 ? '' : ',' %>@JoinColumn(name = "<%= `${entityTableName}_${field.columnName}` %>", referencedColumnName = "<%= field.columnName %>")
                    <%_ }); _%>
                <%= entity.primaryKey.fields.length > 1 ? '}' : '' %>,
                inverseJoinColumns = <%= relationship.otherEntity.primaryKey.fields.length > 1 ? '{' : '' %>
                    <%_ relationship.otherEntity.primaryKey.fields.forEach((field, idx) => { _%>
-                   <%= idx === 0 ? '' : ',' %>@JoinColumn(name = "<%= `${relationship.columnName}_${field.columnName}` %>"))
+                   <%= idx === 0 ? '' : ',' %>@JoinColumn(name = "<%= `${relationship.columnName}_${field.columnName}` %>", referencedColumnName = "<%= field.columnName %>"))
                    <%_ }); _%>
                <%= relationship.otherEntity.primaryKey.fields.length > 1 ? '}' : '' %>
         <%_ }
@@ -500,7 +500,7 @@ relationships.forEach((relationship, idx) => {
         <%_ } _%>
     <%_ if (relationship.id && !reactive) { _%>
         <% if (relationship.otherEntity.primaryKey.composite) { %>@JoinColumns({<% } %>
-            <%- relationship.otherEntity.primaryKey.fields.map(field => '@JoinColumn(name = "' + relationship.columnNamePrefix + field.columnName + '", insertable = false, updatable = false)').join(', ') %>
+            <%- relationship.otherEntity.primaryKey.fields.map(field => '@JoinColumn(name = "' + relationship.columnNamePrefix + field.columnName + '", referencedColumnName = "' + field.columnName + '", insertable = false, updatable = false)').join(', ') %>
         <% if (relationship.otherEntity.primaryKey.composite) { %>})<% } %>
     <%_ } _%>
     private <%= asEntity(otherEntityNameCapitalized) %> <%= relationshipFieldName %>;
