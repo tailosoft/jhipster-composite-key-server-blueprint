@@ -33,7 +33,7 @@ function getJavaValueGeneratorForType(type) {
   if (type === 'UUID') {
     return 'UUID.randomUUID()';
   }
-  if (type === 'Long') {
+  if (type === 'Long' || type === 'Integer') {
     return 'count.incrementAndGet()';
   }
   throw new Error(`Java type ${type} does not have a random generator implemented`);
@@ -217,9 +217,9 @@ import java.util.List;
 <%_ if (fieldsContainUUID || primaryKey.type === 'String' || primaryKey.fields.map(f => f.fieldType).some(t => ['String', 'UUID'].includes(t)) || otherEntityPrimaryKeyTypes.includes('UUID')) { _%>
 import java.util.UUID;
 <%_ } _%>
-<%_ if (!embedded && primaryKey.fields.some(field => field.fieldType === 'Long')) { _%>
+<%_ if (!embedded && (primaryKey.fields[0].fieldType === 'Long' || primaryKey.fields[0].fieldType === 'Integer')) { _%>
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.Atomic<%= primaryKey.fields[0].fieldType %>;
 <%_ } _%>
 
 <%_ if (fieldsContainBigDecimal === true) { _%>
@@ -445,10 +445,10 @@ class <%= entityClass %>ResourceIT <% if (databaseType === 'cassandra') { %>exte
     <%_ if (searchEngine !== false) { _%>
     private static final String ENTITY_SEARCH_API_URL = "/api/_search/<%= entityApiUrl %>";
     <%_ } _%>
-<%_ if (!embedded && primaryKey.fields.some(field => field.fieldType === 'Long')) { _%>
+<%_ if (!embedded && primaryKey.fields.some(field => field.fieldType === 'Long' || field.fieldType === 'Integer')) { _%>
 
     private static Random random = new Random();
-    private static AtomicLong count = new AtomicLong(random.nextInt() + ( 2 * Integer.MAX_VALUE ));
+    private static Atomic<%= primaryKey.fields[0].fieldType %> count = new Atomic<%= primaryKey.fields[0].fieldType %>(random.nextInt() + ( <%- primaryKey.fields[0].fieldType === 'Long' ? '2 * Integer.MAX_VALUE' : 'Integer.MAX_VALUE / 2' %> ));
 <%_ } _%>
 
     @Autowired

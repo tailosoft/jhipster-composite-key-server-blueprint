@@ -28,7 +28,7 @@ import java.util.UUID;
 function initDTO(entity, entityNbr = 1) { _%>
     <%= asDto(entity.entityClass) %> <%= asDto(entity.entityInstance) %><%= entityNbr %> = new <%= asDto(entity.entityClass) %>();
     <%_ entity.fields.filter(f => f.id).forEach(f => { _%>
-    <%= asDto(entity.entityInstance) + entityNbr %>.set<%= f.fieldNameCapitalized %>(<%- getPrimaryKeyValue(f.fieldType, databaseType, entityNbr) %>);
+    <%= asDto(entity.entityInstance) + entityNbr %>.set<%= f.fieldNameCapitalized %>(<%- _getPrimaryKeyValue(f.fieldType, databaseType, entityNbr) %>);
     <%_ }) _%>
     <%_ entity.relationships.filter(r => r.id && !(r.relationshipType === 'one-to-one' && !entity.primaryKey.composite)).forEach(r => { _%>
     <%- initDTO(r.otherEntity, entityNbr); _%>

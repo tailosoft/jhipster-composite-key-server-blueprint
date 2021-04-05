@@ -56,4 +56,27 @@ module.exports = class extends EntityServerGenerator {
     get postWriting() {
         return super._postWriting();
     }
+
+    // remove when merged
+    _getPrimaryKeyValue(primaryKey, databaseType = this.jhipsterConfig.databaseType, defaultValue = 1) {
+      if (typeof primaryKey === 'object' && primaryKey.composite) {
+        return `new ${primaryKey.type}(${primaryKey.references
+          .map(ref => this._getPrimaryKeyValue(ref.type, databaseType, defaultValue))
+          .join(', ')})`;
+      }
+      const primaryKeyType = typeof primaryKey === 'string' ? primaryKey : primaryKey.type;
+      if (primaryKeyType === 'String') {
+        if (databaseType === 'sql' && defaultValue === 0) {
+          return 'UUID.randomUUID().toString()';
+        }
+        return `"id${defaultValue}"`;
+      }
+      if (primaryKeyType === 'UUID') {
+        return 'UUID.randomUUID()';
+      }
+      if (primaryKeyType === 'Integer') {
+        return `${defaultValue}`;
+      }
+      return `${defaultValue}L`;
+    }
 };

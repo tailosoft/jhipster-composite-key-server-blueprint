@@ -80,7 +80,7 @@ public interface <%= entityClass %>Mapper extends EntityMapper<<%= dtoClass %>, 
     @Mapping(target = "id.<%= id.name %>", source = "<%= id.nameDotted %>")
         <%_ })
         }
-        for (reference of dtoReferences.filter(reference => reference.relationship)) {
+        for (reference of allReferences.filter(reference => reference.relationship)) {
             if (reference.owned === false) {
                 renMapAnotDto = true; _%>
     @Mapping(target = "<%= reference.name %>", ignore = true)
@@ -119,7 +119,18 @@ otherDtoReferences.map(dtoRef => dtoRef.relationship).filter(r => !!r).forEach(r
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     <%_ relationships.filter(r2 => r2.id).forEach(r2 => { _%>
         @Mapping(target = "<%= r2.relationshipName %>", ignore = true)
-        void partialUpdate(@MappingTarget <%= persistClass %> <%= asEntity(entityInstance) %>, <%= dtoClass %> <%= asDto(entityInstance) %>);
+        <%_ if(primaryKey.composite) { _%>
+        @Mapping(target = "id", ignore = true)
+        <%_ } _%>
+        <%_ for (reference of allReferences.filter(reference => reference.relationship)) { _%>
+            <%_ if (reference.owned === false) { _%>
+        @Mapping(target = "<%= reference.name %>", ignore = true)
+            <%_ } _%>
+            <%_ if (reference.collection && fluentMethods) {_%>
+        @Mapping(target = "remove<%= reference.relationship.relationshipNameCapitalized %>", ignore = true)
+            <%_ } _%>
+        <%_ } _%>
+    void partialUpdate(@MappingTarget <%= persistClass %> <%= asEntity(entityInstance) %>, <%= dtoClass %> <%= asDto(entityInstance) %>);
     <%_ }); _%>
 <%_ } _%>
     <%_ if (uuidMapMethod) { _%>

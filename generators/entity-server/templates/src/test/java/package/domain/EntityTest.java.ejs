@@ -30,9 +30,9 @@ class <%= persistClass %>Test {
 <%_
 function computeValue(entityNbr = 1) {
     if (primaryKey.composite) {
-        return `new ${primaryKey.type}(${primaryKey.ids.map(pk => getPrimaryKeyValue(pk.field.fieldType, databaseType, entityNbr)).join(', ')})`;
+        return `new ${primaryKey.type}(${primaryKey.ids.map(pk => _getPrimaryKeyValue(pk.field.fieldType, databaseType, entityNbr)).join(', ')})`;
     } else {
-        return getPrimaryKeyValue(primaryKey.ids[0].field.fieldType, databaseType, entityNbr)
+        return _getPrimaryKeyValue(primaryKey.ids[0].field.fieldType, databaseType, entityNbr)
     }
 }
 _%>
