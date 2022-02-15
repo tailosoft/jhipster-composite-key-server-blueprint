@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2021 the original author or authors from the JHipster project.
+ Copyright 2013-2022 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -105,7 +105,8 @@ _%>
         <loadData
                   file="config/liquibase/fake-data/<%= !entity.incrementalChangelog ? entity.entityTableName : databaseChangelog.changelogDate + '_entity_' + entity.entityTableName %>.csv"
                   separator=";"
-                  tableName="<%= entity.entityTableName %>">
+                  tableName="<%= entity.entityTableName %>"
+                  usePreparedStatements="true">
     <%_ for (field of fields) { _%>
             <column name="<%= field.columnName %>" type="<%= field.loadColumnType %>"/>
         <%_ if (field.fieldType === 'byte[]' && field.fieldTypeBlobContent !== 'text') { _%>

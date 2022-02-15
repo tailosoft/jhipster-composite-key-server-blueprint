@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2021 the original author or authors from the JHipster project.
+ Copyright 2013-2022 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -75,7 +75,7 @@ for (lineNb = 0; lineNb < entity.fakeDataCount; lineNb++) {
       const otherLiquibaseFakeData = relationship.otherEntity.liquibaseFakeData;
       let relationshipRow = lineNb;
       if (relationshipRow >= relationship.otherEntity.fakeDataCount && !relationship.unique) {
-        relationshipRow = entity.faker.random.number({min: 1, max: relationship.otherEntity.fakeDataCount}) - 1;
+        relationshipRow = entity.faker.datatype.number({min: 1, max: relationship.otherEntity.fakeDataCount}) - 1;
       }
       if (relationshipRow < relationship.otherEntity.fakeDataCount) {
         line.push(otherLiquibaseFakeData[relationshipRow][relationship.otherEntity.primaryKey.name]);

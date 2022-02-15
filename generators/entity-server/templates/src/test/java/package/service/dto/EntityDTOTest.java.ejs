@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2021 the original author or authors from the JHipster project.
+ Copyright 2013-2022 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -16,7 +16,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -%>
-package <%= packageName %>.service.dto;
+package <%= entityAbsolutePackage %>.service.dto;
 
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,7 +28,7 @@ if (!embedded) {
     id1 = getPrimaryKeyValue(primaryKey.type, databaseType, '1');
     id2 = getPrimaryKeyValue(primaryKey.type, databaseType, '2');
 } %>
-<%_ if (primaryKey && primaryKey.fields.some(field => field.fieldType === 'UUID')) { _%>
+<%_ if (primaryKey && primaryKey.hasUUID) { _%>
 import java.util.UUID;
 <%_ } _%>
 
@@ -37,7 +37,7 @@ class <%= dtoClass %>Test {
     @Test
     void dtoEqualsVerifier() throws Exception {
         TestUtil.equalsVerifier(<%= dtoClass %>.class);
-        <%_if (!embedded) { _%>
+<%_if (!embedded) { _%>
         <%= dtoClass %> <%= dtoInstance %>1 = new <%= dtoClass %>();
         <%= dtoInstance %>1.set<%= primaryKey.nameCapitalized %>(<%- id1 %>);
         <%= dtoClass %> <%= dtoInstance %>2 = new <%= dtoClass %>();
@@ -48,6 +48,6 @@ class <%= dtoClass %>Test {
         assertThat(<%= dtoInstance %>1).isNotEqualTo(<%= dtoInstance %>2);
         <%= dtoInstance %>1.set<%= primaryKey.nameCapitalized %>(null);
         assertThat(<%= dtoInstance %>1).isNotEqualTo(<%= dtoInstance %>2);
-        <%_} _%>
+<%_ } _%>
     }
 }

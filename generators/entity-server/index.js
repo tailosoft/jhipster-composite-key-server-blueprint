@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2021 the original author or authors from the JHipster project.
+ * Copyright 2013-2022 the original author or authors from the JHipster project.
  *
  * This file is part of the JHipster project, see https://www.jhipster.tech/
  * for more information.
@@ -17,24 +17,33 @@
  * limitations under the License.
  */
 /* eslint-disable consistent-return */
+const BaseBlueprintGenerator = require('../generator-base-blueprint');
+const { INITIALIZING_PRIORITY, PREPARING_PRIORITY, DEFAULT_PRIORITY, WRITING_PRIORITY, PREPARING_FIELDS_PRIORITY, POST_WRITING_PRIORITY } =
+  require('../../lib/constants/priorities.cjs').compat;
+
 const constants = require('../generator-constants');
 const { writeFiles, customizeFiles } = require('./files');
 const utils = require('../utils');
-const BaseBlueprintGenerator = require('../generator-base-blueprint');
+const { GENERATOR_ENTITY_SERVER } = require('../generator-list');
+const { OAUTH2, SESSION } = require('../../jdl/jhipster/authentication-types');
+const { SQL } = require('../../jdl/jhipster/database-types');
 const { isReservedTableName } = require('../../jdl/jhipster/reserved-keywords');
 
 /* constants used throughout */
-let useBlueprints;
 
 module.exports = class extends BaseBlueprintGenerator {
-  constructor(args, opts) {
-    super(args, opts);
+  constructor(args, options, features) {
+    super(args, options, features);
 
-    this.entity = opts.context;
+    this.entity = this.options.context;
 
-    this.jhipsterContext = opts.jhipsterContext || opts.context;
+    this.jhipsterContext = this.options.jhipsterContext || this.options.context;
+  }
 
-    useBlueprints = !this.fromBlueprint && this.instantiateBlueprints('entity-server', { context: opts.context });
+  async _postConstruct() {
+    if (!this.fromBlueprint) {
+      await this.composeWithBlueprints(GENERATOR_ENTITY_SERVER, { context: this.options.context });
+    }
   }
 
   // Public API method used by the getter and also by Blueprints
@@ -47,9 +56,27 @@ module.exports = class extends BaseBlueprintGenerator {
     };
   }
 
-  get initializing() {
-    if (useBlueprints) return;
+  get [INITIALIZING_PRIORITY]() {
+    if (this.delegateToBlueprint) return {};
     return this._initializing();
+  }
+
+  _preparing() {
+    return {
+      validateDatabaseSafety() {
+        const entity = this.entity;
+        if (isReservedTableName(entity.entityInstance, entity.prodDatabaseType) && entity.jhiPrefix) {
+          entity.entityInstanceDbSafe = `${entity.jhiPrefix}${entity.entityClass}`;
+        } else {
+          entity.entityInstanceDbSafe = entity.entityInstance;
+        }
+      },
+    };
+  }
+
+  get [PREPARING_PRIORITY]() {
+    if (this.delegateToBlueprint) return {};
+    return this._preparing();
   }
 
   // Public API method used by the getter and also by Blueprints
@@ -64,11 +91,20 @@ module.exports = class extends BaseBlueprintGenerator {
         const derivedFields = this.entity.primaryKey.derivedFields;
         this.entity.fields.unshift(...derivedFields);
       },
+      processFieldType() {
+        this.entity.fields.forEach(field => {
+          if (field.blobContentTypeText) {
+            field.javaFieldType = 'String';
+          } else {
+            field.javaFieldType = field.fieldType;
+          }
+        });
+      },
     };
   }
 
-  get preparingFields() {
-    if (useBlueprints) return;
+  get [PREPARING_FIELDS_PRIORITY]() {
+    if (this.delegateToBlueprint) return {};
     return this._preparingFields();
   }
 
@@ -79,7 +115,7 @@ module.exports = class extends BaseBlueprintGenerator {
       loadConfigIntoGenerator() {
         utils.copyObjectProps(this, this.entity);
 
-        this.testsNeedCsrf = ['oauth2', 'session'].includes(this.entity.authenticationType);
+        this.testsNeedCsrf = [OAUTH2, SESSION].includes(this.entity.authenticationType);
         this.officialDatabaseType = constants.OFFICIAL_DATABASE_TYPE_NAMES[this.entity.databaseType];
       },
 
@@ -115,11 +151,10 @@ module.exports = class extends BaseBlueprintGenerator {
       },
 
       useMapsIdRelation() {
-        const jpaDerivedRelation = this.relationships.find(rel => rel.id === true);
-        if (jpaDerivedRelation) {
+        if (this.primaryKey && this.primaryKey.derived) {
           this.isUsingMapsId = true;
-          this.mapsIdAssoc = jpaDerivedRelation;
-          this.hasOauthUser = this.mapsIdAssoc.otherEntityName === 'user' && this.authenticationType === 'oauth2';
+          this.mapsIdAssoc = this.relationships.find(rel => rel.id);
+          this.hasOauthUser = this.mapsIdAssoc.otherEntityName === 'user' && this.authenticationType === OAUTH2;
         } else {
           this.isUsingMapsId = false;
           this.mapsIdAssoc = null;
@@ -128,24 +163,28 @@ module.exports = class extends BaseBlueprintGenerator {
       },
 
       processUniqueEntityTypes() {
+        this.reactiveOtherEntities = new Set(this.reactiveEagerRelations.map(rel => rel.otherEntity));
         this.reactiveUniqueEntityTypes = new Set(this.reactiveEagerRelations.map(rel => rel.otherEntityNameCapitalized));
         this.reactiveUniqueEntityTypes.add(this.entityClass);
       },
     };
   }
 
-  get default() {
-    if (useBlueprints) return;
+  get [DEFAULT_PRIORITY]() {
+    if (this.delegateToBlueprint) return {};
     return this._default();
   }
 
   // Public API method used by the getter and also by Blueprints
   _writing() {
-    return { ...writeFiles(), ...super._missingPostWriting() };
+    return {
+      ...writeFiles(),
+      ...super._missingPostWriting(),
+    };
   }
 
-  get writing() {
-    if (useBlueprints) return;
+  get [WRITING_PRIORITY]() {
+    if (this.delegateToBlueprint) return {};
     return this._writing();
   }
 
@@ -158,8 +197,8 @@ module.exports = class extends BaseBlueprintGenerator {
     };
   }
 
-  get postWriting() {
-    if (useBlueprints) return;
+  get [POST_WRITING_PRIORITY]() {
+    if (this.delegateToBlueprint) return {};
     return this._postWriting();
   }
 
@@ -172,7 +211,7 @@ module.exports = class extends BaseBlueprintGenerator {
   }
 
   _generateSqlSafeName(name) {
-    if (isReservedTableName(name, 'sql')) {
+    if (isReservedTableName(name, SQL)) {
       return `e_${name}`;
     }
     return name;

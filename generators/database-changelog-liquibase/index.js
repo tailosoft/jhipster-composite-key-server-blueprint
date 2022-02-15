@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2021 the original author or authors from the JHipster project.
+ * Copyright 2013-2022 the original author or authors from the JHipster project.
  *
  * This file is part of the JHipster project, see https://www.jhipster.tech/
  * for more information.
@@ -20,10 +20,19 @@ const assert = require('assert');
 const _ = require('lodash');
 
 const BaseBlueprintGenerator = require('../generator-base-blueprint');
+const {
+  LOADING_PRIORITY,
+  PREPARING_PRIORITY,
+  DEFAULT_PRIORITY,
+  WRITING_PRIORITY,
+  PREPARING_RELATIONSHIPS_PRIORITY,
+  POST_WRITING_PRIORITY,
+} = require('../../lib/constants/priorities.cjs').compat;
 const { addEntityFiles, updateEntityFiles, updateConstraintsFiles, updateMigrateFiles, fakeFiles } = require('./files');
 const { SQL } = require('../../jdl/jhipster/database-types');
 const { stringify } = require('../../utils');
 const { CommonDBTypes } = require('../../jdl/jhipster/field-types');
+const { GENERATOR_DATABASE_CHANGELOG_LIQUIBASE } = require('../generator-list');
 
 const TYPE_LONG = CommonDBTypes.LONG;
 
@@ -34,11 +43,12 @@ const { prepareFieldForTemplates } = require('../../utils/field');
 const { prepareRelationshipForTemplates } = require('../../utils/relationship');
 const { prepareFieldForLiquibaseTemplates } = require('../../utils/liquibase');
 
-let useBlueprints;
 /* eslint-disable consistent-return */
 module.exports = class extends BaseBlueprintGenerator {
-  constructor(args, options) {
-    super(args, options);
+  constructor(args, options, features) {
+    super(args, options, features);
+
+    if (this.options.help) return;
 
     assert(this.options.databaseChangelog, 'Changelog is required');
     this.databaseChangelog = this.options.databaseChangelog;
@@ -48,22 +58,30 @@ module.exports = class extends BaseBlueprintGenerator {
 
     // Set number of rows to be generated
     this.numberOfRows = 10;
-    useBlueprints = !this.fromBlueprint && this.instantiateBlueprints('database-changelog-liquibase');
+  }
+
+  async _postConstruct() {
+    if (!this.fromBlueprint) {
+      await this.composeWithBlueprints(GENERATOR_DATABASE_CHANGELOG_LIQUIBASE);
+    }
   }
 
   _loading() {
     return {
       loadSharedConfig() {
         this.loadAppConfig();
+        this.loadDerivedAppConfig();
         this.loadClientConfig();
+        this.loadDerivedClientConfig();
         this.loadServerConfig();
         this.loadTranslationConfig();
+        this.loadPlatformConfig();
       },
     };
   }
 
-  get loading() {
-    if (useBlueprints) return;
+  get [LOADING_PRIORITY]() {
+    if (this.delegateToBlueprint) return {};
     return this._loading();
   }
 
@@ -92,15 +110,6 @@ module.exports = class extends BaseBlueprintGenerator {
             .filter(field => !field.transient)
             .map(field => prepareFieldForLiquibaseTemplates(this.entity, field));
         }
-      },
-
-      setupReproducibility() {
-        if (this.jhipsterConfig.skipServer || this.entity.skipServer) {
-          return;
-        }
-
-        // In order to have consistent results with Faker, restart seed with current entity name hash.
-        this.entity.resetFakerSeed();
       },
 
       prepareFakeData() {
@@ -151,8 +160,8 @@ module.exports = class extends BaseBlueprintGenerator {
     };
   }
 
-  get preparing() {
-    if (useBlueprints) return;
+  get [PREPARING_PRIORITY]() {
+    if (this.delegateToBlueprint) return {};
     return this._preparing();
   }
 
@@ -196,8 +205,8 @@ module.exports = class extends BaseBlueprintGenerator {
     };
   }
 
-  get preparingRelationships() {
-    if (useBlueprints) return;
+  get [PREPARING_RELATIONSHIPS_PRIORITY]() {
+    if (this.delegateToBlueprint) return {};
     return this._preparingRelationships();
   }
 
@@ -211,8 +220,8 @@ module.exports = class extends BaseBlueprintGenerator {
     };
   }
 
-  get default() {
-    if (useBlueprints) return;
+  get [DEFAULT_PRIORITY]() {
+    if (this.delegateToBlueprint) return {};
     return this._default();
   }
 
@@ -255,8 +264,8 @@ module.exports = class extends BaseBlueprintGenerator {
     };
   }
 
-  get writing() {
-    if (useBlueprints) return;
+  get [WRITING_PRIORITY]() {
+    if (this.delegateToBlueprint) return {};
     if (this.options.skipWriting) {
       return {};
     }
@@ -288,8 +297,8 @@ module.exports = class extends BaseBlueprintGenerator {
     };
   }
 
-  get postWriting() {
-    if (useBlueprints) return;
+  get [POST_WRITING_PRIORITY]() {
+    if (this.delegateToBlueprint) return {};
     if (this.options.skipWriting) {
       return {};
     }
