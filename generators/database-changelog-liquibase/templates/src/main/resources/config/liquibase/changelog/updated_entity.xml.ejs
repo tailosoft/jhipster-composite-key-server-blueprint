@@ -76,13 +76,15 @@
     <changeSet id="<%= changelogDate %>-1-add-relationships" author="jhipster">
         <%_ if (hasRelationShips) { _%>
         <addColumn tableName="<%= entity.entityTableName %>"<%- formatAsLiquibaseRemarks(entity.javadoc, true) %>>
-            <%_
-            for (relationship of addedRelationships) {
-                relationshipColumnType = relationship.otherEntityName === 'user' && authenticationTypeOauth2 ? 'varchar(100)' : 'bigint';
-                if (relationship.shouldWriteRelationship) { _%>
-                <column name="<%= relationship.columnName %>_id" type="<%= relationshipColumnType %>"/>
-                <%_ } _%>
+
+    <%_ for (relationship of addedRelationships) {
+            if (relationship.shouldWriteRelationship) {
+                _%>
+                <%_ relationship.otherEntity.primaryKey.fields.forEach(field => { _%>
+            <column name="<%= relationship.columnNamePrefix + field.columnName %>" type="<%= field.columnType %>"/>
+                <%_ }) _%>
             <%_ } _%>
+    <%_  } _%>
         </addColumn>
         <% } %>
         <%_ const joinTableRelations = addedRelationships.filter(rel => rel.shouldWriteJoinTable);
@@ -105,8 +107,8 @@
 
         <addPrimaryKey columnNames="<%= entity.primaryKey.fields.map(field => `${entity.entityTableName}_${field.referencedColumnName}`).join(', ') %>, <%= relationship.otherEntity.primaryKey.fields.map(field => `${relationship.columnName}_${field.columnName}`).join(', ') %>" tableName="<%= relationship.joinTable.name %>"/>
             <%_ } _%>
-    </changeSet>
         <%_ } _%>
+    </changeSet>
     <%_ } _%>
 <%_ } _%>
 <%_
@@ -144,9 +146,11 @@ if (removedRelationships && removedRelationships.length) {
         <%_
             /* ======== Start drop relationship column ======== */
             for (relationship of removedRelationships) {
-                if (relationship.shouldWriteRelationship) { _%>
-            <column name="<%= relationship.columnName %>_id"/>
-        <%_     }
+                if (relationship.shouldWriteRelationship) {
+                    relationship.otherEntity.primaryKey.fields.forEach(field => { _%>
+                        <column name="<%= relationship.columnNamePrefix + field.columnName %>" type="<%= field.columnType %>"/>
+                    <%_ })
+                 }
             }
             /* ======== End drop relationship column ======== */ _%>
         </dropColumn>
