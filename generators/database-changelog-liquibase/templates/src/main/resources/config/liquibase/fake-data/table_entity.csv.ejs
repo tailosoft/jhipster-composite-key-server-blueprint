@@ -21,7 +21,7 @@ let table = [];
 
 // Generate CSV header
 let header = [];
-const fieldsToGenerate = [...entity.fields.filter(f => f.id), ...fields.filter(f => !(f.derived) && !f.id)];
+const fieldsToGenerate = [...allFields.filter(f => f.id), ...fields.filter(f => !f.id)];
 for (field of fieldsToGenerate) {
   header.push(field.columnName);
   if (field.fieldType === 'byte[]' && field.fieldTypeBlobContent !== 'text') {
@@ -33,7 +33,7 @@ const relationshipsToGenerate = [...entity.relationships.filter(r => r.id), ...r
 for (relationship of relationshipsToGenerate) {
   const relationshipType = relationship.relationshipType
   if (
-    (relationshipType === "many-to-one" || (relationshipType === "one-to-one" && relationship.ownerSide === true)) &&
+    (relationshipType === "many-to-one" || (relationshipType === "one-to-one" && relationship.ownerSide === true && (relationship.id == null || relationship.id === false))) &&
           ((relationship.relationshipValidate === true && relationship.relationshipRequired) || relationship.id)
   ) {
     relationship.otherEntity.primaryKey.fields.forEach(field => {
@@ -61,7 +61,7 @@ for (lineNb = 0; lineNb < entity.fakeDataCount; lineNb++) {
     }
 
     line.push(data);
-    if (field.columnType === 'blob' || field.columnType === 'longblob') {
+    if (field.columnType === 'blob' || field.columnType === '${blobType}' || field.columnType === 'longblob') {
       line.push('image/png');
     }
   }
@@ -69,7 +69,7 @@ for (lineNb = 0; lineNb < entity.fakeDataCount; lineNb++) {
   for (relationship of relationshipsToGenerate) {
     const relationshipType = relationship.relationshipType;
     if (
-      (relationshipType === "many-to-one" || (relationshipType === "one-to-one" && relationship.ownerSide === true)) &&
+      (relationshipType === "many-to-one" || (relationshipType === "one-to-one" && relationship.ownerSide === true && (relationship.id == null || relationship.id === false))) &&
             ((relationship.relationshipValidate === true && relationship.relationshipRequired) || relationship.id)
     ) {
       relationship.otherEntity.primaryKey.fields.forEach(field => {
