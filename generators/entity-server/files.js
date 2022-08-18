@@ -295,6 +295,7 @@ function writeFiles() {
           ...utils.getEnumInfo(field, this.clientRootFolder),
           frontendAppName: this.frontendAppName,
           packageName: this.packageName,
+          entityAbsolutePackage: this.entityAbsolutePackage || this.packageName,
         };
         // eslint-disable-next-line no-console
         if (!this.skipServer) {

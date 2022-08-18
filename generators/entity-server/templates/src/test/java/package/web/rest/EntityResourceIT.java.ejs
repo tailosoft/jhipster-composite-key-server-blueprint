@@ -1,5 +1,5 @@
 <%#
- Copyright 2013-2021 the original author or authors from the JHipster project.
+ Copyright 2013-2022 the original author or authors from the JHipster project.
 
  This file is part of the JHipster project, see https://www.jhipster.tech/
  for more information.
@@ -142,7 +142,7 @@ import org.junit.jupiter.api.AfterEach;
 <%_ } _%>
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-<%_ if (searchEngine === 'elasticsearch' || fieldsContainOwnerManyToMany || cacheProvider === 'redis' || databaseType === 'neo4j' || reactiveSqlTestContainers) { _%>
+<%_ if (implementsEagerLoadApis || databaseTypeNeo4j || fieldsContainOwnerManyToMany ) { _%>
 import org.mockito.Mock;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
